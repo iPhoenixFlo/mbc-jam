@@ -465,9 +465,11 @@ const TEAMS = [
 ];
 const DIFF = [
   { react: 1.7, err: 0.18, steal: 0.15, shove: 0.08, dunk: 0.55, shot: -0.14, turbo: 0.45 },
-  { react: 1.15, err: 0.11, steal: 0.3, shove: 0.16, dunk: 0.75, shot: -0.05, turbo: 0.65 },
+  { react: 1.45, err: 0.15, steal: 0.19, shove: 0.09, dunk: 0.62, shot: -0.11, turbo: 0.55 },
   { react: 0.75, err: 0.05, steal: 0.5, shove: 0.3, dunk: 1, shot: 0.05, turbo: 0.9 }];
 // Niveau d'IA continu (0 = facile, 2 = difficile) : sert au tournoi et à la difficulté adaptative
+// Coéquipier IA du joueur humain : toujours le même niveau, quel que soit le réglage de l'adversaire
+const TEAMMATE = { react: 1.15, err: 0.11, steal: 0.3, shove: 0.16, dunk: 0.75, shot: -0.05, turbo: 0.65 };
 function lerpDiff(x) {
   x = clamp(x, 0, 2); const i = Math.min(1, Math.floor(x)), t = x - i, a = DIFF[i], b = DIFF[i + 1], o = {};
   for (const key in a) o[key] = lerp(a[key], b[key], t);
@@ -864,7 +866,7 @@ function doSteal(p, shove) {
     if (v) { knock(v, p); if (!p.fire) p.turbo = Math.max(0, p.turbo - (human ? 0.15 : 0.25)); p.stealMiss = 0; return; }
   }
   if (ok(o) && planar(p, o) < range) {
-    const base = human ? 0.42 + 0.15 * (p.stealMiss || 0) : 0.22 * (humanTeams.includes(o.team) ? 0.75 : 1);
+    const base = human ? 0.42 + 0.15 * (p.stealMiss || 0) : 0.22 * (humanTeams.includes(o.team) ? 0.6 : 1);
     if (Math.random() < base * p.a.steal * (o.h > 0.1 ? 0.5 : 1)) {
       p.stealMiss = 0;
       give(p, 'steal'); p.stats.steals++; jamEvent(p.team, 'steal', p); o.noPick = 0.4; Sfx.steal(); announce(pick(MSG.steal)); return;
@@ -1049,7 +1051,7 @@ function updateDefAssign() {
 // ---------- IA ----------
 function aiIntent(p, dt) {
   const it = { mx: 0, mz: 0, turbo: false, shoot: false, pass: false };
-  const A = p.ai, dif = humanTeams.includes(p.team) ? DIFF[1] : aiDiff();
+  const A = p.ai, dif = humanTeams.includes(p.team) ? TEAMMATE : aiDiff();
   A.t -= dt; A.spotT -= dt;
   const atk = HOOPS[p.team], def = HOOPS[1 - p.team], mate = T[p.team][1 - p.i];
   let tx = p.x, tz = p.z, turbo = false;
@@ -1366,8 +1368,8 @@ function update(dt) {
 
   if (humanTeams.length === 1) {
     const lead = game.score[humanTeams[0]] - game.score[1 - humanTeams[0]];
-    const target = lead < -8 ? -0.8 : lead < -4 ? -0.4 : lead > 14 ? 0.35 : lead > 8 ? 0.15 : 0;
-    game.adapt = (game.adapt || 0) + (target - (game.adapt || 0)) * Math.min(1, dt * 0.25);
+    const target = lead < -6 ? -0.9 : lead < -2 ? -0.45 : lead > 16 ? 0.3 : lead > 10 ? 0.12 : 0;
+    game.adapt = (game.adapt || 0) + (target - (game.adapt || 0)) * Math.min(1, dt * 0.4);
   }
   if (st === 'play' && !game.clockExpired) {
     game.clock -= dt;
