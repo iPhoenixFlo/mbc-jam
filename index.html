@@ -335,7 +335,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
   <div class="overlay" id="tour" hidden>
     <div class="panel">
       <h2 class="title">Tournoi MBC</h2>
-      <p class="sub">Bats les 5 équipes à la suite pour devenir champion. Une défaite ne fait rien perdre : tu rejoues le même match.</p>
+      <p class="sub">Bats les 5 équipes à la suite pour devenir champion. Matchs en 2 mi-temps. Une défaite ne fait rien perdre : tu rejoues le même match.</p>
       <ol class="ladder" id="ladder"></ol>
       <div class="row">
         <button class="btn" id="tourPlayBtn" type="button">Jouer</button>
@@ -673,7 +673,9 @@ function newGame(demo) {
 
 function banner(text, sub, dur = 1.6, color) { ann = { text, sub, t: 0, dur, color }; NET.ev({ k: 'b', t: text, u: sub || '', d: dur, c: color || '' }); }
 function announce(text, color) { banner(text, null, 1.3, color); Voice.say(text); NET.ev({ k: 'v', t: text }); }
-function qName(q) { return q > 4 ? 'PROLONGATION' : ['', '1er', '2e', '3e', '4e'][q] + ' QUART-TEMPS'; }
+// Un match se joue en 4 quart-temps, ou en 2 mi-temps (tournoi)
+const periods = () => (game && game.periods) || 4;
+function qName(q) { return q > periods() ? 'PROLONGATION' : periods() === 2 ? ['', 'PREMIÈRE', 'SECONDE'][q] + ' MI-TEMPS' : ['', '1er', '2e', '3e', '4e'][q] + ' QUART-TEMPS'; }
 
 // IA adverse : niveau de base (réglage ou étape du tournoi) + ajustement selon le score
 let aiDiffCache = null, aiDiffKey = '';
@@ -716,18 +718,18 @@ function inbound(team, full) {
 
 function endQuarter() {
   game.state = 'qend'; game.timer = 2.6;
-  game.final = game.q >= 4 && game.score[0] !== game.score[1];
+  game.final = game.q >= periods() && game.score[0] !== game.score[1];
   if (game.final) banner('FIN DU MATCH', game.score[0] > game.score[1] ? 'Victoire MBC !' : 'Victoire des visiteurs', 2.4);
-  else banner(game.q === 2 ? 'MI-TEMPS' : 'FIN DU ' + qName(game.q), `${game.score[0]} – ${game.score[1]}`, 2.4);
+  else banner(game.q === periods() / 2 ? 'MI-TEMPS' : game.q > periods() ? 'FIN DE LA PROLONGATION' : periods() === 2 ? 'FIN DU TEMPS RÉGLEMENTAIRE' : 'FIN DU ' + qName(game.q), `${game.score[0]} – ${game.score[1]}`, 2.4);
   Sfx.cheer(0.8);
 }
 function nextPeriod() {
-  game.q++; game.clock = game.q > 4 ? 60 : (game.demo ? 45 : cfg.qlen); game.clockExpired = false;
+  game.q++; game.clock = game.q > periods() ? 60 : (game.demo ? 45 : cfg.qlen); game.clockExpired = false;
   const team = ((game.tipWinner ?? 0) + game.q + 1) % 2;
   players.forEach(p => { p.turbo = 1; });
   inbound(team, true);
   game.state = 'intro'; game.timer = 1.8;
-  banner(qName(game.q), game.q > 4 ? 'Égalité, 1 minute de plus' : null);
+  banner(qName(game.q), game.q > periods() ? 'Égalité, 1 minute de plus' : null);
 }
 function gameOver() {
   game.state = 'over';
@@ -1923,7 +1925,7 @@ function hudTick() {
   const c = Math.max(0, game.clock);
   setText('clock', c < 10 ? c.toFixed(1) : `${Math.floor(c / 60)}:${String(Math.floor(c % 60)).padStart(2, '0')}`);
   $('#clock').classList.toggle('low', c < 10);
-  setText('qtr', game.q > 4 ? 'Prolong.' : ['', '1er', '2e', '3e', '4e'][game.q] + ' QT');
+  setText('qtr', game.q > periods() ? 'Prolong.' : periods() === 2 ? (game.q === 1 ? '1re MT' : '2e MT') : ['', '1er', '2e', '3e', '4e'][game.q] + ' QT');
   const sc = Math.ceil(Math.max(0, game.shotClock));
   setText('shot', String(sc)); $('#shot').classList.toggle('low', sc <= 5);
   for (const h of hudBars) {
@@ -2109,7 +2111,7 @@ function finishProgress(won) {
   const J = game.jam, d = Profile.d, margin = game.score[0] - game.score[1];
   // Score JAM final, ramené à un match de 4 × 2 min et pondéré par le niveau adverse
   const base = J.score + (won ? 1000 + margin * 40 : 0);
-  const score = Math.round(base * (0.8 + 0.2 * game.diffBase) * 480 / (4 * cfg.qlen) / 10) * 10;
+  const score = Math.round(base * (0.8 + 0.2 * game.diffBase) * 480 / (periods() * cfg.qlen) / 10) * 10;
   const grade = gradeOf(score);
   for (const ch of game.challenges) if (ch.c.end && !ch.done && ch.c.val(J) >= ch.c.goal) ch.done = true;
   const before = new Set(unlockedKeys()), lvlBefore = Profile.level, xpBefore = d.xp;
@@ -2597,6 +2599,7 @@ function startGame(kind = 'quick') {
   setOpponent(tour ? TOUR[Profile.d.tour.stage] : null); applyCosmetics();
   newGame(false); paused = false;
   game.kind = tour ? 'tour' : 'quick';
+  if (tour) game.periods = 2;
   game.diffBase = tour ? TOUR[Profile.d.tour.stage].diff : cfg.diff;
   if (humanTeams.length === 1) { game.challenges = pickChallenges(); renderHudChal(); }
   if (tour) banner(TOUR[Profile.d.tour.stage].name, `Tournoi · match ${Profile.d.tour.stage + 1} sur ${TOUR.length}`, 2.2);
