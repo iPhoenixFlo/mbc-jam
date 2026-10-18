@@ -121,9 +121,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
 .tbtn.on{background:var(--club);transform:scale(.92);border-color:#fff}
 .tbtn[data-b="shoot"]{right:0;bottom:0;width:86px;height:86px;font-size:15px}
 .tbtn[data-b="pass"]{right:100px;bottom:0;width:70px;height:70px}
-.tbtn[data-b="turbo"]{right:12px;bottom:100px;width:64px;height:64px;background:rgba(40,150,80,.65)}
-.tbtn[data-b="turbo"].on{background:#2fae62}
-.tbtn[data-b="sw"]{right:96px;bottom:92px;width:58px;height:58px;font-size:10px;background:rgba(32,56,107,.75)}
+.tbtn[data-b="sw"]{right:12px;bottom:100px;width:62px;height:62px;font-size:10px;background:rgba(32,56,107,.75)}
 .tbtn[data-b="sw"].on{background:#2a7fd4}
 @media (max-height:430px){
   #stick{width:112px;height:112px;margin:-56px 0 0 -56px}
@@ -131,8 +129,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
   #btns{width:180px;height:150px}
   .tbtn[data-b="shoot"]{width:76px;height:76px}
   .tbtn[data-b="pass"]{right:88px;width:62px;height:62px}
-  .tbtn[data-b="turbo"]{bottom:88px;width:56px;height:56px}
-  .tbtn[data-b="sw"]{right:84px;bottom:80px;width:52px;height:52px}
+  .tbtn[data-b="sw"]{bottom:88px;width:56px;height:56px}
   #hud{padding-top:calc(env(safe-area-inset-top,0px) + 6px)}
   .turbos{padding:3px 6px}
 }
@@ -278,8 +275,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
     <div id="zone"></div>
     <div id="stick"><div id="knob"></div></div>
     <div id="btns">
-      <button class="tbtn" data-b="sw" type="button">CHANGER</button>
-      <button class="tbtn" data-b="turbo" type="button">TURBO</button>
+      <button class="tbtn" data-b="sw" type="button">DRIBBLE</button>
       <button class="tbtn" data-b="pass" type="button">PASSE</button>
       <button class="tbtn" data-b="shoot" type="button">TIR</button>
     </div>
@@ -310,7 +306,6 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
           <div class="opt"><span>Quart-temps</span><div class="seg" data-k="qlen"><button data-v="60">1 min</button><button data-v="120">2 min</button><button data-v="180">3 min</button></div></div>
           <div class="opt"><span>Grosses têtes</span><div class="seg" data-k="big"><button data-v="0">Non</button><button data-v="1">Oui</button></div></div>
           <div class="opt"><span>Commentateur</span><div class="seg" data-k="voice"><button data-v="0">Non</button><button data-v="1">Oui</button></div></div>
-          <div class="opt"><span>Turbo auto (joystick à fond)</span><div class="seg" data-k="autoturbo"><button data-v="0">Non</button><button data-v="1">Oui</button></div></div>
         </div>
       </details>
       <details class="help">
@@ -320,14 +315,14 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
           <b>Flèches / ZQSD</b><span>Se déplacer</span>
           <b>Espace ou J</b><span>Tirer (maintenir, relâcher en haut du saut) · en défense : sauter pour contrer</span>
           <b>K</b><span>Passer · en défense : voler le ballon</span>
-          <b>Maj ou L</b><span>Turbo (sur téléphone et à la manette, il s'active aussi tout seul quand le joystick est poussé à fond)</span>
-          <b>E ou U</b><span>Changer de joueur (en défense et sur ballon perdu)</span>
+          <b>Maj ou L</b><span>Turbo · sur téléphone et à la manette, pas de bouton : pousse le joystick à fond pour sprinter</span>
+          <b>E ou U</b><span>Avec le ballon : crochet (DRIBBLE) pour éliminer le défenseur · sans le ballon : changer de joueur</span>
           <h4>2 joueurs (en face à face)</h4>
           <b>J1</b><span>ZQSD · C tir · V passe · Maj gauche turbo · B changer</span>
           <b>J2</b><span>Flèches · Entrée tir · Maj droite passe · Ctrl ou ⌥ droite turbo · point changer</span>
           <b>Manette</b><span>Stick · A tir · X/B passe · gâchettes turbo · Y changer</span>
         </div>
-        <p class="tip">Tir près du cercle : <b style="color:var(--led)">SMASH</b> (10 figures différentes) ; avec le turbo, on décolle de plus loin. « SMASH ! » s'affiche au-dessus de ton joueur quand c'est possible. Passe quand ton coéquipier est près du cercle : <b style="color:var(--led)">ALLEY-OOP</b> (« ALLEY-OOP ! » s'affiche au-dessus de lui). En défense, ton joueur se place tout seul si tu ne touches pas au déplacement ; « VOL ! » ou « CONTRE ! » s'affiche au bon moment, et ton joueur se jette sur le porteur quand tu appuies sur VOL. Turbo + Passe en défense : bousculade. Trois paniers de suite avec le même joueur : il passe <b style="color:var(--hot)">EN FEU</b>. Échap : pause.</p>
+        <p class="tip">Tir près du cercle : <b style="color:var(--led)">SMASH</b> (10 figures différentes) ; en sprint (turbo, ou joystick à fond), on décolle de plus loin. « SMASH ! » s'affiche au-dessus de ton joueur quand c'est possible. Passe quand ton coéquipier est près du cercle : <b style="color:var(--led)">ALLEY-OOP</b> (« ALLEY-OOP ! » s'affiche au-dessus de lui). En défense, ton joueur se place tout seul si tu ne touches pas au déplacement ; « VOL ! » ou « CONTRE ! » s'affiche au bon moment, et ton joueur se jette sur le porteur quand tu appuies sur VOL. VOL en sprint (le bouton affiche POUSSE) : bousculade. Trois paniers de suite avec le même joueur : il passe <b style="color:var(--hot)">EN FEU</b>. Échap : pause.</p>
       </details>
     </div>
   </div>
@@ -523,7 +518,7 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
-const cfg = Object.assign({ mode: 1, diff: 1, qlen: 120, big: 0, voice: 1, autoturbo: 1 }, store.get('mbcjam_cfg', {}));
+const cfg = Object.assign({ mode: 1, diff: 1, qlen: 120, big: 0, voice: 1 }, store.get('mbcjam_cfg', {}));
 
 // ---------- Audio ----------
 const Sfx = {
@@ -867,7 +862,7 @@ function knock(v, by) {
 }
 
 function doSteal(p, shove) {
-  if (p.cd > 0 || game.state !== 'play') return;
+  if (p.cd > 0 || (p.stun || 0) > 0 || game.state !== 'play') return;
   const human = humanTeams.includes(p.team);
   p.cd = human ? 0.3 : 0.45; if (!p.action) { p.action = 'steal'; p.at = 0.22; }
   const o = ball.owner, ok = q => q && q.team !== p.team && q.protect <= 0 && q.action !== 'dunk' && q.action !== 'hang' && q.action !== 'down';
@@ -894,8 +889,28 @@ function doSteal(p, shove) {
   Sfx.whiff();
 }
 
+// Crochet (bouton DRIBBLE) : le porteur part sur le côté, les défenseurs proches perdent un temps, parfois tombent
+function doCrossover(p, it) {
+  if ((p.xcd || 0) > 0 || p.h > 0 || p.action || game.state !== 'play') return;
+  const hp = HOOPS[p.team]; let dx = it.mx, dz = it.mz, m = Math.hypot(dx, dz);
+  if (m < 0.2) { dx = hp.x - p.x; dz = 7.5 - p.z; m = Math.hypot(dx, dz) || 1; }
+  dx /= m; dz /= m;
+  p.xside = -(p.xside || 1);
+  const lx = -dz * p.xside, lz = dx * p.xside;
+  p.vx = dx * 6.5 + lx * 5.5; p.vz = (dz * 6.5 + lz * 5.5) * 0.85;
+  p.xover = 0.32; p.xcd = 0.9; p.protect = Math.max(p.protect, 0.7); p.sq = 0.12;
+  dust(p, 4); Sfx.whiff(); Sfx.squeak();
+  let broke = false;
+  for (const o of T[1 - p.team]) {
+    const d = planar(o, p); if (d > 2.4 || o.action === 'down' || o.h > 0.1) continue;
+    o.stun = 0.6; o.vx *= 0.2; o.vz *= 0.2;
+    if (Math.random() < (p.fire ? 0.5 : 0.28) * (d < 1.4 ? 1.3 : 1)) { o.action = 'down'; o.at = 0.9; o.actId++; o.vx = -lx * 1.5; o.vz = -lz * 1.5; broke = true; }
+  }
+  if (broke) { announce(pick(['CHEVILLES CASSÉES !', 'IL EST PARTI !', 'QUEL CROCHET !'])); jamEvent(p.team, 'ankle', p); Sfx.thud(); }
+}
+
 // Score JAM : points de style du joueur humain (mode 1 joueur), multipliés par le combo en cours
-const JAM_PTS = { two: 100, three: 200, dunk: 250, alley: 400, block: 150, steal: 120 };
+const JAM_PTS = { two: 100, three: 200, dunk: 250, alley: 400, block: 150, steal: 120, ankle: 150 };
 function jamEvent(team, type, p) {
   const J = game.jam; if (!J || game.demo || humanTeams.length !== 1) return;
   if (team !== humanTeams[0]) { if (J.combo >= 3) popupHud('COMBO PERDU', '#ff8a7a'); J.combo = 0; return; }
@@ -907,7 +922,8 @@ function jamEvent(team, type, p) {
   if (type === 'three') J.threes++;
   if (type === 'steal') J.steals++;
   if (type === 'block') J.blocks++;
-  if (p.fire && type !== 'block' && type !== 'steal') pts *= 1.5;
+  if (type === 'ankle') J.ankles = (J.ankles || 0) + 1;
+  if (p.fire && type !== 'block' && type !== 'steal' && type !== 'ankle') pts *= 1.5;
   const mult = 1 + 0.25 * Math.min(J.combo - 1, 8);
   pts = Math.round(pts * mult / 5) * 5; J.score += pts;
   popup(p.x, p.z, p.h + 3.2, '+' + pts, '#ffd23f');
@@ -976,7 +992,7 @@ function moveStick(e) {
   // Si le pouce sort du cercle, le joystick le suit au lieu de bloquer
   if (m > R) { placeStick(touch.ox + dx * (1 - R / m), touch.oy + dy * (1 - R / m)); dx *= R / m; dy *= R / m; }
   touch.mx = dx / R; touch.mz = dy / R; knob.style.transform = `translate(${dx}px,${dy}px)`;
-  stick.classList.toggle('turbo', !!cfg.autoturbo && Math.hypot(touch.mx, touch.mz) > AUTO_TURBO);
+  stick.classList.toggle('turbo', Math.hypot(touch.mx, touch.mz) > AUTO_TURBO);
 }
 const AUTO_TURBO = 0.85; // joystick poussé au-delà de 85 % : turbo automatique
 zone.addEventListener('pointerdown', e => {
@@ -1023,11 +1039,11 @@ function humanIntent(slot) {
     shoot = has('Enter') || has('NumpadEnter') || has('Numpad0'); pass = has('ShiftRight') || has('Numpad1'); turbo = has('ControlRight') || has('AltRight') || has('Numpad2'); sw = has('Period') || has('Numpad3');
   }
   if (slot === 0) {
-    if (cfg.autoturbo && Math.hypot(touch.mx, touch.mz) > AUTO_TURBO) auto = true;
+    if (Math.hypot(touch.mx, touch.mz) > AUTO_TURBO) auto = true;
     mx += touch.mx; mz += touch.mz; shoot = shoot || touch.shoot; pass = pass || touch.pass; turbo = turbo || touch.turbo; sw = sw || touch.sw;
   }
   const g = padInput(slot);
-  if (g && cfg.autoturbo && Math.hypot(g.mx, g.mz) > 0.92) auto = true;
+  if (g && Math.hypot(g.mx, g.mz) > 0.92) auto = true;
   if (g) { mx += g.mx; mz += g.mz; shoot = shoot || g.shoot; pass = pass || g.pass; turbo = turbo || g.turbo; sw = sw || g.sw; }
   return { mx: clamp(mx, -1, 1), mz: clamp(mz, -1, 1), shoot, pass, turbo, sw: !!sw, auto };
 }
@@ -1171,12 +1187,16 @@ function applyIntent(p, it, dt) {
   // turbo auto : il s'allume quand le joystick est à fond, se coupe quand la jauge est vide et ne repart qu'à 30 %
   if (!it.auto || p.turbo < 0.04) p.autoOn = false; else if (p.turbo > 0.3 || p.fire) p.autoOn = true;
   const wantsTurbo = (it.turbo || it.assistTurbo || (it.auto && p.autoOn)) && (p.turbo > 0.02 || p.fire);
-  p.turboHeld = it.turbo;
+  // « boost » = turbo demandé, au bouton (clavier) ou en sprintant joystick à fond
+  const boost = it.turbo || (it.auto && p.autoOn && (p.turbo > 0.02 || p.fire));
+  p.turboHeld = boost;
   const m = Math.hypot(it.mx, it.mz);
   if (p.fire) p.turbo = 1;
   else if (wantsTurbo && m > 0.1) p.turbo = Math.max(0, p.turbo - 0.42 * dt);
   else if (!it.turbo) p.turbo = Math.min(1, p.turbo + 0.2 * dt);
-  if (onGround && p.action !== 'jumpshot' && p.action !== 'jump') {
+  if ((p.stun || 0) > 0) { p.vx *= 0.85; p.vz *= 0.85; }
+  else if ((p.xover || 0) > 0) { /* crochet en cours : on garde l'élan */ }
+  else if (onGround && p.action !== 'jumpshot' && p.action !== 'jump') {
     let mx = it.mx, mz = it.mz; if (m > 1) { mx /= m; mz /= m; }
     const sp = (wantsTurbo ? 7.4 : 5.0) * p.a.speed * (hasBall ? 0.94 : 1);
     const a = Math.min(1, dt * (m > 0.1 ? 9 : 12));
@@ -1186,14 +1206,14 @@ function applyIntent(p, it, dt) {
   if (shootP && onGround && (!p.action || p.action === 'steal')) {
     if (hasBall && game.state === 'play') {
       const hp = HOOPS[p.team], d = Math.hypot(hp.x - p.x, 7.5 - p.z);
-      if (d < dunkRange(p, it.turbo) && d > 0.9) startDunk(p, d);
+      if (d < dunkRange(p, boost) && d > 0.9) startDunk(p, d);
       else startJumpShot(p);
     } else if (!hasBall) startJump(p);
   }
   if (shootR && hasBall && p.action === 'jumpshot') releaseShot(p, it.rq);
   if (passP && game.state === 'play') {
-    if (hasBall) { if (!tryAlley(p, it.turbo)) doPass(p); }
-    else if (onGround) doSteal(p, it.turbo && (p.turbo > 0.02 || p.fire));
+    if (hasBall) { if (!tryAlley(p, boost)) doPass(p); }
+    else if (onGround) doSteal(p, boost && (p.turbo > 0.02 || p.fire));
   }
 }
 
@@ -1241,6 +1261,7 @@ function blockBall(o, shooter) {
 
 function updatePlayer(p, dt) {
   p.cd = Math.max(0, p.cd - dt); p.protect -= dt; p.noPick -= dt; p.flash = Math.max(0, p.flash - dt);
+  p.xover = Math.max(0, (p.xover || 0) - dt); p.xcd = Math.max(0, (p.xcd || 0) - dt); p.stun = Math.max(0, (p.stun || 0) - dt);
   if (p.action === 'steal') { p.at -= dt; if (p.at <= 0) p.action = null; }
   if (p.action === 'down') {
     p.at -= dt; const f = Math.pow(0.05, dt); p.vx *= f; p.vz *= f;
@@ -1290,7 +1311,8 @@ function updateBall(dt) {
     else {
       const prev = Math.cos(p.dribble); p.dribble += dt * (7.5 + Math.hypot(p.vx, p.vz) * 0.8); const c = Math.cos(p.dribble);
       if (Math.sign(prev) !== Math.sign(c)) Sfx.dribble();
-      b.x = p.x + p.face * 0.45; b.z = p.z + 0.08; b.h = p.h + 0.13 + 0.7 * Math.abs(c);
+      const side = p.xover > 0 ? p.face * Math.cos((1 - p.xover / 0.32) * Math.PI) : p.face;
+      b.x = p.x + side * 0.45; b.z = p.z + 0.08; b.h = p.h + 0.13 + (p.xover > 0 ? 0.3 : 0.7) * Math.abs(c);
     }
   } else if (b.state === 'pass') {
     const r = b.passTo; b.pt += dt;
@@ -1415,7 +1437,8 @@ function update(dt) {
     if (humanTeams.includes(p.team) && ctl[p.team] === p.i) {
       it = humanIntent(humanTeams.indexOf(p.team)); ownTurbo = it.turbo;
       // changement de joueur à la main (hors attaque) : bouton CHANGER, E/U au clavier, Y à la manette
-      if (it.sw && !swPrev[p.team] && ballTeam() !== p.team && game.state === 'play') {
+      if (it.sw && !swPrev[p.team] && ball.owner === p) doCrossover(p, it);
+      else if (it.sw && !swPrev[p.team] && ballTeam() !== p.team && game.state === 'play') {
         const o = T[p.team][1 - p.i];
         if (o.action !== 'down') { setCtl(p.team, o.i); ctlManual[p.team] = { t: game.t, poss: game.possId }; o.prevShoot = o.prevPass = true; }
       }
@@ -1427,7 +1450,7 @@ function update(dt) {
       }
     } else it = aiIntent(p, dt);
     applyIntent(p, it, dt);
-    if (ownTurbo !== null) p.turboHeld = ownTurbo;
+    if (ownTurbo !== null) p.turboHeld = ownTurbo || (!!it.auto && p.autoOn && (p.turbo > 0.02 || p.fire));
   }
   for (const p of players) updatePlayer(p, dt);
   separate();
@@ -1898,11 +1921,13 @@ function hudBuild() {
 }
 const hudCache = {};
 function setText(id, v) { if (hudCache[id] !== v) { hudCache[id] = v; $('#' + id).textContent = v; } }
-const shootBtn = document.querySelector('.tbtn[data-b="shoot"]'), passBtn = document.querySelector('.tbtn[data-b="pass"]');
+const shootBtn = document.querySelector('.tbtn[data-b="shoot"]'), passBtn = document.querySelector('.tbtn[data-b="pass"]'), swBtn = document.querySelector('.tbtn[data-b="sw"]');
 function hudTick() {
   if (game && !game.demo && humanTeams.length) {
     const me = T[localTeam()][ctl[localTeam()]], bt = ballTeam();
     let shoot = ['TIR', false], pass = ['PASSE', false];
+    const mine = ball.owner === me, near = mine && T[1 - me.team].some(o => planar(o, me) < 2.2);
+    const sw = mine ? ['DRIBBLE', near && !(me.xcd > 0)] : ['CHANGER', false];
     if (bt === me.team) {
       const dunk = canDunkNow(me);
       shoot = [dunk ? 'SMASH' : 'TIR', dunk];
@@ -1912,7 +1937,7 @@ function hudTick() {
       shoot = [bt == null ? 'SAUT' : 'CONTRE', cue === 'block'];
       pass = [me.turboHeld ? 'POUSSE' : 'VOL', cue === 'steal'];
     }
-    for (const [btn, [label, hot]] of [[shootBtn, shoot], [passBtn, pass]]) {
+    for (const [btn, [label, hot]] of [[shootBtn, shoot], [passBtn, pass], [swBtn, sw]]) {
       if (btn.textContent !== label) btn.textContent = label;
       if (btn.classList.contains('dunk') !== hot) btn.classList.toggle('dunk', hot);
     }
