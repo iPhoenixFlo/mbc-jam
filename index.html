@@ -389,7 +389,8 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
 
   <div class="overlay" id="pause" hidden>
     <div class="panel">
-      <h2 class="title">Temps mort</h2>
+      <h2 class="title" id="pauseTitle">Temps mort</h2>
+      <p class="sub" id="pauseSub" hidden></p>
       <ul class="chal" id="pauseChal"></ul>
       <div class="row">
         <button class="btn" id="resumeBtn" type="button">Reprendre</button>
@@ -976,7 +977,9 @@ addEventListener('keydown', e => {
   keys.add(e.code);
 });
 addEventListener('keyup', e => keys.delete(e.code));
-addEventListener('blur', () => { keys.clear(); if (playing() && !paused) togglePause(); });
+addEventListener('blur', () => { keys.clear(); if (!playing()) return; if (NET.role && game.online) { if (!game.netPaused) setOnlinePause(true); } else if (!paused) togglePause(); });
+// En ligne, quitter l'appli (appel, notification…) met le match en pause pour les deux
+document.addEventListener('visibilitychange', () => { if (document.hidden && playing() && NET.role && game.online && !game.netPaused) setOnlinePause(true); });
 addEventListener('pointerdown', e => {
   Sfx.init();
   // Un doigt sur l'écran : on affiche les commandes tactiles, même si l'appareil ne s'est pas déclaré tactile
@@ -2427,7 +2430,11 @@ function netPeers(ch) {
     }
     const gp = NET.other && peers.find(p => p.peer === NET.other);
     if (NET.other && !gp && game.online) { onlineLost(); return; }
-    if (gp) { NET.seenOther = performance.now(); if (Array.isArray(gp.presence.in)) { NET.remote.in = gp.presence.in; NET.remote.at = performance.now(); } }
+    if (gp) {
+      NET.seenOther = performance.now(); if (Array.isArray(gp.presence.in)) { NET.remote.in = gp.presence.in; NET.remote.at = performance.now(); }
+      const pz = gp.presence.pz;
+      if (Array.isArray(pz) && pz[0] !== NET.lastPzN) { NET.lastPzN = pz[0]; if (game.online && game.state !== 'over' && !!pz[1] !== !!game.netPaused) { applyOnlinePause(!!pz[1], 1); netSend(true); } }
+    }
   } else if (NET.role === 'guest') {
     const h = peers.find(p => !p.sameTab && p.presence && p.presence.role === 'host');
     if (!h) { if (NET.other && game.online) onlineLost(); return; }
@@ -2478,7 +2485,7 @@ function packState() {
   return { t: r2(game.t), g: GST.indexOf(game.state), q: game.q, c: r2(game.clock), sc: r2(game.shotClock), s: game.score.slice(), x: game.clockExpired ? 1 : 0, ex: r2(game.excite), sh: r2(shake), sl: slowT > 0 ? 1 : 0,
     p: players.map(p => [r2(p.x), r2(p.z), r2(p.h), r2(p.vx), r2(p.vz), p.face, ACTS.indexOf(p.action), r2(p.rot), r2(p.sx), p.dk ? DST.indexOf(p.dk.style) : -1, r2(p.dkU), r2(p.turbo), p.fire ? 1 : 0, r2(p.flash), r2(p.vh)]),
     b: [r2(ball.x), r2(ball.z), r2(ball.h), BST.indexOf(ball.state), ball.owner ? players.indexOf(ball.owner) : -1, ball.passFrom ? players.indexOf(ball.passFrom) : -1, ball.passTo ? players.indexOf(ball.passTo) : -1],
-    k: ctl.slice(), hs: HOOPS.map(h => [r2(h.shake), r2(h.swish)]) };
+    k: ctl.slice(), hs: HOOPS.map(h => [r2(h.shake), r2(h.swish)]), pz: game.netPaused ? 1 : 0, pb: game.pauseBy || 0 };
 }
 function netSend(force) {
   const now = performance.now();
@@ -2492,6 +2499,7 @@ function applyState(S) {
   if (Array.isArray(S.s)) game.score = [+S.s[0] || 0, +S.s[1] || 0];
   game.clockExpired = !!S.x; game.excite = +S.ex || 0; shake = Math.max(shake, +S.sh || 0); if (S.sl) slowT = Math.max(slowT, 0.05);
   if (Array.isArray(S.k)) ctl = [S.k[0] ? 1 : 0, S.k[1] ? 1 : 0];
+  if (!!S.pz !== !!game.netPaused && game.state !== 'over' && performance.now() > (NET.pzLock || 0)) applyOnlinePause(!!S.pz, S.pb === 1 ? 1 : 0);
   if (Array.isArray(S.hs)) HOOPS.forEach((h, i) => { const v = S.hs[i] || []; h.shake = Math.max(h.shake, +v[0] || 0); h.swish = Math.max(h.swish, +v[1] || 0); });
   players.forEach((p, i) => {
     const a = S.p[i]; if (!Array.isArray(a)) return;
@@ -2636,11 +2644,29 @@ function toMenu() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   if (Sfx.ac) Sfx.crowdLevel(0);
 }
+// Pause partagée en 1 contre 1 : l'hôte décide (c'est lui qui fait tourner le match), l'invité lui demande
+function setOnlinePause(v) {
+  if (!NET.role || !game.online || game.state === 'over') return;
+  if (NET.role === 'host') { applyOnlinePause(v, 0); netSend(true); }
+  else if (NET.named) { NET.pzN = (NET.pzN || 0) + 1; NET.named.presence({ pz: [NET.pzN, v ? 1 : 0] }).catch(() => {}); NET.pzLock = performance.now() + 800; applyOnlinePause(v, 1); }
+}
+function applyOnlinePause(v, by) {
+  game.netPaused = !!v; game.pauseBy = by;
+  if (NET.role === 'host') paused = !!v;
+  if (v) {
+    const mine = by === localTeam();
+    $('#pauseTitle').textContent = 'Temps mort';
+    $('#pauseSub').hidden = false;
+    $('#pauseSub').textContent = mine ? 'Le match est en pause pour vous deux. Ton adversaire peut aussi reprendre.' : `${TEAMS[by].name} a demandé un temps mort. Le match est en pause pour vous deux.`;
+    $('#pauseChal').textContent = ''; $('#quitBtn').textContent = 'Abandonner';
+    show('pause'); if ('speechSynthesis' in window) speechSynthesis.cancel();
+  } else if (!$('#pause').hidden) show(null);
+}
 function togglePause() {
   if (!playing()) return;
-  // En ligne, le match ne s'arrête pas : le panneau sert seulement à abandonner
-  if (NET.role) { const open = $('#pause').hidden; show(open ? 'pause' : null); $('#pauseChal').textContent = ''; $('#quitBtn').textContent = 'Abandonner'; return; }
-  $('#quitBtn').textContent = 'Quitter';
+  // En ligne, la pause vaut pour les deux joueurs
+  if (NET.role && game.online) { setOnlinePause(!game.netPaused); return; }
+  $('#quitBtn').textContent = 'Quitter'; $('#pauseTitle').textContent = 'Temps mort'; $('#pauseSub').hidden = true;
   paused = !paused; show(paused ? 'pause' : null);
   if (paused) chalList($('#pauseChal'), game.challenges || []);
   if (paused && 'speechSynthesis' in window) speechSynthesis.cancel();
@@ -2686,7 +2712,7 @@ function step(now) {
   if (NET.role === 'guest' && game.online) netGuest(dt * ts);
   else if (!paused) { acc += dt * ts; while (acc >= STEP) { update(STEP); acc -= STEP; } }
   if (NET.role === 'host' && game.online) netSend();
-  if (NET.role && game.online && game.state !== 'over' && performance.now() - NET.seenOther > 5000) onlineLost();
+  if (NET.role && game.online && game.state !== 'over' && performance.now() - NET.seenOther > (game.netPaused ? 90000 : 5000)) onlineLost();
   rdt = dt;
   if (Sfx.ac && !paused) Sfx.crowdLevel(game.excite);
   render(now / 1000); hudTick();
