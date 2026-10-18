@@ -113,6 +113,8 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
 #zone{pointer-events:auto;position:absolute;left:0;top:28%;bottom:0;width:50%;touch-action:none}
 #stick{pointer-events:none;position:absolute;width:132px;height:132px;margin:-66px 0 0 -66px;border-radius:50%;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.22);opacity:.35;transition:opacity .2s}
 #stick.active{opacity:1;transition:none}
+#stick.turbo{border-color:#33c46e;box-shadow:0 0 22px rgba(51,196,110,.55)}
+#stick.turbo #knob{background:rgba(51,196,110,.75);border-color:#b6f36a}
 #knob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px;border-radius:50%;background:rgba(255,255,255,.32);border:2px solid rgba(255,255,255,.5)}
 #btns{pointer-events:auto;position:absolute;right:max(18px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));width:200px;height:170px;touch-action:none}
 .tbtn{position:absolute;border-radius:50%;font:400 13px/1 var(--f-display);color:#fff;border:2px solid rgba(255,255,255,.4);background:rgba(186,42,47,.7);touch-action:none;padding:0}
@@ -308,6 +310,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
           <div class="opt"><span>Quart-temps</span><div class="seg" data-k="qlen"><button data-v="60">1 min</button><button data-v="120">2 min</button><button data-v="180">3 min</button></div></div>
           <div class="opt"><span>Grosses têtes</span><div class="seg" data-k="big"><button data-v="0">Non</button><button data-v="1">Oui</button></div></div>
           <div class="opt"><span>Commentateur</span><div class="seg" data-k="voice"><button data-v="0">Non</button><button data-v="1">Oui</button></div></div>
+          <div class="opt"><span>Turbo auto (joystick à fond)</span><div class="seg" data-k="autoturbo"><button data-v="0">Non</button><button data-v="1">Oui</button></div></div>
         </div>
       </details>
       <details class="help">
@@ -317,7 +320,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
           <b>Flèches / ZQSD</b><span>Se déplacer</span>
           <b>Espace ou J</b><span>Tirer (maintenir, relâcher en haut du saut) · en défense : sauter pour contrer</span>
           <b>K</b><span>Passer · en défense : voler le ballon</span>
-          <b>Maj ou L</b><span>Turbo</span>
+          <b>Maj ou L</b><span>Turbo (sur téléphone et à la manette, il s'active aussi tout seul quand le joystick est poussé à fond)</span>
           <b>E ou U</b><span>Changer de joueur (en défense et sur ballon perdu)</span>
           <h4>2 joueurs (en face à face)</h4>
           <b>J1</b><span>ZQSD · C tir · V passe · Maj gauche turbo · B changer</span>
@@ -520,7 +523,7 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
-const cfg = Object.assign({ mode: 1, diff: 1, qlen: 120, big: 0, voice: 1 }, store.get('mbcjam_cfg', {}));
+const cfg = Object.assign({ mode: 1, diff: 1, qlen: 120, big: 0, voice: 1, autoturbo: 1 }, store.get('mbcjam_cfg', {}));
 
 // ---------- Audio ----------
 const Sfx = {
@@ -969,14 +972,16 @@ function moveStick(e) {
   // Si le pouce sort du cercle, le joystick le suit au lieu de bloquer
   if (m > R) { placeStick(touch.ox + dx * (1 - R / m), touch.oy + dy * (1 - R / m)); dx *= R / m; dy *= R / m; }
   touch.mx = dx / R; touch.mz = dy / R; knob.style.transform = `translate(${dx}px,${dy}px)`;
+  stick.classList.toggle('turbo', !!cfg.autoturbo && Math.hypot(touch.mx, touch.mz) > AUTO_TURBO);
 }
+const AUTO_TURBO = 0.85; // joystick poussé au-delà de 85 % : turbo automatique
 zone.addEventListener('pointerdown', e => {
   e.preventDefault(); if (touch.sid != null) return;
   touch.sid = e.pointerId; try { zone.setPointerCapture(e.pointerId); } catch {}
   placeStick(e.clientX, e.clientY); stick.classList.add('active'); moveStick(e);
 });
 zone.addEventListener('pointermove', e => { if (e.pointerId === touch.sid) moveStick(e); });
-const endStick = e => { if (e.pointerId !== touch.sid) return; touch.sid = null; touch.mx = touch.mz = 0; knob.style.transform = ''; stick.classList.remove('active'); homeStick(); };
+const endStick = e => { if (e.pointerId !== touch.sid) return; touch.sid = null; touch.mx = touch.mz = 0; knob.style.transform = ''; stick.classList.remove('active', 'turbo'); homeStick(); };
 zone.addEventListener('pointerup', endStick); zone.addEventListener('pointercancel', endStick); zone.addEventListener('lostpointercapture', endStick);
 document.querySelectorAll('.tbtn').forEach(b => {
   const k = b.dataset.b;
@@ -1001,7 +1006,7 @@ function padInput(slot) {
 function humanIntent(slot) {
   if (NET.role === 'host' && slot === 1) return NET.remoteIntent();
   const has = c => keys.has(c);
-  let mx, mz, shoot, pass, turbo, sw;
+  let mx, mz, shoot, pass, turbo, sw, auto = false;
   if (cfg.mode !== 2 || NET.role) {
     mx = (has('ArrowRight') || has('KeyD') ? 1 : 0) - (has('ArrowLeft') || has('KeyA') ? 1 : 0);
     mz = (has('ArrowDown') || has('KeyS') ? 1 : 0) - (has('ArrowUp') || has('KeyW') ? 1 : 0);
@@ -1014,11 +1019,13 @@ function humanIntent(slot) {
     shoot = has('Enter') || has('NumpadEnter') || has('Numpad0'); pass = has('ShiftRight') || has('Numpad1'); turbo = has('ControlRight') || has('AltRight') || has('Numpad2'); sw = has('Period') || has('Numpad3');
   }
   if (slot === 0) {
+    if (cfg.autoturbo && Math.hypot(touch.mx, touch.mz) > AUTO_TURBO) auto = true;
     mx += touch.mx; mz += touch.mz; shoot = shoot || touch.shoot; pass = pass || touch.pass; turbo = turbo || touch.turbo; sw = sw || touch.sw;
   }
   const g = padInput(slot);
+  if (g && cfg.autoturbo && Math.hypot(g.mx, g.mz) > 0.92) auto = true;
   if (g) { mx += g.mx; mz += g.mz; shoot = shoot || g.shoot; pass = pass || g.pass; turbo = turbo || g.turbo; sw = sw || g.sw; }
-  return { mx: clamp(mx, -1, 1), mz: clamp(mz, -1, 1), shoot, pass, turbo, sw: !!sw };
+  return { mx: clamp(mx, -1, 1), mz: clamp(mz, -1, 1), shoot, pass, turbo, sw: !!sw, auto };
 }
 
 // ---------- Contrôle humain : qui pilote-t-on ? ----------
@@ -1157,7 +1164,9 @@ function applyIntent(p, it, dt) {
   if (p.action === 'down' || p.action === 'hang' || p.action === 'dunk') return;
   const hasBall = ball.owner === p;
   const onGround = p.h <= 0;
-  const wantsTurbo = (it.turbo || it.assistTurbo) && (p.turbo > 0.02 || p.fire);
+  // turbo auto : il s'allume quand le joystick est à fond, se coupe quand la jauge est vide et ne repart qu'à 30 %
+  if (!it.auto || p.turbo < 0.04) p.autoOn = false; else if (p.turbo > 0.3 || p.fire) p.autoOn = true;
+  const wantsTurbo = (it.turbo || it.assistTurbo || (it.auto && p.autoOn)) && (p.turbo > 0.02 || p.fire);
   p.turboHeld = it.turbo;
   const m = Math.hypot(it.mx, it.mz);
   if (p.fire) p.turbo = 1;
@@ -2259,7 +2268,7 @@ const NET = {
   remoteIntent() {
     const a = this.remote.in;
     if (performance.now() - this.remote.at > 1500 || !Array.isArray(a)) return { mx: 0, mz: 0, shoot: false, pass: false, turbo: false, sw: false };
-    return { mx: clamp(+a[0] || 0, -1, 1), mz: clamp(+a[1] || 0, -1, 1), shoot: !!a[2], pass: !!a[3], turbo: !!a[4], sw: !!a[5], rq: a[6] == null ? null : +a[6] };
+    return { mx: clamp(+a[0] || 0, -1, 1), mz: clamp(+a[1] || 0, -1, 1), shoot: !!a[2], pass: !!a[3], turbo: !!a[4], sw: !!a[5], rq: a[6] == null ? null : +a[6], auto: !!a[7] };
   }
 };
 for (const n of ['dribble', 'bounce', 'swish', 'rim', 'dunk', 'shoot', 'pass', 'steal', 'whiff', 'thud', 'buzzer', 'cheer', 'squeak', 'fire']) {
@@ -2508,7 +2517,7 @@ function netGuest(dt) {
   if (it.shoot && !NET.prevIn[0]) NET.latch.s = now + 90; if (it.pass && !NET.prevIn[1]) NET.latch.p = now + 90; if (it.sw && !NET.prevIn[2]) NET.latch.w = now + 90;
   NET.prevIn = [it.shoot, it.pass, it.sw];
   const me = T[1][ctl[1]]; if (me) me.turboHeld = it.turbo;
-  const arr = [r2(it.mx), r2(it.mz), it.shoot || now < NET.latch.s ? 1 : 0, it.pass || now < NET.latch.p ? 1 : 0, it.turbo ? 1 : 0, it.sw || now < (NET.latch.w || 0) ? 1 : 0, now - (NET.rqAt || -1e9) < 400 ? NET.rq : null], key = arr.join(',');
+  const arr = [r2(it.mx), r2(it.mz), it.shoot || now < NET.latch.s ? 1 : 0, it.pass || now < NET.latch.p ? 1 : 0, it.turbo ? 1 : 0, it.sw || now < (NET.latch.w || 0) ? 1 : 0, now - (NET.rqAt || -1e9) < 400 ? NET.rq : null, it.auto ? 1 : 0], key = arr.join(',');
   if (NET.named && (key !== NET.lastIn || now - NET.inAt > 250)) { NET.lastIn = key; NET.inAt = now; NET.named.presence({ in: arr }).catch(() => {}); }
   updateCamera(dt);
 }
