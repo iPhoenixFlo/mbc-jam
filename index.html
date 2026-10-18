@@ -323,7 +323,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
           <b>J2</b><span>Flèches · Entrée tir · Maj droite passe · Ctrl ou ⌥ droite turbo · point changer</span>
           <b>Manette</b><span>Stick · A tir · X/B passe · gâchettes turbo · Y changer</span>
         </div>
-        <p class="tip">Tir près du cercle : <b style="color:var(--led)">SMASH</b> (10 figures différentes) ; en sprint (turbo, ou joystick à fond), on décolle de plus loin. « SMASH ! » s'affiche au-dessus de ton joueur quand c'est possible. Passe quand ton coéquipier est près du cercle : <b style="color:var(--led)">ALLEY-OOP</b> (« ALLEY-OOP ! » s'affiche au-dessus de lui). En défense, ton joueur se place tout seul si tu ne touches pas au déplacement ; « VOL ! » ou « CONTRE ! » s'affiche au bon moment, et ton joueur se jette sur le porteur quand tu appuies sur VOL. VOL en sprint (le bouton affiche POUSSE) : bousculade. Trois paniers de suite avec le même joueur : il passe <b style="color:var(--hot)">EN FEU</b>. Échap : pause.</p>
+        <p class="tip">Tir près du cercle : <b style="color:var(--led)">SMASH</b> (10 figures différentes) ; en sprint (turbo, ou joystick à fond), on décolle de plus loin. « SMASH ! » s'affiche au-dessus de ton joueur quand c'est possible. Passe quand ton coéquipier est près du cercle : <b style="color:var(--led)">ALLEY-OOP</b> (« ALLEY-OOP ! » s'affiche au-dessus de lui). En défense, ton joueur se place tout seul si tu ne touches pas au déplacement ; « VOL ! » ou « CONTRE ! » s'affiche au bon moment, et ton joueur se jette sur le porteur quand tu appuies sur VOL. Un vol raté le déséquilibre : il faut attendre une seconde avant de retenter, et marteler le bouton allonge l'attente. VOL en sprint (le bouton affiche POUSSE) : bousculade. Trois paniers de suite avec le même joueur : il passe <b style="color:var(--hot)">EN FEU</b>. Échap : pause.</p>
       </details>
     </div>
   </div>
@@ -864,8 +864,10 @@ function knock(v, by) {
 }
 
 function doSteal(p, shove) {
-  if (p.cd > 0 || (p.stun || 0) > 0 || game.state !== 'play') return;
   const human = humanTeams.includes(p.team);
+  // Marteler VOL pendant l'attente la prolonge : il faut choisir son moment
+  if (human && (p.cd > 0 || (p.stun || 0) > 0)) { p.cd = Math.min(2, p.cd + 0.25); return; }
+  if (p.cd > 0 || (p.stun || 0) > 0 || game.state !== 'play') return;
   p.cd = human ? 0.3 : 0.45; if (!p.action) { p.action = 'steal'; p.at = 0.22; }
   const o = ball.owner, ok = q => q && q.team !== p.team && q.protect <= 0 && q.action !== 'dunk' && q.action !== 'hang' && q.action !== 'down';
   // Un joueur humain se jette vers le porteur proche : plus besoin d'être collé à lui
@@ -881,13 +883,14 @@ function doSteal(p, shove) {
     if (v) { knock(v, p); if (!p.fire) p.turbo = Math.max(0, p.turbo - (human ? 0.15 : 0.25)); p.stealMiss = 0; return; }
   }
   if (ok(o) && planar(p, o) < range) {
-    const base = human ? 0.42 + 0.15 * (p.stealMiss || 0) : 0.22 * (humanTeams.includes(o.team) ? 0.6 : 1);
+    const base = human ? 0.4 : 0.22 * (humanTeams.includes(o.team) ? 0.6 : 1);
     if (Math.random() < base * p.a.steal * (o.h > 0.1 ? 0.5 : 1)) {
-      p.stealMiss = 0;
       give(p, 'steal'); p.stats.steals++; jamEvent(p.team, 'steal', p); o.noPick = 0.4; Sfx.steal(); announce(pick(MSG.steal)); return;
     }
-    p.stealMiss = (p.stealMiss || 0) + 1;
-  }
+    // Vol raté : le défenseur est déséquilibré et doit attendre avant de retenter (on ne peut plus marteler le bouton)
+    p.cd = human ? 1.0 : 0.6; p.stun = human ? 0.4 : 0.2; p.vx *= 0.3; p.vz *= 0.3;
+    if (human) popup(p.x, p.z, p.h + 2.6, 'RATÉ', '#ff8a7a');
+  } else if (human) p.cd = 0.6; // coup dans le vide
   Sfx.whiff();
 }
 
@@ -1946,6 +1949,7 @@ function hudTick() {
       shoot = [bt == null ? 'SAUT' : 'CONTRE', cue === 'block'];
       pass = [me.turboHeld ? 'POUSSE' : 'VOL', cue === 'steal'];
     }
+    passBtn.classList.toggle('off', bt !== me.team && (me.cd > 0.05 || (me.stun || 0) > 0));
     for (const [btn, [label, hot]] of [[shootBtn, shoot], [passBtn, pass], [swBtn, sw]]) {
       if (btn.textContent !== label) btn.textContent = label;
       if (btn.classList.contains('dunk') !== hot) btn.classList.toggle('dunk', hot);
@@ -2489,7 +2493,7 @@ function startGuestMatch(m) {
 }
 function packState() {
   return { t: r2(game.t), g: GST.indexOf(game.state), q: game.q, c: r2(game.clock), sc: r2(game.shotClock), s: game.score.slice(), x: game.clockExpired ? 1 : 0, ex: r2(game.excite), sh: r2(shake), sl: slowT > 0 ? 1 : 0,
-    p: players.map(p => [r2(p.x), r2(p.z), r2(p.h), r2(p.vx), r2(p.vz), p.face, ACTS.indexOf(p.action), r2(p.rot), r2(p.sx), p.dk ? DST.indexOf(p.dk.style) : -1, r2(p.dkU), r2(p.turbo), p.fire ? 1 : 0, r2(p.flash), r2(p.vh)]),
+    p: players.map(p => [r2(p.x), r2(p.z), r2(p.h), r2(p.vx), r2(p.vz), p.face, ACTS.indexOf(p.action), r2(p.rot), r2(p.sx), p.dk ? DST.indexOf(p.dk.style) : -1, r2(p.dkU), r2(p.turbo), p.fire ? 1 : 0, r2(p.flash), r2(p.vh), r2(p.cd), r2(p.stun || 0)]),
     b: [r2(ball.x), r2(ball.z), r2(ball.h), BST.indexOf(ball.state), ball.owner ? players.indexOf(ball.owner) : -1, ball.passFrom ? players.indexOf(ball.passFrom) : -1, ball.passTo ? players.indexOf(ball.passTo) : -1],
     k: ctl.slice(), hs: HOOPS.map(h => [r2(h.shake), r2(h.swish)]), pz: game.netPaused ? 1 : 0, pb: game.pauseBy || 0 };
 }
@@ -2513,7 +2517,7 @@ function applyState(S) {
     p.tx = +a[0]; p.tz = +a[1]; p.th = +a[2]; p.vx = +a[3] || 0; p.vz = +a[4] || 0; p.face = a[5] < 0 ? -1 : 1;
     p.action = ACTS[a[6]] ?? null; p.rot = +a[7] || 0; p.sx = +a[8] || 1;
     if (a[9] >= 0 && DST[a[9]]) { if (!p.dk || p.dk.style !== DST[a[9]]) p.dk = { style: DST[a[9]] }; }
-    p.dkU = +a[10] || 0; p.turbo = clamp(+a[11] || 0, 0, 1); p.fire = !!a[12]; p.flash = Math.max(p.flash, +a[13] || 0); p.vh = +a[14] || 0;
+    p.dkU = +a[10] || 0; p.turbo = clamp(+a[11] || 0, 0, 1); p.fire = !!a[12]; p.flash = Math.max(p.flash, +a[13] || 0); p.vh = +a[14] || 0; p.cd = +a[15] || 0; p.stun = +a[16] || 0;
   });
   const b = S.b;
   if (ball.tx == null) { ball.x = +b[0]; ball.z = +b[1]; ball.h = +b[2]; }
