@@ -1,0 +1,16 @@
+{
+  "name": "MBC Jam",
+  "short_name": "MBC Jam",
+  "description": "Basket arcade 2 contre 2 aux couleurs du MBC",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#140b0d",
+  "theme_color": "#BA2A2F",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -2,7 +2,15 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#BA2A2F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MBC Jam">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>MBC Jam</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,8 +26,13 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{height:100%;margin:0}
-body{background:var(--night);color:var(--ink);font-family:var(--f-body);font-size:17px;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;touch-action:manipulation;overscroll-behavior:none}
+body{background:var(--night);color:var(--ink);font-family:var(--f-body);font-size:17px;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+#game{touch-action:none}
+.overlay{touch-action:pan-y}
+button{touch-action:manipulation}
+.fsb{position:absolute;top:12px;right:12px}
+.panel{position:relative}
 #game{position:fixed;inset:0;overflow:hidden}
 #cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 .vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 100% at 50% 45%,transparent 62%,rgba(10,4,6,.6))}
@@ -204,7 +217,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
 .unlocks div{padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,rgba(255,181,46,.18),rgba(255,75,58,.12));font:700 16px/1.2 var(--f-body)}
 .unlocks div b{color:var(--led);font:400 12px/1 var(--f-display);margin-right:8px}
 #toasts{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 112px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:5}
-.toast{font:400 14px/1 var(--f-display);padding:9px 14px;border-radius:10px;background:rgba(14,8,10,.88);border:1px solid var(--line);white-space:nowrap;animation:toast 2.4s ease forwards}
+.toast{font:400 14px/1.3 var(--f-display);padding:9px 14px;border-radius:10px;background:rgba(14,8,10,.88);border:1px solid var(--line);max-width:min(560px,90vw);text-align:center;animation:toast 2.4s ease forwards}
 @keyframes toast{0%{opacity:0;transform:translateY(-8px) scale(.9)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
 .combo{font:700 12px/1 var(--f-body);letter-spacing:.12em;color:var(--led)}
 .combo b{font:400 15px/1 var(--f-display);margin-left:4px}
@@ -247,6 +260,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
         <button class="ibtn" id="pauseBtn" type="button" aria-label="Pause"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg></button>
         <span class="shot" id="shot" title="Chrono des 24 secondes">24</span>
         <button class="ibtn" id="muteBtn" type="button" aria-label="Couper le son"></button>
+        <button class="ibtn fs-toggle" id="fsBtn" type="button" aria-label="Plein écran"></button>
       </div>
     </div>
     <div class="team t1 right">
@@ -267,6 +281,7 @@ table.stats td:first-child,table.stats th:first-child{text-align:left}
 
   <div class="overlay" id="menu">
     <div class="panel">
+      <button class="ibtn fsb fs-toggle" id="fsMenuBtn" type="button" aria-label="Plein écran"></button>
       <h1 class="logo"><span>MBC</span> <em>JAM</em></h1>
       <p class="tag">Basket arcade · 2 contre 2</p>
       <button class="profile" id="profileBtn" type="button" aria-label="Changer de pseudo">
@@ -2357,6 +2372,8 @@ function jerseyFor(key, avoid) {
 function setTeam(t, jkey, name) { Object.assign(TEAMS[t], { pattern: 'none', alt: null }, JERSEYS[jkey]); TEAMS[t].name = shortName(name); }
 function enterGameUI() {
   paused = false; isTouch = isTouch || matchMedia('(pointer:coarse)').matches;
+  // sur téléphone, le match passe en plein écran quand c'est possible (le geste qui lance le match l'autorise)
+  if (isTouch && fsSupported() && !isFs() && !standalone() && !window.claude) enterFs();
   show(null); $('#hud').hidden = false; $('#touch').hidden = !isTouch; homeStick();
   Sfx.crowdLevel(0);
 }
@@ -2481,6 +2498,35 @@ function onlineProgress(won) {
   void xpBefore;
 }
 
+// ---------- Téléphone : pas de zoom, plein écran ----------
+// Empêche le zoom du navigateur (pincement, double tape) qui casse le jeu sur téléphone
+for (const t of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(t, e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouchEnd < 350 && !(e.target.closest && e.target.closest('input'))) e.preventDefault(); lastTouchEnd = now; }, { passive: false });
+document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
+
+const fsSupported = () => !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+const standalone = () => matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone === true;
+async function enterFs() {
+  const el = document.documentElement;
+  try { if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' }); else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); } catch {}
+  try { await screen.orientation.lock('landscape'); } catch {}
+}
+function exitFs() { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch {} }
+function toggleFs() {
+  if (!fsSupported()) { toast("Sur iPhone : touche Partager puis « Sur l'écran d'accueil », et lance MBC Jam depuis son icône pour jouer en plein écran.", '#ffd23f'); return; }
+  if (isFs()) exitFs(); else enterFs();
+}
+const FS_ON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg>';
+const FS_OFF = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4"/></svg>';
+function paintFs() {
+  document.querySelectorAll('.fs-toggle').forEach(b => { b.innerHTML = isFs() ? FS_OFF : FS_ON; b.setAttribute('aria-label', isFs() ? 'Quitter le plein écran' : 'Plein écran'); b.hidden = standalone() || !!window.claude; });
+}
+document.addEventListener('fullscreenchange', paintFs); document.addEventListener('webkitfullscreenchange', paintFs);
+document.querySelectorAll('.fs-toggle').forEach(b => b.addEventListener('click', toggleFs));
+
 // ---------- Menus ----------
 function show(id) { for (const k of ['menu', 'pause', 'over', 'tour', 'board', 'locker', 'online']) $('#' + k).hidden = k !== id; if (id === 'menu') renderMenu(); }
 function playing() { return game && !game.demo && game.state !== 'over'; }
@@ -2563,7 +2609,7 @@ addEventListener('resize', resize);
 // Accès console pour le débogage : MBCJAM.game, MBCJAM.players, MBCJAM.ball
 window.MBCJAM = { get game() { return game; }, get players() { return players; }, get ball() { return ball; }, get ctl() { return ctl; }, get profile() { return Profile; }, get net() { return NET; } };
 Profile.load(); applyCosmetics();
-resize(); paintSeg(); paintMute(); Voice.init(); renderMenu();
+resize(); paintSeg(); paintMute(); paintFs(); Voice.init(); renderMenu();
 newGame(true);
 LB.init(); initRoom();
 if (document.fonts) document.fonts.ready.then(buildCrowd);
