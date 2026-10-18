@@ -672,8 +672,8 @@ function aiDiff() {
 }
 function isHuman(p) { return humanTeams.includes(p.team) && ctl[p.team] === p.i; }
 function ballTeam() {
-  if (ball.state === 'held') return ball.owner.team;
-  if (ball.state === 'pass' || ball.state === 'alley') return ball.passFrom.team;
+  if (ball.state === 'held') return ball.owner ? ball.owner.team : null;
+  if (ball.state === 'pass' || ball.state === 'alley') return ball.passFrom ? ball.passFrom.team : null;
   return null;
 }
 function nearestOpp(p) { let b = null, d = 1e9; for (const o of T[1 - p.team]) { const e = planar(p, o); if (e < d) { d = e; b = o; } } return [b, d]; }
@@ -1112,7 +1112,7 @@ function aiIntent(p, dt) {
     }
   } else {
     if (ball.state === 'shot') {
-      const hp = HOOPS[ball.shot.p.team];
+      const hp = HOOPS[ball.shot ? ball.shot.p.team : (ball.x > L / 2 ? 0 : 1)];
       if (A.shotRef !== ball.shot) { A.shotRef = ball.shot; A.rebX = rand(1.4, 3); A.rebZ = rand(-2.2, 2.2); }
       tx = hp.x - hp.side * A.rebX; tz = 7.5 + A.rebZ;
     } else {
@@ -1330,7 +1330,7 @@ function updateBall(dt) {
       if (best) give(best, 'loose');
     }
   }
-  const trail = BALLS[ballStyle]?.trail, fireOn = (b.owner && b.owner.fire) || (b.state === 'shot' && b.shot.p.fire);
+  const trail = BALLS[ballStyle]?.trail, fireOn = (b.owner && b.owner.fire) || (b.state === 'shot' && !!b.shot?.p.fire);
   const hot = fireOn || (trail && b.state !== 'loose' && b.state !== 'tip' && Math.random() < 0.5);
   if (hot) for (let n = 0; n < 2; n++) spawn(b.x + rand(-0.08, 0.08), b.z, b.h + rand(-0.05, 0.08), rand(-0.4, 0.4), 0, rand(0.4, 1.4), pick(fireOn || !trail ? ['#ffb52e', '#ff6a2a', '#ff3a1a'] : trail), 'flame', rand(0.25, 0.45));
 }
@@ -1409,8 +1409,9 @@ let camV = 0, zoom = 1, zoomCx = 0, zoomCy = 0, slowT = 0, hitStop = 0;
 function updateCamera(dt) {
   let tx = ball.x + clamp(ball.vx, -6, 6) * 0.15;
   if (ball.owner) tx = ball.owner.x + ball.owner.face * 1.2 + ball.owner.vx * 0.3;
-  if (ball.state === 'shot') tx = lerp(ball.x, ball.shot.x1, 0.5);
-  if (ball.state === 'alley') tx = ball.alley.x1;
+  // chez l'invité, le ballon en vol n'a pas le détail de sa trajectoire : on suit simplement le ballon
+  if (ball.state === 'shot' && ball.shot) tx = lerp(ball.x, ball.shot.x1, 0.5);
+  if (ball.state === 'alley' && ball.alley) tx = ball.alley.x1;
   // ressort amorti : pas d'à-coups quand la cible saute
   const acc = (tx - camX) * 22 - camV * 9.4;
   camV += acc * dt; camX += camV * dt;
@@ -1719,7 +1720,7 @@ function drawBall() {
   const b = ball;
   if (b.state === 'tip' && game.state !== 'intro') return;
   const P = px(b.x, b.z, b.h), r = Math.max(3.5, BR * 1.25 * k * P.s);
-  const hot = (b.owner && b.owner.fire) || (b.state === 'shot' && b.shot.p.fire);
+  const hot = (b.owner && b.owner.fire) || (b.state === 'shot' && !!b.shot?.p.fire);
   const glow = BALLS[ballStyle]?.glow;
   if (hot || glow) { ctx.fillStyle = hot ? 'rgba(255,120,30,.35)' : glow; ctx.beginPath(); ctx.arc(P.x, P.y, r * 2.2, 0, 7); ctx.fill(); }
   drawBallAt(ctx, P.x, P.y, r, b.spin, ballStyle);
@@ -2402,7 +2403,7 @@ function startGuestMatch(m) {
 function packState() {
   return { t: r2(game.t), g: GST.indexOf(game.state), q: game.q, c: r2(game.clock), sc: r2(game.shotClock), s: game.score.slice(), x: game.clockExpired ? 1 : 0, ex: r2(game.excite), sh: r2(shake), sl: slowT > 0 ? 1 : 0,
     p: players.map(p => [r2(p.x), r2(p.z), r2(p.h), r2(p.vx), r2(p.vz), p.face, ACTS.indexOf(p.action), r2(p.rot), r2(p.sx), p.dk ? DST.indexOf(p.dk.style) : -1, r2(p.dkU), r2(p.turbo), p.fire ? 1 : 0, r2(p.flash)]),
-    b: [r2(ball.x), r2(ball.z), r2(ball.h), BST.indexOf(ball.state), ball.owner ? players.indexOf(ball.owner) : -1],
+    b: [r2(ball.x), r2(ball.z), r2(ball.h), BST.indexOf(ball.state), ball.owner ? players.indexOf(ball.owner) : -1, ball.passFrom ? players.indexOf(ball.passFrom) : -1, ball.passTo ? players.indexOf(ball.passTo) : -1],
     k: ctl.slice(), hs: HOOPS.map(h => [r2(h.shake), r2(h.swish)]) };
 }
 function netSend(force) {
@@ -2429,6 +2430,9 @@ function applyState(S) {
   const b = S.b;
   if (ball.tx == null) { ball.x = +b[0]; ball.z = +b[1]; ball.h = +b[2]; }
   ball.tx = +b[0]; ball.tz = +b[1]; ball.th = +b[2]; ball.state = BST[b[3]] || 'loose'; ball.owner = b[4] >= 0 ? players[b[4]] || null : null;
+  ball.passFrom = b[5] >= 0 ? players[b[5]] || null : null; ball.passTo = b[6] >= 0 ? players[b[6]] || null : null;
+  if (ball.state === 'held' && !ball.owner) ball.state = 'loose';
+  if ((ball.state === 'pass' || ball.state === 'alley') && (!ball.passFrom || !ball.passTo)) ball.state = 'loose';
   if (ball.state !== 'shot') ball.shot = null;
 }
 function playEvent(e) {
@@ -2593,6 +2597,11 @@ $('#menuBtn').addEventListener('click', toMenu);
 // ---------- Boucle ----------
 let last = performance.now(), acc = 0, rdt = 1 / 60;
 function frame(now) {
+  // une erreur ne doit jamais arrêter la boucle (sinon l'image se fige, et en ligne l'adversaire est déclaré forfait)
+  requestAnimationFrame(frame);
+  try { step(now); } catch (e) { console.error(e); }
+}
+function step(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   let ts = slowT > 0 ? 0.3 : 1; slowT = Math.max(0, slowT - dt);
   if (hitStop > 0) { hitStop -= dt; ts = 0; }
@@ -2603,11 +2612,10 @@ function frame(now) {
   rdt = dt;
   if (Sfx.ac && !paused) Sfx.crowdLevel(game.excite);
   render(now / 1000); hudTick();
-  requestAnimationFrame(frame);
 }
 addEventListener('resize', resize);
 // Accès console pour le débogage : MBCJAM.game, MBCJAM.players, MBCJAM.ball
-window.MBCJAM = { get game() { return game; }, get players() { return players; }, get ball() { return ball; }, get ctl() { return ctl; }, get profile() { return Profile; }, get net() { return NET; } };
+window.MBCJAM = { get game() { return game; }, get players() { return players; }, get ball() { return ball; }, get ctl() { return ctl; }, get profile() { return Profile; }, get net() { return NET; }, get test() { return { applyState, netPeers, playEvent }; } };
 Profile.load(); applyCosmetics();
 resize(); paintSeg(); paintMute(); paintFs(); Voice.init(); renderMenu();
 newGame(true);
