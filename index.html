@@ -595,8 +595,10 @@ const yAt = (z, h) => yFar + (yNear - yFar) * z / D - h * k * sOf(z);
 function px(x, z, h = 0) { const s = sOf(z); return { x: W / 2 + (x - camX) * k * s, y: yFar + (yNear - yFar) * z / D - h * k * s, s }; }
 let isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
+// Taille réelle du canevas à l'écran (après plein écran, rotation, barre d'état…), pas celle annoncée par la fenêtre
+function screenSize() { const w = cv.clientWidth || innerWidth, h = cv.clientHeight || innerHeight; return [Math.round(w), Math.round(h)]; }
 function resize() {
-  DPR = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+  DPR = Math.min(2, window.devicePixelRatio || 1); [W, H] = screenSize();
   cv.width = W * DPR | 0; cv.height = H * DPR | 0;
   yNear = H - Math.max(8, H * 0.04);
   k = Math.max(12, Math.min(W / 16.5, (yNear - 80) / 6.9));
@@ -2650,6 +2652,7 @@ function frame(now) {
 }
 function step(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  { const [w, h] = screenSize(); if (w !== W || h !== H) resize(); } // l'image ne doit jamais être étirée
   let ts = slowT > 0 ? 0.3 : 1; slowT = Math.max(0, slowT - dt);
   if (hitStop > 0) { hitStop -= dt; ts = 0; }
   if (NET.role === 'guest' && game.online) netGuest(dt * ts);
@@ -2661,6 +2664,11 @@ function step(now) {
   render(now / 1000); hudTick();
 }
 addEventListener('resize', resize);
+// Sur téléphone, la taille définitive arrive parfois après l'évènement : on revérifie un peu plus tard
+const resizeSoon = () => { resize(); setTimeout(resize, 150); setTimeout(resize, 500); };
+addEventListener('orientationchange', resizeSoon);
+document.addEventListener('fullscreenchange', resizeSoon); document.addEventListener('webkitfullscreenchange', resizeSoon);
+if (window.visualViewport) visualViewport.addEventListener('resize', resizeSoon);
 // Accès console pour le débogage : MBCJAM.game, MBCJAM.players, MBCJAM.ball
 window.MBCJAM = { get game() { return game; }, get players() { return players; }, get ball() { return ball; }, get ctl() { return ctl; }, get profile() { return Profile; }, get net() { return NET; }, get test() { return { applyState, netPeers, playEvent }; } };
 Profile.load(); applyCosmetics();
