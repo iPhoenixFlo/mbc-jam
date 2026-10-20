@@ -65,10 +65,10 @@ body.fire .clock{border-color:rgba(255,75,58,.7);box-shadow:0 0 28px rgba(255,75
 @keyframes nudge{50%{transform:translateY(-8px);opacity:.6}}
 
 /* Panels */
-.overlay{position:absolute;inset:0;display:grid;place-items:center;overflow-y:auto;background:rgba(14,8,10,.5);
+.overlay{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;overflow-y:auto;background:rgba(14,8,10,.5);
   padding-block:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 16px);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));touch-action:pan-y}
-.panel{width:min(430px,100%);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 22px;display:flex;flex-direction:column;gap:18px;box-shadow:0 24px 70px rgba(0,0,0,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:rise .35s ease both}
+.panel{box-sizing:border-box;width:min(430px,100%);min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 22px;display:flex;flex-direction:column;gap:18px;box-shadow:0 24px 70px rgba(0,0,0,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:rise .35s ease both}
 @keyframes rise{from{transform:translateY(16px);opacity:0}}
 .logo{font-family:var(--f-display);line-height:.88;text-align:center}
 .logo .mbc{display:block;font-size:clamp(64px,19vw,96px);color:#fff;text-shadow:0 5px 0 var(--club),0 9px 0 var(--club-deep),0 0 40px rgba(186,42,47,.55)}
@@ -88,10 +88,10 @@ h2{margin:0;font:400 clamp(24px,7vw,32px)/1 var(--f-display);text-align:center;t
 .final{text-align:center;display:flex;flex-direction:column;gap:6px}
 .final .num{font:400 clamp(64px,20vw,92px)/1 var(--f-display);color:var(--led);text-shadow:0 0 26px rgba(255,181,46,.45);font-variant-numeric:tabular-nums}
 #newBest{align-self:center;font:400 13px/1 var(--f-display);color:#1d1203;background:var(--gold);padding:6px 10px;border-radius:6px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .stats div{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:10px;background:rgba(246,239,226,.05)}
 .stats b{font:400 20px/1 var(--f-display);font-variant-numeric:tabular-nums}
-.stats span{font:700 11px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.stats span{font:700 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 form{display:flex;flex-direction:column;gap:8px}
 form label{font:700 12px/1 var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .field{display:flex;gap:8px}
@@ -142,6 +142,26 @@ input[type=text],input[type=password]{flex:1;min-width:0;font:600 20px/1 var(--f
 .who small{color:var(--muted);font-size:15px}
 form .btn{margin-top:6px}
 .note.err{color:#ff8a80}
+.row.three>*{flex:1 1 90px}
+.skins.wide{grid-template-columns:repeat(3,1fr)}
+.skins.wide canvas{width:100%;height:auto;aspect-ratio:4/3;border-radius:8px}
+.skin.preview{border-color:var(--led)}
+.quests{display:flex;flex-direction:column;gap:10px;max-height:min(52vh,520px);overflow-y:auto;touch-action:pan-y}
+.quest{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.quest.done{border-color:rgba(245,197,66,.65);background:rgba(245,197,66,.08)}
+.quest header{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center}
+.quest canvas{width:48px;height:64px;border-radius:6px}
+.quest header div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.quest h3{margin:0;font:400 17px/1.05 var(--f-display)}
+.quest header small{color:var(--muted);font-size:13px}
+.quest .count{font:400 18px/1 var(--f-display);color:var(--led);font-variant-numeric:tabular-nums}
+.quest ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.quest li{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:baseline;font-size:15px;line-height:1.2;color:var(--muted)}
+.quest li i{font-style:normal;text-align:center}
+.quest li.ok{color:var(--ink)} .quest li.ok i{color:#4cd97b}
+.quest li.now{color:var(--ink);font-weight:700} .quest li.now i{color:var(--led)}
+.quest li small{font-size:12px;color:var(--muted);text-align:right}
+.stat .big,.stat .label,#hudBest{text-shadow:0 1px 4px rgba(0,0,0,.65)}
 .empty{padding:22px 10px;text-align:center;color:var(--muted);line-height:1.35}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
@@ -185,7 +205,8 @@ form .btn{margin-top:6px}
         <li><span class="chip gold">OR</span><span>Le ballon doré vaut le double. Le panier bouge quand tu montes de niveau.</span></li>
       </ul>
       <button class="btn" id="playBtn" type="button">Jouer</button>
-      <div class="row">
+      <div class="row three">
+        <button class="btn ghost" id="menuQuestBtn" type="button">Quêtes</button>
         <button class="btn ghost" id="menuLockerBtn" type="button">Vestiaire</button>
         <button class="btn ghost" id="menuBoardBtn" type="button">Classement</button>
       </div>
@@ -204,7 +225,7 @@ form .btn{margin-top:6px}
       </div>
       <div class="unlock" id="unlockBox" hidden>
         <canvas id="unlockCv" width="112" height="112" aria-hidden="true"></canvas>
-        <div class="unlock-txt"><span class="label">Nouveau skin débloqué</span><b id="unlockName"></b><small id="unlockMore"></small></div>
+        <div class="unlock-txt"><span class="label" id="unlockLabel">Nouveau ballon débloqué</span><b id="unlockName"></b><small id="unlockMore"></small></div>
         <button class="btn" id="unlockEquip" type="button">L'équiper</button>
       </div>
       <form id="saveForm" autocomplete="off">
@@ -218,6 +239,7 @@ form .btn{margin-top:6px}
       <button class="btn ghost" id="overAccBtn" type="button" hidden>Crée ton compte pour le classement en ligne</button>
       <div class="row">
         <button class="btn" id="againBtn" type="button">Rejouer</button>
+        <button class="btn ghost" id="overQuestBtn" type="button">Quêtes</button>
         <button class="btn ghost" id="overBoardBtn" type="button">Classement</button>
       </div>
     </div>
@@ -226,12 +248,30 @@ form .btn{margin-top:6px}
   <div class="overlay" id="locker" hidden>
     <div class="panel">
       <h2>Vestiaire</h2>
-      <p class="note">Choisis ton ballon. Les autres se débloquent en jouant.</p>
+      <div class="tabs" role="tablist">
+        <button class="tab" id="ltBalls" role="tab" type="button" aria-selected="true">Ballons</button>
+        <button class="tab" id="ltTrails" role="tab" type="button" aria-selected="false">Traînées</button>
+        <button class="tab" id="ltThemes" role="tab" type="button" aria-selected="false">Terrains</button>
+      </div>
+      <p class="note" id="lockerIntro"></p>
       <div class="skins" id="skinGrid"></div>
       <p class="note" id="lockerNote"></p>
       <div class="row">
         <button class="btn" id="lockerPlayBtn" type="button">Jouer</button>
         <button class="btn ghost" id="lockerBackBtn" type="button">Retour</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="quests" hidden>
+    <div class="panel">
+      <h2>Quêtes</h2>
+      <p class="note">Chaque étape se réussit en une seule partie, dans l'ordre. L'étape 1 donne un ballon, la 2 une traînée, la 3 un nouveau terrain.</p>
+      <p class="note ok" id="questSummary"></p>
+      <div class="quests" id="questList"></div>
+      <div class="row">
+        <button class="btn" id="questPlayBtn" type="button">Jouer</button>
+        <button class="btn ghost" id="questBackBtn" type="button">Retour</button>
       </div>
     </div>
   </div>
@@ -362,38 +402,88 @@ const SKINS = [
   { id: 'melon',   name: 'Pastèque',  need: { k: 'bestSwishes', v: 10,  label: '10 swishs en une partie' } },
   { id: 'disco',   name: 'Disco',     need: { k: 'bestStreak',  v: 10,  label: 'Série de 10 paniers' } },
   { id: 'flame',   name: 'Flamme',    need: { k: 'best',        v: 100, label: 'Fais 100 points' } },
-  { id: 'pumpkin26', name: 'Citrouille 2026', need: { event: 'halloween-2026', label: 'Événement Halloween 2026' } }
+  { id: 'pumpkin26', name: 'Citrouille 2026', need: { event: 'halloween-2026', label: 'Événement Halloween 2026' } },
+  { id: 'rue',     name: 'Rue',       need: { quest: 'street', step: 1, label: 'Quête Playground, étape 1' } },
+  { id: 'plage',   name: 'Plage',     need: { quest: 'beach',  step: 1, label: 'Quête Plage, étape 1' } },
+  { id: 'glace',   name: 'Glace',     need: { quest: 'snow',   step: 1, label: 'Quête Sommets enneigés, étape 1' } },
+  { id: 'jade',    name: 'Jade',      need: { quest: 'jungle', step: 1, label: 'Quête Temple perdu, étape 1' } },
+  { id: 'chrome',  name: 'Chrome',    need: { quest: 'retro',  step: 1, label: 'Quête Rétro 80, étape 1' } },
+  { id: 'perle',   name: 'Perle',     need: { quest: 'deep',   step: 1, label: 'Quête Abysses, étape 1' } },
+  { id: 'sucre',   name: 'Sucre d\'orge', need: { quest: 'candy', step: 1, label: 'Quête Pays des bonbons, étape 1' } },
+  { id: 'magma',   name: 'Magma',     need: { quest: 'lava',   step: 1, label: 'Quête Volcan, étape 1' } },
+  { id: 'planete', name: 'Planète',   need: { quest: 'space',  step: 1, label: 'Quête Station spatiale, étape 1' } },
+  { id: 'onyx',    name: 'Onyx',      need: { quest: 'grand',  step: 1, label: 'Quête Grand Soir, étape 1' } }
 ];
+/* Quests: 3 steps each, done in a single game, in order. Step 1 gives the ball, step 2 the trail, step 3 the court.
+   G is the finished game: score, makes, shots, acc, swishes, swishRun (swishes in a row), streak, golds, level, buzzers, bonus. */
+const QUESTS = [
+  { id: 'street', ball: 'rue',     steps: [['15 paniers', G => G.makes >= 15], ['5 swishs d\'affilée', G => G.swishRun >= 5], ['80 points', G => G.score >= 80]] },
+  { id: 'beach',  ball: 'plage',   steps: [['3 ballons dorés marqués', G => G.golds >= 3], ['Atteindre le niveau 5', G => G.level >= 5], ['100 points', G => G.score >= 100]] },
+  { id: 'snow',   ball: 'glace',   steps: [['10 swishs', G => G.swishes >= 10], ['Série de 12 paniers', G => G.streak >= 12], ['110 points', G => G.score >= 110]] },
+  { id: 'jungle', ball: 'jade',    steps: [['20 paniers', G => G.makes >= 20], ['8 swishs d\'affilée', G => G.swishRun >= 8], ['120 points', G => G.score >= 120]] },
+  { id: 'retro',  ball: 'chrome',  steps: [['90 % d\'adresse sur 20 tirs ou plus', G => G.shots >= 20 && G.acc >= .9], ['20 s de bonus gagnées', G => G.bonus >= 20], ['130 points', G => G.score >= 130]] },
+  { id: 'deep',   ball: 'perle',   steps: [['30 paniers', G => G.makes >= 30], ['5 ballons dorés marqués', G => G.golds >= 5], ['140 points', G => G.score >= 140]] },
+  { id: 'candy',  ball: 'sucre',   steps: [['Série de 20 paniers', G => G.streak >= 20], ['Atteindre le niveau 6', G => G.level >= 6], ['150 points', G => G.score >= 150]] },
+  { id: 'lava',   ball: 'magma',   steps: [['35 paniers', G => G.makes >= 35], ['10 swishs d\'affilée', G => G.swishRun >= 10], ['170 points', G => G.score >= 170]] },
+  { id: 'space',  ball: 'planete', steps: [['100 % d\'adresse sur 25 tirs ou plus', G => G.shots >= 25 && G.makes === G.shots], ['2 buzzer beaters', G => G.buzzers >= 2], ['190 points', G => G.score >= 190]] },
+  { id: 'grand',  ball: 'onyx',    steps: [['Série de 25 paniers', G => G.streak >= 25], ['15 swishs', G => G.swishes >= 15], ['220 points', G => G.score >= 220]] }
+];
+const QUEST_IDS = QUESTS.map(q => q.id);
+const TRAILS = {
+  street: { name: 'Graffiti',            colors: ['#ff3ec8', '#00e5ff', '#ffe14a'], shape: 'square' },
+  beach:  { name: 'Éclats de soleil',    colors: ['#fff6a8', '#ffffff', '#ffd84a'], shape: 'dot', add: true },
+  snow:   { name: 'Flocons',             colors: ['#ffffff', '#cfefff'], shape: 'flake' },
+  jungle: { name: 'Feuilles',            colors: ['#5fd068', '#2f9e63', '#a7e36b'], shape: 'leaf', g: 60 },
+  retro:  { name: 'Néon',                colors: ['#ff3ec8', '#00f0ff'], shape: 'tri', add: true },
+  deep:   { name: 'Bulles',              colors: ['#bff4ff', '#ffffff'], shape: 'ring', vy: -40 },
+  candy:  { name: 'Cœurs',               colors: ['#ff5aa8', '#ff9ccf', '#ffffff'], shape: 'heart' },
+  lava:   { name: 'Braises',             colors: ['#ff7a1a', '#ff3b0a', '#ffd060'], shape: 'dot', add: true, vy: -40 },
+  space:  { name: 'Poussière d\'étoiles', colors: ['#ffffff', '#fff3a0', '#a0d8ff'], shape: 'star', add: true },
+  grand:  { name: 'Paillettes d\'or',    colors: ['#f5c542', '#fff3b0', '#ffd700'], shape: 'star', add: true }
+};
+const questDone = (id, n) => Prof.events.includes('q-' + id + '-' + n);
+const questStep = id => [1, 2, 3].find(n => !questDone(id, n)) || 4;
+const trailOpen = id => id === 'none' || (QUEST_IDS.includes(id) && questDone(id, 2));
+const themeOpen = id => id === 'mbc' || (id === 'hallo26' && Prof.events.includes('halloween-2026')) || (QUEST_IDS.includes(id) && questDone(id, 3));
 /* Dated events: play one game between start and end (inclusive, phone's date) to keep the skin forever.
    To add one: an entry here, a skin in SKINS with need.event, and its look in SKIN_LOOK. */
 const EVENTS = [
-  { id: 'halloween-2026', name: 'Halloween', skin: 'pumpkin26', theme: 'halloween', start: '2026-10-25', end: '2026-11-02', until: 'jusqu\'au 2 novembre', from: 'le 25 octobre' }
+  { id: 'halloween-2026', name: 'Halloween', skin: 'pumpkin26', theme: 'hallo26', start: '2026-10-25', end: '2026-11-02', until: 'jusqu\'au 2 novembre', from: 'le 25 octobre' }
 ];
 const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 const LIVE_EVENT = EVENTS.find(e => todayKey() >= e.start && todayKey() <= e.end) || null;
-// "#halloween" at the end of the link previews the look without unlocking anything.
-const THEME = LIVE_EVENT ? LIVE_EVENT.theme : (EVENTS.find(e => '#' + e.theme === location.hash) || {}).theme || null;
+// "#street", "#beach"… (or "#halloween") at the end of the link previews a court without unlocking anything.
+const HASH_THEME = (h => h === 'halloween' ? 'hallo26' : h)(location.hash.slice(1));
+let previewTheme = null;
 const STAT_KEYS = ['games', 'best', 'bestStreak', 'bestSwishes'];
 let curSkin = 'classic';
-const Prof = { stats: { games: 0, best: 0, bestStreak: 0, bestSwishes: 0 }, events: [], skin: 'classic' };
+const Prof = { stats: { games: 0, best: 0, bestStreak: 0, bestSwishes: 0 }, events: [], skin: 'classic', trail: 'none', theme: 'mbc' };
 const cleanStats = o => { const r = {}; for (const k of STAT_KEYS) r[k] = clamp(Math.floor(Number(o && o[k]) || 0), 0, 1e6); return r; };
 const mergeStats = (a, b) => { const r = {}; for (const k of STAT_KEYS) r[k] = Math.max(a[k], b[k]); return r; };
-const cleanEvents = a => Array.isArray(a) ? a.filter(id => EVENTS.some(e => e.id === id)) : [];
+const cleanEvents = a => Array.isArray(a) ? a.filter(id => EVENTS.some(e => e.id === id) || (/^q-[a-z]+-[123]$/.test(id) && QUEST_IDS.includes(id.split('-')[1]))) : [];
 const mergeEvents = (a, b) => [...new Set([...a, ...b])];
-const isUnlocked = s => !s.need || (s.need.event ? Prof.events.includes(s.need.event) : Prof.stats[s.need.k] >= s.need.v);
+const isUnlocked = s => !s.need || (s.need.event ? Prof.events.includes(s.need.event) : s.need.quest ? questDone(s.need.quest, s.need.step) : Prof.stats[s.need.k] >= s.need.v);
+// The account keeps one "skin" text: ball, trail and court joined by "--" (e.g. "neon--snow--street").
+const encodeLook = () => [Prof.skin, Prof.trail, Prof.theme].join('--');
+function decodeLook(v) {
+  const [b, tr, th] = String(v || '').split('--');
+  Prof.skin = curSkin = validSkin(b); Prof.trail = trailOpen(tr) ? tr : 'none'; Prof.theme = themeOpen(th) ? th : 'mbc';
+}
 const validSkin = id => { const s = SKINS.find(x => x.id === id); return s && isUnlocked(s) ? id : 'classic'; };
-function saveLocalProfile() { store.set('mbc_stats', Prof.stats); store.set('mbc_events', Prof.events); store.set('mbc_skin', Prof.skin); store.set('mbc_best', Prof.stats.best); }
+function saveLocalProfile() { store.set('mbc_stats', Prof.stats); store.set('mbc_events', Prof.events); store.set('mbc_skin', Prof.skin); store.set('mbc_trail', Prof.trail); store.set('mbc_theme', Prof.theme); store.set('mbc_best', Prof.stats.best); }
 function saveProfile() { saveLocalProfile(); syncProfile(); }
 function loadLocalProfile() {
   const st = store.get('mbc_stats', {}) || {};
   Prof.stats = cleanStats({ ...st, best: Math.max(Number(st.best) || 0, Number(store.get('mbc_best', 0)) || 0) });
   Prof.events = cleanEvents(store.get('mbc_events', []));
   Prof.skin = validSkin(store.get('mbc_skin', 'classic'));
+  const tr = store.get('mbc_trail', 'none'), th = store.get('mbc_theme', 'mbc');
+  Prof.trail = trailOpen(tr) ? tr : 'none'; Prof.theme = themeOpen(th) ? th : 'mbc';
   curSkin = Prof.skin;
 }
 function resetLocalProfile() {
-  Prof.stats = cleanStats({}); Prof.events = []; Prof.skin = curSkin = 'classic'; best = 0;
-  saveLocalProfile(); updateHUD(); renderLocker(); renderEventTag();
+  Prof.stats = cleanStats({}); Prof.events = []; Prof.skin = curSkin = 'classic'; Prof.trail = 'none'; Prof.theme = 'mbc'; best = 0;
+  saveLocalProfile(); updateHUD(); renderLocker(); renderEventTag(); drawBG();
 }
 
 /* ---------- Player account (Supabase): pseudo + 4-digit PIN, no e-mail ---------- */
@@ -420,8 +510,10 @@ const loggedIn = () => Cloud.on && !!Cloud.token;
 function applyRemote(res, takeSkin) {
   Prof.stats = mergeStats(Prof.stats, cleanStats(res.stats));
   Prof.events = mergeEvents(Prof.events, cleanEvents(res.events));
-  if (takeSkin && typeof res.skin === 'string') Prof.skin = validSkin(res.skin);
+  const look = Prof.theme;
+  if (takeSkin && typeof res.skin === 'string') decodeLook(res.skin);
   curSkin = Prof.skin; best = Prof.stats.best;
+  if (look !== Prof.theme) drawBG();
   if (typeof res.pseudo === 'string') { Cloud.pseudo = cleanName(res.pseudo); store.set('mbc_pseudo', Cloud.pseudo); }
   Cloud.rank = Number.isFinite(res.rank) ? res.rank : null;
   saveLocalProfile(); updateHUD(); renderLocker(); renderEventTag(); renderAccount();
@@ -431,7 +523,7 @@ function syncProfile() {
   if (!loggedIn()) return Cloud.chain;
   Cloud.chain = Cloud.chain.then(async () => {
     if (!loggedIn()) return;
-    const res = await Cloud.rpc('shootout_sync', { p_token: Cloud.token, p_stats: Prof.stats, p_events: Prof.events, p_skin: Prof.skin });
+    const res = await Cloud.rpc('shootout_sync', { p_token: Cloud.token, p_stats: Prof.stats, p_events: Prof.events, p_skin: encodeLook() });
     if (res && res.ok) { Cloud.failed = false; applyRemote(res, false); }
     else if (res && res.error === 'session') dropSession();
   }).catch(() => { Cloud.failed = true; renderAccount(); });
@@ -477,11 +569,22 @@ async function refreshBoard() {
   } catch (e) { Cloud.loaded = true; Cloud.boardFailed = true; }
   renderBoard();
 }
+function queueSync() { clearTimeout(queueSync.t); queueSync.t = setTimeout(syncProfile, 1200); }
 function equipSkin(id) {
   const s = SKINS.find(x => x.id === id); if (!s || !isUnlocked(s) || Prof.skin === id) return;
-  Prof.skin = curSkin = id; saveLocalProfile(); renderLocker();
-  clearTimeout(equipSkin.t); equipSkin.t = setTimeout(syncProfile, 1200);
+  Prof.skin = curSkin = id; saveLocalProfile(); renderLocker(); queueSync();
 }
+function equipTrail(id) {
+  if (!trailOpen(id) || Prof.trail === id) return;
+  Prof.trail = id; saveLocalProfile(); renderLocker(); queueSync();
+}
+function equipTheme(id) {
+  if (!themeOpen(id)) return;
+  previewTheme = null;
+  if (Prof.theme !== id) { Prof.theme = id; saveLocalProfile(); queueSync(); }
+  drawBG(); renderLocker();
+}
+function equipItem(it) { it.kind === 'theme' ? equipTheme(it.id) : it.kind === 'trail' ? equipTrail(it.id) : equipSkin(it.id); }
 loadLocalProfile();
 let best = Prof.stats.best;
 
@@ -491,6 +594,7 @@ function spawnReady() {
 }
 function resetGame() {
   Object.assign(game, { score: 0, time: GAME_TIME, bonus: 0, shots: 0, makes: 0, swishes: 0, streak: 0, bestStreak: 0, level: 0,
+    swishRun: 0, bestSwishRun: 0, golds: 0, buzzers: 0,
     balls: [], ready: null, cool: 0, shake: 0, lastSec: 99, endWait: 0, firstShot: false });
   Object.assign(hoop, { x: 0, amp: 0, speed: 0, phase: 0, net: 0, sway: 0 });
   fx = []; texts = []; flashes = [];
@@ -559,6 +663,9 @@ function scoreBall(b) {
   const swish = !b.touched, fire = onFire(), buzzer = game.state === 'ending';
   game.makes++; game.streak++; if (swish) game.swishes++;
   game.bestStreak = Math.max(game.bestStreak, game.streak);
+  game.swishRun = swish ? game.swishRun + 1 : 0; game.bestSwishRun = Math.max(game.bestSwishRun, game.swishRun);
+  if (b.golden) game.golds++;
+  if (buzzer) game.buzzers++;
   const pts = (swish ? 3 : 2) * (fire ? 2 : 1) * (b.golden ? 2 : 1);
   game.score += pts;
   if (game.state === 'playing') {
@@ -588,7 +695,7 @@ function scoreBall(b) {
 function missBall(b) {
   b.resolved = true;
   if (game.streak >= 3) addText('Feu éteint', W / 2, H * .55, '#c9bcbd', 22);
-  game.streak = 0; updateHUD();
+  game.streak = 0; game.swishRun = 0; updateHUD();
 }
 
 /* ---------- Effects ---------- */
@@ -633,12 +740,22 @@ function step(dt, now) {
   if (game.ready) game.ready.t += dt;
 
   const sub = 5, h = dt / sub;
+  const TR = Prof.trail !== 'none' && game.state !== 'menu' ? TRAILS[Prof.trail] : null;
   for (const b of game.balls) {
     for (let i = 0; i < sub; i++) physics(b, h);
     b.age += dt; b.spin += b.spinV * dt;
     if (!b.resolved && (b.age > 4 || b.z < -1 || Math.abs(b.x) > 12)) missBall(b);
     if (b.z < -1 || Math.abs(b.x) > 12) b.fade = 0;
     else if (b.resolved && (b.bounces >= 3 || b.age > 3.4)) b.fade -= dt * 2.5;
+    if (TR && !b.scored && b.age < 2.2) {
+      b.ta = (b.ta || 0) + dt * 40;
+      while (b.ta >= 1) {
+        b.ta--;
+        const p = proj(b.x, b.y, b.z), sz = BR * p.s;
+        fx.push({ x: p.x + rand(-.45, .45) * sz, y: p.y + rand(-.45, .45) * sz, vx: rand(-25, 25), vy: rand(-25, 25) + (TR.vy || 0), life: rand(.35, .65),
+          color: TR.colors[(Math.random() * TR.colors.length) | 0], size: sz * rand(.35, .65), rot: rand(0, 6), vr: rand(-5, 5), g: TR.g || 0, kind: 't', shape: TR.shape, add: TR.add });
+      }
+    }
     if ((b.fire || (curSkin === 'flame' && !b.golden)) && !b.scored && game.state !== 'menu') {
       const p = proj(b.x, b.y, b.z);
       for (let k = 0; k < 2; k++) fx.push({ x: p.x + rand(-.5, .5) * BR * p.s, y: p.y + rand(-.5, .5) * BR * p.s, vx: rand(-20, 20), vy: rand(-60, -10), life: rand(.25, .45), color: Math.random() < .5 ? '#ff4b3a' : '#ffb52e', size: BR * p.s * rand(.35, .7), g: -80, kind: 'f' });
@@ -651,7 +768,8 @@ function step(dt, now) {
   for (const t of texts) { t.life -= dt; t.y -= 38 * dt; }
   texts = texts.filter(t => t.life > 0);
 
-  if (onFire() && game.state === 'playing') {
+  const TH = themeNow();
+  if (TH.crowd && ((onFire() && game.state === 'playing') || TH.flashes)) {
     game.flashT -= dt;
     if (game.flashT <= 0) { game.flashT = rand(.03, .12); flashes.push({ x: rand(0, W), y: crowdY0 + rand(0, crowdY1 - crowdY0), life: .12 }); }
   }
@@ -662,89 +780,391 @@ function step(dt, now) {
 }
 
 /* ---------- Drawing ---------- */
-let crowdY0 = 0, crowdY1 = 0;
-function drawBG() {
-  bg.width = Math.round(W * DPR); bg.height = Math.round(H * DPR);
-  const c = bctx; c.setTransform(DPR, 0, 0, DPR, 0, 0);
-  const farZ = 11, fy = proj(0, 0, farZ).y;
-  let g = c.createLinearGradient(0, 0, 0, fy);
-  const HW = THEME === 'halloween';
-  if (HW) { g.addColorStop(0, '#3a1b5a'); g.addColorStop(1, '#1a0c24'); }
-  else { g.addColorStop(0, '#0d0709'); g.addColorStop(1, '#2c1418'); }
-  c.fillStyle = g; c.fillRect(0, 0, W, fy + 2);
+let crowdY0 = 0, crowdY1 = 0, horizonY = 0;
+const bgFont = () => getComputedStyle(document.documentElement).getPropertyValue('--f-display');
 
-  // Crowd in the stands
-  const ledH = Math.max(14, H * .032);
-  crowdY0 = Math.max(0, fy - H * .36); crowdY1 = fy - ledH;
-  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const shirts = HW ? ['#f07a12', '#2a1d20', '#5b2a86', '#f07a12', '#1a1214', '#BA2A2F', '#3d2a55', '#e9e4e2', '#7a3305']
-    : ['#BA2A2F', '#8f1f24', '#BA2A2F', '#e9e4e2', '#2a1d20', '#BA2A2F', '#d8d2d0', '#3a2a2d', '#7a1418'];
-  const skins = ['#6b4a3a', '#8a6450', '#4a3328', '#a07a60', '#c39a7a'];
-  let row = 0;
-  for (let y = crowdY0; y < crowdY1 + 6;) {
-    const t = (y - crowdY0) / Math.max(1, crowdY1 - crowdY0), sz = 3.5 + t * 6.5;
+/* ---------- Court themes ----------
+   A theme is a sheet of settings: sky colors, an optional crowd and LED strip, decor drawn in the sky,
+   the floor, the lane paint and lines, lights, and an optional animated layer (live). */
+function skyGrad(c, cols, y0, y1) { const g = c.createLinearGradient(0, y0, 0, y1); cols.forEach((col, i) => g.addColorStop(i / (cols.length - 1), col)); return g; }
+function glow(c, x, y, r, rgb, a) { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(1, `rgba(${rgb},0)`); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); }
+function ridge(S, base, amp, fill, k) {
+  const { c, W } = S; c.fillStyle = fill; c.beginPath(); c.moveTo(-10, base);
+  for (let x = -10; x <= W + 20; x += 6) c.lineTo(x, base - amp * (.3 + .7 * Math.abs(Math.sin(x * .011 * k + k) * Math.cos(x * .0047 * k + k * 2))));
+  c.lineTo(W + 20, base); c.closePath(); c.fill();
+}
+function stars(S, n, y1, rgb = '255,255,255') {
+  const { c, W, rnd } = S;
+  for (let i = 0; i < n; i++) { c.fillStyle = `rgba(${rgb},${(.3 + rnd() * .7).toFixed(2)})`; c.beginPath(); c.arc(rnd() * W, rnd() * y1, rnd() * 1.3 + .3, 0, 6.283); c.fill(); }
+}
+function clouds(S, n, y0, y1, col) {
+  const { c, W, rnd } = S; c.fillStyle = col;
+  for (let i = 0; i < n; i++) {
+    const x = rnd() * W, y = y0 + rnd() * (y1 - y0), r = 12 + rnd() * 22;
+    for (let k = 0; k < 5; k++) { c.beginPath(); c.arc(x + (k - 2) * r * .7, y + Math.abs(k - 2) * r * .18, r * (1 - Math.abs(k - 2) * .18), 0, 6.283); c.fill(); }
+  }
+}
+function palm(c, x, base, h, col, lean) {
+  const tx = x + lean * h * .35, ty = base - h;
+  c.strokeStyle = col; c.lineWidth = h * .045; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(x, base); c.quadraticCurveTo(x + lean * h * .05, base - h * .6, tx, ty); c.stroke();
+  c.fillStyle = col;
+  for (let i = 0; i < 7; i++) {
+    c.save(); c.translate(tx, ty); c.rotate(-Math.PI / 2 + (i - 3) * .55 + lean * .2);
+    c.beginPath(); c.ellipse(h * .2, 0, h * .22, h * .045, .3, 0, 6.283); c.fill(); c.restore();
+  }
+}
+function pine(c, x, base, h, col) {
+  c.fillStyle = col;
+  for (let i = 0; i < 3; i++) { const w = h * (.38 - i * .09), y = base - h * (.2 + i * .25); c.beginPath(); c.moveTo(x - w, y + h * .28); c.lineTo(x, y - h * .22); c.lineTo(x + w, y + h * .28); c.fill(); }
+}
+function skyline(S, base, col, win) {
+  const { c, W, H, rnd } = S; let x = -10;
+  while (x < W + 10) {
+    const w = 18 + rnd() * 42, h = H * (.05 + rnd() * .15);
+    c.fillStyle = col; c.fillRect(x, base - h, w, h + 1);
+    c.fillStyle = win;
+    for (let yy = base - h + 6; yy < base - 6; yy += 9) for (let xx = x + 4; xx < x + w - 5; xx += 8) if (rnd() < .3) c.fillRect(xx, yy, 3, 4);
+    x += w + rnd() * 5;
+  }
+}
+function fence(S, top, bottom) {
+  const { c, W } = S, h = bottom - top;
+  c.strokeStyle = 'rgba(25,22,35,.5)'; c.lineWidth = 1; c.beginPath();
+  for (let x = -h; x < W + h; x += 11) { c.moveTo(x, top); c.lineTo(x + h, bottom); c.moveTo(x + h, top); c.lineTo(x, bottom); }
+  c.stroke();
+  c.fillStyle = 'rgba(30,28,40,.95)'; c.fillRect(0, top - 4, W, 3);
+  for (let x = W / 12; x < W; x += W / 6) c.fillRect(x - 2, top - 6, 4, h + 6);
+}
+function moonDecor(S) {
+  const { c, W, H } = S, mr = Math.min(W, H) * .055, mx = W * .82, my = Math.max(mr * 2.4, S.y0 * .55);
+  glow(c, mx, my, mr * 4, '255,214,150', .35);
+  c.fillStyle = '#ffe7b0'; c.beginPath(); c.arc(mx, my, mr, 0, 6.283); c.fill();
+  c.fillStyle = 'rgba(200,150,90,.35)';
+  for (const [dx, dy, rr] of [[-.3, -.2, .18], [.25, .15, .22], [-.1, .4, .12]]) { c.beginPath(); c.arc(mx + dx * mr, my + dy * mr, rr * mr, 0, 6.283); c.fill(); }
+}
+
+const MBC_FLOOR = { kind: 'wood', c: ['#4a2b16', '#8c5129', '#b8743c'] };
+const SKIN_TONES = ['#6b4a3a', '#8a6450', '#4a3328', '#a07a60', '#c39a7a'];
+const THEMES = {
+  mbc: {
+    name: 'Salle du MBC', sky: ['#0d0709', '#2c1418'],
+    crowd: { shirts: ['#BA2A2F', '#8f1f24', '#BA2A2F', '#e9e4e2', '#2a1d20', '#BA2A2F', '#d8d2d0', '#3a2a2d', '#7a1418'], veil: '16,8,10' },
+    strip: { bg: '#BA2A2F', fg: '#ffffff', msg: 'MBC  •  SHOOTOUT  •  ALLEZ MBC  •  ', glow: true },
+    floor: MBC_FLOOR, paint: 'rgba(186,42,47,.82)', lines: 'rgba(246,239,226,.85)', mark: 'rgba(255,255,255,.4)', spot: '255,205,140', fade: '16,8,10'
+  },
+  hallo26: {
+    name: 'Halloween 2026', sky: ['#3a1b5a', '#1a0c24'],
+    crowd: { shirts: ['#f07a12', '#2a1d20', '#5b2a86', '#f07a12', '#1a1214', '#BA2A2F', '#3d2a55', '#e9e4e2', '#7a3305'], veil: '16,8,10' },
+    decor2: moonDecor,
+    strip: { bg: '#f07a12', fg: '#1a0a05', msg: 'JOYEUX HALLOWEEN  •  MBC  •  ' },
+    floor: MBC_FLOOR, paint: 'rgba(186,42,47,.82)', lines: 'rgba(246,239,226,.85)', mark: 'rgba(255,255,255,.4)', spot: '255,140,50', fade: '16,8,10',
+    live: t => drawBats(t)
+  },
+  street: {
+    name: 'Playground', sky: ['#1d1640', '#6b2f6b', '#e8604c', '#ffb36b'],
+    decor(S) {
+      const { c, W, H, fy } = S, sy = S.y1 - H * .09;
+      glow(c, W * .3, sy, H * .35, '255,170,90', .55);
+      c.fillStyle = '#ffd27a'; c.beginPath(); c.arc(W * .3, sy, H * .065, 0, 6.283); c.fill();
+      skyline(S, S.y1 - H * .05, '#2a1630', 'rgba(255,200,120,.55)');
+      fence(S, S.y1 - H * .13, S.y1);
+    },
+    strip: { bg: '#4b4650', fg: '#ffd84a', msg: 'MBC STREET  •  PLAYGROUND  •  ' },
+    floor: { kind: 'plain', c: ['#2c2b31', '#45444c', '#5c5b63'], speck: 'rgba(255,255,255,.07)', cracks: 'rgba(15,15,20,.5)' },
+    paint: 'rgba(40,110,190,.6)', lines: 'rgba(255,255,255,.8)', mark: 'rgba(255,216,74,.45)', spot: '255,170,110', fade: '30,20,40',
+    net: 'rgba(205,210,220,.95)', pole: '#3b3f4a', poleBase: '#2b2e36'
+  },
+  beach: {
+    name: 'Plage', sky: ['#2f8fdc', '#7cc8f2', '#d8f1ff'],
+    decor(S) {
+      const { c, W, H, fy, rnd } = S;
+      glow(c, W * .78, H * .12, H * .22, '255,250,200', .7);
+      c.fillStyle = '#fffbe0'; c.beginPath(); c.arc(W * .78, H * .12, H * .045, 0, 6.283); c.fill();
+      clouds(S, 5, H * .06, fy - H * .2, 'rgba(255,255,255,.85)');
+      const seaTop = fy - H * .075;
+      c.fillStyle = skyGrad(c, ['#1b6fae', '#2d9fd6', '#63c3e6'], seaTop, fy); c.fillRect(0, seaTop, W, fy - seaTop + 1);
+      c.fillStyle = '#5a8f6a'; c.beginPath(); c.ellipse(W * .22, seaTop + 1, W * .12, H * .02, 0, Math.PI, 0); c.fill();
+      c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 1.2;
+      for (let i = 0; i < 16; i++) { const x = rnd() * W, y = seaTop + 5 + rnd() * (fy - seaTop - 7); c.beginPath(); c.moveTo(x, y); c.lineTo(x + 12 + rnd() * 20, y); c.stroke(); }
+      palm(c, W * .06, fy + 4, H * .32, '#1d4b33', .5); palm(c, W * .95, fy + 4, H * .28, '#1d4b33', -.6); palm(c, W * .85, fy + 6, H * .2, '#2a6045', -.3);
+    },
+    floor: { kind: 'plain', c: ['#cfae72', '#e2c48a', '#f1dcaa'], speck: 'rgba(120,80,30,.14)' },
+    paint: 'rgba(240,110,80,.3)', lines: 'rgba(30,90,160,.85)', mark: 'rgba(30,90,160,.3)', spot: '255,250,220', spotA: .12, fade: '200,170,120', fadeA: .25,
+    pole: '#e9edf0', poleBase: '#c7ccd1'
+  },
+  snow: {
+    name: 'Sommets enneigés', sky: ['#07122b', '#173664', '#4f78ad'],
+    decor(S) {
+      const { c, W, H, fy, rnd } = S;
+      stars(S, 70, fy * .6);
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 3; i++) {
+        c.strokeStyle = `rgba(90,255,180,${(.12 - i * .03).toFixed(2)})`; c.lineWidth = 18 + i * 14; c.beginPath();
+        for (let x = -20; x <= W + 20; x += 20) { const y = H * (.12 + i * .04) + Math.sin(x * .008 + i) * H * .03; x === -20 ? c.moveTo(x, y) : c.lineTo(x, y); }
+        c.stroke();
+      }
+      c.restore();
+      ridge(S, fy, H * .26, skyGrad(c, ['#f4fbff', '#9dbad8', '#2b4a72'], fy - H * .26, fy), 1.3);
+      ridge(S, fy, H * .15, skyGrad(c, ['#dfefff', '#6f91b8', '#1d3557'], fy - H * .15, fy), 2.1);
+      for (let x = 4; x < W; x += 12 + rnd() * 16) pine(c, x, fy + 2, H * (.05 + rnd() * .05), '#0d2235');
+    },
+    floor: { kind: 'plain', c: ['#7fb1d6', '#bcdcf0', '#e9f6ff'], cracks: 'rgba(255,255,255,.6)', speck: 'rgba(255,255,255,.25)' },
+    paint: 'rgba(60,130,210,.35)', lines: 'rgba(30,80,140,.8)', mark: 'rgba(30,80,140,.3)', spot: '200,230,255', spotA: .2, fade: '20,40,80', fadeA: .35,
+    pole: '#22344d', poleBase: '#182638', live: (t, dt) => liveSnow(t, dt)
+  },
+  jungle: {
+    name: 'Temple perdu', sky: ['#07160d', '#14321d', '#2c5a32'],
+    decor(S) {
+      const { c, W, H, fy, rnd } = S, base = S.y1, tw = Math.min(W * .62, H * .55), sh = H * .035;
+      glow(c, W / 2, fy - H * .12, H * .3, '200,255,150', .18);
+      c.fillStyle = '#1e2b1f';
+      for (let i = 0; i < 5; i++) { const w = tw * (1 - i * .17); c.fillRect(W / 2 - w / 2, base - sh * (i + 1), w, sh + 1); }
+      c.fillStyle = '#ffb347'; c.fillRect(W / 2 - tw * .05, base - sh * 5 - H * .045, tw * .1, H * .045);
+      glow(c, W / 2, base - sh * 5 - H * .02, H * .07, '255,180,80', .6);
+      c.fillStyle = '#0a1f10';
+      for (let i = 0; i < 26; i++) { c.beginPath(); c.ellipse(rnd() * W, rnd() * H * .1, 30 + rnd() * 50, 14 + rnd() * 20, rnd() * 3, 0, 6.283); c.fill(); }
+      c.strokeStyle = 'rgba(30,70,35,.9)'; c.lineWidth = 2;
+      for (let i = 0; i < 9; i++) { const x = rnd() * W, l = H * (.08 + rnd() * .2); c.beginPath(); c.moveTo(x, 0); c.quadraticCurveTo(x + 15, l / 2, x - 5, l); c.stroke(); }
+      for (const x of [W * .12, W * .88]) {
+        c.fillStyle = '#3a2a1a'; c.fillRect(x - 3, base - H * .09, 6, H * .09);
+        glow(c, x, base - H * .1, H * .06, '255,150,50', .7);
+        c.fillStyle = '#ffcc66'; c.beginPath(); c.ellipse(x, base - H * .1, 5, 9, 0, 0, 6.283); c.fill();
+      }
+    },
+    strip: { bg: '#4d4a3c', fg: '#d8c48a', msg: 'MBC  •  TEMPLE PERDU  •  ' },
+    floor: { kind: 'tiles', c: ['#34362a', '#59584a', '#7d7a66'], line: 'rgba(20,22,15,.55)', tile: 1, speck: 'rgba(90,140,70,.14)' },
+    paint: 'rgba(50,120,60,.45)', lines: 'rgba(235,225,185,.75)', mark: 'rgba(235,225,185,.25)', spot: '255,190,110', fade: '7,22,13',
+    pole: '#3a3428', poleBase: '#2a251c', live: t => liveFireflies(t)
+  },
+  retro: {
+    name: 'Rétro 80', sky: ['#07011a', '#25063f', '#6b1667', '#ff4f8b'],
+    decor(S) {
+      const { c, W, H, fy } = S, r = Math.min(W * .28, H * .2), cx = W / 2, cy = fy - r * .35;
+      stars(S, 50, fy * .5);
+      glow(c, cx, cy, r * 2, '255,80,160', .35);
+      c.save(); c.beginPath(); c.arc(cx, cy, r, 0, 6.283); c.clip();
+      c.fillStyle = skyGrad(c, ['#ffe85a', '#ff8a4a', '#ff2e88'], cy - r, cy + r); c.fillRect(cx - r, cy - r, r * 2, r * 2);
+      c.fillStyle = skyGrad(c, this.sky, 0, fy);
+      for (let i = 0; i < 7; i++) c.fillRect(cx - r, cy + r * (.05 + i * .14), r * 2, r * (.025 + i * .014));
+      c.restore();
+      c.strokeStyle = 'rgba(255,62,200,.85)'; c.lineWidth = 1.5; c.fillStyle = '#12032a';
+      for (const [x0, w, h] of [[-W * .05, W * .45, H * .12], [W * .6, W * .5, H * .15]]) {
+        c.beginPath(); c.moveTo(x0, fy); c.lineTo(x0 + w * .5, fy - h); c.lineTo(x0 + w, fy); c.closePath(); c.fill(); c.stroke();
+        for (let k = 1; k < 4; k++) { c.beginPath(); c.moveTo(x0 + w * .5, fy - h); c.lineTo(x0 + w * k / 4, fy); c.stroke(); }
+      }
+    },
+    floor: { kind: 'grid', c: ['#0d0220', '#170530', '#1f0840'], line: 'rgba(255,62,200,.8)', tile: 1 },
+    paint: 'rgba(0,240,255,.1)', lines: '#00f0ff', lineGlow: '#00f0ff', mark: 'rgba(255,62,200,.5)', spot: '255,62,200', spotA: .16, fade: '7,1,26',
+    net: 'rgba(0,240,255,.85)', pole: '#1a0a33', poleBase: '#10051f'
+  },
+  deep: {
+    name: 'Abysses', sky: ['#010b1c', '#03284a', '#08507a'],
+    decor(S) {
+      const { c, W, H, fy, rnd } = S;
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 6; i++) { const x = W * (.05 + i * .18); c.fillStyle = 'rgba(120,210,255,.06)'; c.beginPath(); c.moveTo(x - 20, 0); c.lineTo(x + 30, 0); c.lineTo(x + 140, fy); c.lineTo(x + 40, fy); c.fill(); }
+      c.restore();
+      c.strokeStyle = 'rgba(20,90,70,.8)'; c.lineWidth = 4;
+      for (let i = 0; i < 12; i++) { const x = rnd() * W, h = H * (.12 + rnd() * .2); c.beginPath(); c.moveTo(x, fy); for (let k = 1; k <= 10; k++) c.lineTo(x + Math.sin(k * .9 + i) * 8, fy - h * k / 10); c.stroke(); }
+      const cols = ['#ff7f7f', '#ffb36b', '#c77dff', '#ff6fae', '#7ad7c4'];
+      c.globalAlpha = .6;
+      for (let i = 0; i < 18; i++) { const x = rnd() * W, r = 8 + rnd() * 20; c.fillStyle = cols[i % cols.length]; for (let k = 0; k < 4; k++) { c.beginPath(); c.arc(x + (k - 1.5) * r * .5, fy - r * (.4 + rnd() * .5), r * .45, 0, 6.283); c.fill(); } }
+      c.globalAlpha = 1; c.fillStyle = 'rgba(160,220,255,.35)';
+      for (let i = 0; i < 9; i++) {
+        const x = rnd() * W, y = H * .1 + rnd() * (fy - H * .25), r = 5 + rnd() * 6, d = rnd() < .5 ? 1 : -1;
+        c.beginPath(); c.ellipse(x, y, r, r * .45, 0, 0, 6.283); c.moveTo(x - d * r, y); c.lineTo(x - d * r * 1.7, y - r * .5); c.lineTo(x - d * r * 1.7, y + r * .5); c.fill();
+      }
+    },
+    floor: { kind: 'plain', c: ['#173547', '#3f6672', '#7f9a8c'], speck: 'rgba(220,240,230,.14)' },
+    paint: 'rgba(0,200,200,.22)', lines: 'rgba(220,250,255,.6)', mark: 'rgba(220,250,255,.22)', spot: '120,220,255', spotA: .22, fade: '1,11,28', fadeA: .6,
+    net: 'rgba(180,240,230,.85)', pole: '#123044', poleBase: '#0b2232', live: (t, dt) => liveBubbles(t, dt)
+  },
+  candy: {
+    name: 'Pays des bonbons', sky: ['#ff9fd0', '#ffd0e8', '#fff1f8'],
+    decor(S) {
+      const { c, W, H, fy, rnd } = S;
+      clouds(S, 6, H * .05, fy - H * .22, 'rgba(255,255,255,.9)'); clouds(S, 3, H * .1, fy - H * .25, 'rgba(190,225,255,.8)');
+      const hills = ['#ff8cc6', '#9be7d8', '#ffd36e', '#c9a0ff', '#ff9a8a'];
+      for (let i = 0; i < 9; i++) {
+        const x = (i / 8) * W + (rnd() - .5) * 40, r = H * (.05 + rnd() * .06);
+        c.fillStyle = hills[i % hills.length]; c.beginPath(); c.arc(x, fy + 2, r, Math.PI, 0); c.fill();
+        c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.arc(x - r * .3, fy - r * .55, r * .18, 0, 6.283); c.fill();
+      }
+      for (const [x, h, col] of [[W * .08, H * .26, '#ff5aa8'], [W * .9, H * .22, '#5ac8ff'], [W * .78, H * .15, '#ffb000']]) {
+        const r = H * .045, cy = fy - h;
+        c.fillStyle = '#ffffff'; c.fillRect(x - 3, cy, 6, h);
+        c.fillStyle = col; c.beginPath(); c.arc(x, cy, r, 0, 6.283); c.fill();
+        c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = r * .2; c.beginPath();
+        for (let a = 0; a < 12.5; a += .2) { const rr = r * a / 12.5; a === 0 ? c.moveTo(x, cy) : c.lineTo(x + Math.cos(a) * rr, cy + Math.sin(a) * rr); }
+        c.stroke();
+      }
+    },
+    floor: { kind: 'stripes', c: ['#f5b8d6', '#ffd6e8', '#fff0f7'], stripes: ['rgba(255,110,170,.35)', 'rgba(255,255,255,.35)', 'rgba(120,220,200,.3)'], w: .6 },
+    paint: 'rgba(120,220,200,.5)', lines: 'rgba(255,255,255,.95)', mark: 'rgba(255,90,170,.4)', spot: '255,255,255', spotA: .1, fade: '255,150,200', fadeA: .3,
+    pole: '#ff5aa8', poleBase: '#e04590', net: 'rgba(255,255,255,.95)', live: (t, dt) => liveSprinkles(t, dt)
+  },
+  lava: {
+    name: 'Volcan', sky: ['#0b0202', '#2c0805', '#7a1a08'],
+    decor(S) {
+      const { c, W, H, fy, rnd } = S, vx = W * .3, top = fy - H * .3;
+      ridge(S, fy, H * .12, '#1a0705', 1.7);
+      c.fillStyle = '#140504'; c.beginPath(); c.moveTo(vx - W * .35, fy); c.lineTo(vx - W * .05, top); c.lineTo(vx + W * .05, top); c.lineTo(vx + W * .35, fy); c.closePath(); c.fill();
+      glow(c, vx, top, H * .2, '255,90,20', .7);
+      c.strokeStyle = '#ff6a1a'; c.lineWidth = 3; c.shadowColor = '#ff4a00'; c.shadowBlur = 10;
+      for (let i = 0; i < 4; i++) { let x = vx + (i - 1.5) * W * .03, y = top; c.beginPath(); c.moveTo(x, y); while (y < fy) { y += 8; x += (rnd() - .5) * 8 + (i - 1.5) * 2.5; c.lineTo(x, y); } c.stroke(); }
+      c.shadowBlur = 0; c.fillStyle = 'rgba(40,20,20,.6)';
+      for (let i = 0; i < 6; i++) { c.beginPath(); c.arc(vx + (rnd() - .3) * W * .25, top - H * (.05 + i * .035), H * (.03 + i * .012), 0, 6.283); c.fill(); }
+    },
+    floor: { kind: 'plain', c: ['#0e0808', '#1c1212', '#2a1c1a'], speck: 'rgba(255,120,60,.07)', lava: true },
+    paint: 'rgba(255,80,20,.16)', lines: 'rgba(255,170,90,.8)', lineGlow: '#ff5a1a', mark: 'rgba(255,120,40,.4)', spot: '255,110,40', spotA: .3, fade: '11,2,2',
+    pole: '#2a1a16', poleBase: '#1a0f0d', live: (t, dt) => liveEmbers(t, dt)
+  },
+  space: {
+    name: 'Station spatiale', sky: ['#010008', '#06052a', '#0e0a3c'],
+    decor(S) {
+      const { c, W, H, fy } = S;
+      glow(c, W * .25, H * .2, H * .3, '150,80,255', .25); glow(c, W * .7, H * .3, H * .28, '60,140,255', .2);
+      stars(S, 160, fy);
+      const px = W * .78, py = H * .17, pr = H * .07;
+      c.strokeStyle = 'rgba(230,200,150,.7)'; c.lineWidth = pr * .12;
+      c.beginPath(); c.ellipse(px, py, pr * 1.9, pr * .45, -.3, Math.PI, Math.PI * 2); c.stroke();
+      let g = c.createRadialGradient(px - pr * .4, py - pr * .4, pr * .1, px, py, pr); g.addColorStop(0, '#ffe1b0'); g.addColorStop(1, '#a0602a');
+      c.fillStyle = g; c.beginPath(); c.arc(px, py, pr, 0, 6.283); c.fill();
+      c.beginPath(); c.ellipse(px, py, pr * 1.9, pr * .45, -.3, 0, Math.PI); c.stroke();
+      const ex = W * .16, ey = fy - H * .12, er = H * .045;
+      glow(c, ex, ey, er * 1.9, '120,200,255', .35);
+      g = c.createRadialGradient(ex - er * .3, ey - er * .3, er * .1, ex, ey, er); g.addColorStop(0, '#9fe0ff'); g.addColorStop(1, '#1d5fbf');
+      c.fillStyle = g; c.beginPath(); c.arc(ex, ey, er, 0, 6.283); c.fill();
+      c.fillStyle = '#1b1f2b'; c.fillRect(0, S.y1 - H * .02, W, H * .02);
+      for (let x = 0; x <= W; x += W / 5) c.fillRect(x - 4, 0, 8, S.y1);
+    },
+    floor: { kind: 'tiles', c: ['#1d2230', '#323a4c', '#4b556b'], line: 'rgba(120,230,255,.25)', tile: 1.5, rivets: true },
+    paint: 'rgba(0,200,255,.15)', lines: 'rgba(120,230,255,.9)', lineGlow: '#40d8ff', mark: 'rgba(120,230,255,.28)', spot: '160,200,255', spotA: .2, fade: '1,0,8',
+    pole: '#3b4458', poleBase: '#262c3a', live: (t, dt) => liveTwinkle(t, dt)
+  },
+  grand: {
+    name: 'Grand Soir', sky: ['#020203', '#0d0b10', '#1d1712'], flashes: true,
+    crowd: { shirts: ['#f5c542', '#ffffff', '#BA2A2F', '#1a1a1a', '#f5c542', '#d9d9d9', '#7a1418', '#333333'], veil: '5,4,6' },
+    decor2(S) {
+      const { c, W, H } = S, sw = Math.min(W * .42, H * .5), sh = sw * .36, sx = W / 2 - sw / 2, sy = Math.max(10, S.y0 - sh * .15);
+      c.fillStyle = '#050507'; c.fillRect(sx - 6, sy - 6, sw + 12, sh + 12);
+      c.fillStyle = skyGrad(c, ['#2a0f12', '#0d0506'], sy, sy + sh); c.fillRect(sx, sy, sw, sh);
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.font = `400 ${Math.round(sh * .42)}px ${bgFont()}`; c.fillStyle = '#f5c542'; c.shadowColor = '#f5c542'; c.shadowBlur = 14; c.fillText('MBC', W / 2, sy + sh * .42);
+      c.font = `400 ${Math.round(sh * .16)}px ${bgFont()}`; c.fillStyle = '#ffffff'; c.shadowBlur = 6; c.fillText('GRAND SOIR', W / 2, sy + sh * .8);
+      c.shadowBlur = 0; c.textAlign = 'start';
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for (const [x, d] of [[W * .1, 1], [W * .9, -1], [W * .3, 1], [W * .7, -1]]) {
+        const g = c.createLinearGradient(x, 0, W / 2, H); g.addColorStop(0, 'rgba(255,240,200,.18)'); g.addColorStop(1, 'rgba(255,240,200,0)');
+        c.fillStyle = g; c.beginPath(); c.moveTo(x - 6, 0); c.lineTo(x + 6, 0); c.lineTo(W / 2 + d * W * .05 + 60, H); c.lineTo(W / 2 + d * W * .05 - 60, H); c.fill();
+      }
+      c.restore();
+    },
+    strip: { bg: '#000000', fg: '#f5c542', msg: 'GRAND SOIR  •  MBC  •  SHOOTOUT  •  ', glow: true },
+    floor: { kind: 'wood', c: ['#2a160a', '#6e3c1a', '#b06a30'], gloss: true },
+    paint: 'rgba(15,12,10,.85)', lines: 'rgba(245,197,66,.95)', mark: 'rgba(245,197,66,.45)', spot: '255,230,170', spotA: .35, fade: '2,2,3',
+    pole: '#141414', poleBase: '#000000'
+  }
+};
+function themeNow() {
+  const id = previewTheme || (THEMES[HASH_THEME] ? HASH_THEME : LIVE_EVENT && Prof.theme === 'mbc' ? LIVE_EVENT.theme : Prof.theme);
+  return THEMES[id] || THEMES.mbc;
+}
+
+function drawCrowd(S, cr) {
+  const { c, W, rnd } = S; let row = 0;
+  for (let y = S.y0; y < S.y1 + 6;) {
+    const t = (y - S.y0) / Math.max(1, S.y1 - S.y0), sz = 3.5 + t * 6.5;
     for (let x = (row % 2) * sz - sz; x < W + sz * 2; x += sz * 2.2) {
       const xx = x + (rnd() - .5) * sz * .6, yy = y + (rnd() - .5) * sz * .4;
-      c.fillStyle = shirts[(rnd() * shirts.length) | 0];
-      c.beginPath(); c.ellipse(xx, yy + sz * 1.35, sz * 1.0, sz * .75, 0, 0, 6.283); c.fill();
-      c.fillStyle = skins[(rnd() * skins.length) | 0];
+      c.fillStyle = cr.shirts[(rnd() * cr.shirts.length) | 0];
+      c.beginPath(); c.ellipse(xx, yy + sz * 1.35, sz, sz * .75, 0, 0, 6.283); c.fill();
+      c.fillStyle = SKIN_TONES[(rnd() * SKIN_TONES.length) | 0];
       c.beginPath(); c.ellipse(xx, yy, sz * .55, sz * .66, 0, 0, 6.283); c.fill();
     }
     y += sz * 1.65; row++;
   }
-  g = c.createLinearGradient(0, crowdY0, 0, crowdY1);
-  g.addColorStop(0, 'rgba(16,8,10,.95)'); g.addColorStop(.35, 'rgba(16,8,10,.6)'); g.addColorStop(1, 'rgba(16,8,10,.35)');
-  c.fillStyle = g; c.fillRect(0, crowdY0 - 2, W, crowdY1 - crowdY0 + 8);
-  if (HW) {
-    const mr = Math.min(W, H) * .055, mx = W * .82, my = Math.max(mr * 2.4, crowdY0 * .55);
-    g = c.createRadialGradient(mx, my, mr * .8, mx, my, mr * 4);
-    g.addColorStop(0, 'rgba(255,214,150,.35)'); g.addColorStop(1, 'rgba(255,214,150,0)');
-    c.fillStyle = g; c.fillRect(mx - mr * 4, my - mr * 4, mr * 8, mr * 8);
-    c.fillStyle = '#ffe7b0'; c.beginPath(); c.arc(mx, my, mr, 0, 6.283); c.fill();
-    c.fillStyle = 'rgba(200,150,90,.35)';
-    for (const [dx, dy, rr] of [[-.3, -.2, .18], [.25, .15, .22], [-.1, .4, .12]]) { c.beginPath(); c.arc(mx + dx * mr, my + dy * mr, rr * mr, 0, 6.283); c.fill(); }
-  }
-
-  // LED advertising strip
-  c.fillStyle = HW ? '#f07a12' : '#BA2A2F'; c.fillRect(0, crowdY1, W, fy - crowdY1 + 1);
-  c.font = `400 ${Math.round(ledH * .62)}px ${getComputedStyle(document.documentElement).getPropertyValue('--f-display')}`;
-  c.textBaseline = 'middle'; c.fillStyle = HW ? '#1a0a05' : '#ffffff'; c.shadowColor = 'rgba(255,255,255,.6)'; c.shadowBlur = HW ? 0 : 6;
-  const msg = HW ? 'JOYEUX HALLOWEEN  •  MBC  •  ' : 'MBC  •  SHOOTOUT  •  ALLEZ MBC  •  ';
-  const mw = c.measureText(msg).width || 200;
-  for (let x = -((W / 2) % mw); x < W; x += mw) c.fillText(msg, x, crowdY1 + (fy - crowdY1) / 2 + 1);
+  const g = c.createLinearGradient(0, S.y0, 0, S.y1);
+  g.addColorStop(0, `rgba(${cr.veil},.95)`); g.addColorStop(.35, `rgba(${cr.veil},.6)`); g.addColorStop(1, `rgba(${cr.veil},.35)`);
+  c.fillStyle = g; c.fillRect(0, S.y0 - 2, W, S.y1 - S.y0 + 8);
+}
+function drawStrip(S, st) {
+  const { c, W, fy } = S, h = fy - S.y1;
+  c.fillStyle = st.bg; c.fillRect(0, S.y1, W, h + 1);
+  c.font = `400 ${Math.round(h * .62)}px ${bgFont()}`; c.textBaseline = 'middle'; c.fillStyle = st.fg;
+  if (st.glow) { c.shadowColor = st.fg; c.shadowBlur = 6; }
+  const mw = c.measureText(st.msg).width || 200;
+  for (let x = -((W / 2) % mw); x < W; x += mw) c.fillText(st.msg, x, S.y1 + h / 2 + 1);
   c.shadowBlur = 0;
-
-  // Hardwood floor
-  const near = -1.25;
-  const fl = [proj(-40, 0, farZ), proj(40, 0, farZ), proj(40, 0, near), proj(-40, 0, near)];
-  g = c.createLinearGradient(0, fy, 0, H);
-  g.addColorStop(0, '#4a2b16'); g.addColorStop(.45, '#8c5129'); g.addColorStop(1, '#b8743c');
-  c.fillStyle = g; poly(c, fl); c.fill();
-  c.save(); poly(c, fl); c.clip();
-  const pw = .2;
-  for (let k = -100; k < 100; k++) {
-    const x0 = k * pw, a = rnd();
-    c.fillStyle = a < .5 ? `rgba(255,220,170,${(a * .12).toFixed(3)})` : `rgba(30,10,0,${((a - .5) * .16).toFixed(3)})`;
-    poly(c, [proj(x0, 0, farZ), proj(x0 + pw, 0, farZ), proj(x0 + pw, 0, near), proj(x0, 0, near)]); c.fill();
-  }
-  c.strokeStyle = 'rgba(25,8,0,.22)'; c.lineWidth = .8; c.beginPath();
-  for (let k = -100; k < 100; k++) {
-    const x0 = k * pw, a = proj(x0, 0, farZ), b = proj(x0, 0, near); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y);
-    for (let j = 0; j < 3; j++) { const z = rnd() * (farZ - near) + near, p1 = proj(x0, 0, z), p2 = proj(x0 + pw, 0, z); c.moveTo(p1.x, p1.y); c.lineTo(p2.x, p2.y); }
+}
+function floorWalks(S, n, steps, stepLen) {
+  const { c, rnd } = S; c.beginPath();
+  for (let i = 0; i < n; i++) {
+    let x = (rnd() - .5) * 14, z = rnd() * 10, a = rnd() * 6.283;
+    c.moveTo(proj(x, 0, z).x, proj(x, 0, z).y);
+    for (let k = 0; k < steps; k++) { a += (rnd() - .5) * 1.4; x += Math.cos(a) * stepLen; z += Math.sin(a) * stepLen; if (z - CAM_Z < .4) break; const p = proj(x, 0, z); c.lineTo(p.x, p.y); }
   }
   c.stroke();
-
-  // Court: paint, lines, 3-point arc
-  const baseZ = BASE_Z + RR + .15 + 1.2, ftZ = baseZ - 5.8;
-  c.fillStyle = 'rgba(186,42,47,.82)';
+}
+function drawFloor(S, T, farZ) {
+  const { c, W, H, fy, rnd } = S, f = T.floor, near = -1.25;
+  const fl = [proj(-40, 0, farZ), proj(40, 0, farZ), proj(40, 0, near), proj(-40, 0, near)];
+  c.fillStyle = skyGrad(c, f.c, fy, H); poly(c, fl); c.fill();
+  c.save(); poly(c, fl); c.clip();
+  if (f.kind === 'wood') {
+    const pw = .2;
+    for (let k = -100; k < 100; k++) {
+      const x0 = k * pw, a = rnd();
+      c.fillStyle = a < .5 ? `rgba(255,220,170,${(a * .12).toFixed(3)})` : `rgba(30,10,0,${((a - .5) * .16).toFixed(3)})`;
+      poly(c, [proj(x0, 0, farZ), proj(x0 + pw, 0, farZ), proj(x0 + pw, 0, near), proj(x0, 0, near)]); c.fill();
+    }
+    c.strokeStyle = 'rgba(25,8,0,.22)'; c.lineWidth = .8; c.beginPath();
+    for (let k = -100; k < 100; k++) {
+      const x0 = k * pw, a = proj(x0, 0, farZ), b = proj(x0, 0, near); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y);
+      for (let j = 0; j < 3; j++) { const z = rnd() * (farZ - near) + near, p1 = proj(x0, 0, z), p2 = proj(x0 + pw, 0, z); c.moveTo(p1.x, p1.y); c.lineTo(p2.x, p2.y); }
+    }
+    c.stroke();
+  } else if (f.kind === 'stripes') {
+    for (let k = -60, i = 0; k < 60; k++, i++) {
+      const x0 = k * f.w; c.fillStyle = f.stripes[((i % f.stripes.length) + f.stripes.length) % f.stripes.length];
+      poly(c, [proj(x0, 0, farZ), proj(x0 + f.w, 0, farZ), proj(x0 + f.w, 0, near), proj(x0, 0, near)]); c.fill();
+    }
+  } else if (f.kind === 'tiles' || f.kind === 'grid') {
+    c.strokeStyle = f.line; c.lineWidth = f.kind === 'grid' ? 1.4 : 1;
+    if (f.kind === 'grid') { c.shadowColor = f.line; c.shadowBlur = 6; }
+    for (let x = -24; x <= 24; x += f.tile) line3(c, [[x, 0, near + .4], [x, 0, farZ]]);
+    for (let z = Math.ceil(near + .4); z <= farZ; z += f.tile) line3(c, [[-30, 0, z], [30, 0, z]]);
+    c.shadowBlur = 0;
+    if (f.rivets) {
+      c.fillStyle = 'rgba(200,220,255,.35)';
+      for (let x = -9; x <= 9; x += f.tile) for (let z = 0; z <= 9; z += f.tile) { const p = proj(x + .12, 0, z + .12); c.beginPath(); c.arc(p.x, p.y, Math.max(.6, p.s * .02), 0, 6.283); c.fill(); }
+    }
+  }
+  if (f.speck) { c.fillStyle = f.speck; for (let i = 0; i < 1400; i++) { const y = fy + rnd() * (H - fy); c.fillRect(rnd() * W, y, 1 + (y - fy) / H * 2, 1 + (y - fy) / H * 2); } }
+  if (f.cracks) { c.strokeStyle = f.cracks; c.lineWidth = 1; floorWalks(S, 14, 10, .35); }
+  if (f.lava) {
+    c.strokeStyle = 'rgba(255,110,30,.9)'; c.lineWidth = 2; c.shadowColor = '#ff5a00'; c.shadowBlur = 10;
+    floorWalks(S, 22, 14, .4); c.shadowBlur = 0;
+  }
+  if (f.gloss) {
+    c.save(); c.globalCompositeOperation = 'lighter';
+    const g = c.createLinearGradient(0, fy, 0, H); g.addColorStop(0, 'rgba(255,240,210,0)'); g.addColorStop(.35, 'rgba(255,240,210,.14)'); g.addColorStop(.6, 'rgba(255,240,210,0)');
+    c.fillStyle = g; c.fillRect(0, fy, W, H - fy); c.restore();
+  }
+  c.restore();
+}
+function drawCourt(S, T) {
+  const { c } = S, baseZ = BASE_Z + RR + .15 + 1.2, ftZ = baseZ - 5.8;
+  c.fillStyle = T.paint;
   poly(c, [proj(-2.45, 0, baseZ), proj(2.45, 0, baseZ), proj(2.45, 0, ftZ), proj(-2.45, 0, ftZ)]); c.fill();
-  // club mark painted in the lane
   const mc = proj(0, 0, 3.2), mA = proj(0, 0, 2.8), mB = proj(0, 0, 3.6);
   c.save(); c.translate(mc.x, mc.y); c.scale(1, clamp(((mA.y - mB.y) / .8) / mc.s, .05, 1));
-  c.font = `400 ${Math.round(mc.s * 1.05)}px ${getComputedStyle(document.documentElement).getPropertyValue('--f-display')}`;
-  c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = 'rgba(255,255,255,.4)'; c.fillText('MBC', 0, 0);
+  c.font = `400 ${Math.round(mc.s * 1.05)}px ${bgFont()}`;
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = T.mark; c.fillText('MBC', 0, 0);
   c.restore();
-  c.strokeStyle = 'rgba(246,239,226,.85)'; c.lineWidth = 2.4; c.lineJoin = 'round';
+  c.strokeStyle = T.lines; c.lineWidth = 2.4; c.lineJoin = 'round';
+  if (T.lineGlow) { c.shadowColor = T.lineGlow; c.shadowBlur = 8; }
   c.beginPath(); poly(c, [proj(-2.45, 0, ftZ), proj(-2.45, 0, baseZ), proj(2.45, 0, baseZ), proj(2.45, 0, ftZ)], true); c.closePath(); c.stroke();
   line3(c, [[-9, 0, baseZ], [9, 0, baseZ]]);
   const ft = []; for (let i = 0; i <= 40; i++) { const a = Math.PI + i / 40 * Math.PI; ft.push([Math.cos(a) * 1.8, 0, ftZ + Math.sin(a) * 1.8]); }
@@ -754,18 +1174,152 @@ function drawBG() {
   line3(c, arc);
   const cz = BASE_Z - Math.sqrt(6.75 * 6.75 - 6.6 * 6.6);
   line3(c, [[-6.6, 0, cz], [-6.6, 0, baseZ]]); line3(c, [[6.6, 0, cz], [6.6, 0, baseZ]]);
-  c.restore();
-
-  // Spotlight pool on the hoop
-  const sp = proj(0, 0, BASE_Z - .6);
+  c.shadowBlur = 0;
+}
+function drawBG(target = bg, T = themeNow(), scale = DPR) {
+  target.width = Math.round(W * scale); target.height = Math.round(H * scale);
+  const c = target.getContext('2d'); c.setTransform(scale, 0, 0, scale, 0, 0);
+  const farZ = 11, fy = proj(0, 0, farZ).y;
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  c.fillStyle = skyGrad(c, T.sky, 0, fy); c.fillRect(0, 0, W, fy + 2);
+  const ledH = Math.max(14, H * .032);
+  crowdY0 = Math.max(0, fy - H * .36); crowdY1 = T.strip ? fy - ledH : fy; horizonY = fy;
+  const S = { c, W, H, fy, y0: crowdY0, y1: crowdY1, rnd };
+  if (T.decor) T.decor(S);
+  if (T.crowd) drawCrowd(S, T.crowd);
+  if (T.decor2) T.decor2(S);
+  if (T.strip) drawStrip(S, T.strip);
+  drawFloor(S, T, farZ);
+  drawCourt(S, T);
+  // Spotlight pool on the hoop, then the far floor fades into the dark
+  const sp = proj(0, 0, BASE_Z - .6), R = Math.max(W, H) * .55;
   c.save(); c.globalCompositeOperation = 'lighter'; c.translate(sp.x, sp.y); c.scale(1, .32);
-  g = c.createRadialGradient(0, 0, 0, 0, 0, Math.max(W, H) * .55);
-  const spot = HW ? '255,140,50' : '255,205,140';
-  g.addColorStop(0, `rgba(${spot},.28)`); g.addColorStop(1, `rgba(${spot},0)`);
-  c.fillStyle = g; c.beginPath(); c.arc(0, 0, Math.max(W, H) * .55, 0, 6.283); c.fill(); c.restore();
-  g = c.createLinearGradient(0, fy, 0, fy + H * .22);
-  g.addColorStop(0, 'rgba(16,8,10,.55)'); g.addColorStop(1, 'rgba(16,8,10,0)');
-  c.fillStyle = g; c.fillRect(0, fy, W, H * .22);
+  const g = c.createRadialGradient(0, 0, 0, 0, 0, R);
+  g.addColorStop(0, `rgba(${T.spot},${T.spotA ?? .28})`); g.addColorStop(1, `rgba(${T.spot},0)`);
+  c.fillStyle = g; c.beginPath(); c.arc(0, 0, R, 0, 6.283); c.fill(); c.restore();
+  const g2 = c.createLinearGradient(0, fy, 0, fy + H * .22);
+  g2.addColorStop(0, `rgba(${T.fade},${T.fadeA ?? .55})`); g2.addColorStop(1, `rgba(${T.fade},0)`);
+  c.fillStyle = g2; c.fillRect(0, fy, W, H * .22);
+}
+// Renders a theme into a small canvas (vestiaire, quests). Cached, since the decor is static.
+const thumbCache = new Map();
+function paintTheme(cv, id) {
+  const key = id + ':' + cv.width + 'x' + cv.height;
+  if (!thumbCache.has(key)) {
+    const keep = [W, H, F, HY, crowdY0, crowdY1, horizonY];
+    W = 300; H = 300 * cv.height / cv.width; F = Math.min(H * .65, W * 1.3); HY = H * .86 - .95 * F / (0 - CAM_Z);
+    const off = document.createElement('canvas'); drawBG(off, THEMES[id], cv.width / W);
+    const c = off.getContext('2d'); c.setTransform(cv.width / W, 0, 0, cv.width / W, 0, 0);
+    const bz = BASE_Z + RR + .15, tl = proj(-.9, 3.95, bz), br = proj(.9, 2.9, bz), pb = proj(0, 0, bz + 1), pt = proj(0, 3.4, bz + 1);
+    c.fillStyle = THEMES[id].pole || '#2e2729'; c.fillRect(pb.x - .085 * pb.s, pt.y, .17 * pb.s, pb.y - pt.y);
+    c.fillStyle = 'rgba(210,225,255,.25)'; c.fillRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+    c.strokeStyle = '#ffffff'; c.lineWidth = Math.max(1, .05 * tl.s); c.strokeRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+    const rc = proj(0, RIM_Y, BASE_Z); c.strokeStyle = '#f04e1c'; c.lineWidth = Math.max(1, .04 * rc.s);
+    c.beginPath(); c.ellipse(rc.x, rc.y, RR * rc.s, RR * rc.s * .3, 0, 0, 6.283); c.stroke();
+    [W, H, F, HY, crowdY0, crowdY1, horizonY] = keep;
+    thumbCache.set(key, off);
+  }
+  const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); c.drawImage(thumbCache.get(key), 0, 0);
+}
+
+/* ---------- Animated layer of the current theme ---------- */
+let amb = [], ambFor = null;
+function ambient(T, t, dt) {
+  if (!T.live) return;
+  if (ambFor !== T) { amb = []; ambFor = T; }
+  T.live(t, dt);
+}
+function seedAmb(n, make) { if (!amb.length) for (let i = 0; i < n; i++) amb.push(make(i)); }
+function liveSnow(t, dt) {
+  seedAmb(70, () => ({ x: Math.random() * W, y: Math.random() * H, r: .8 + Math.random() * 2.2, v: 18 + Math.random() * 40, p: Math.random() * 6 }));
+  ctx.fillStyle = 'rgba(255,255,255,.85)';
+  for (const s of amb) { s.y += s.v * dt; s.x += Math.sin(t + s.p) * 12 * dt; if (s.y > H) { s.y = -5; s.x = Math.random() * W; } ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill(); }
+}
+function liveBubbles(t, dt) {
+  seedAmb(30, () => ({ x: Math.random() * W, y: Math.random() * H, r: 1.5 + Math.random() * 4, v: 20 + Math.random() * 35, p: Math.random() * 6 }));
+  ctx.strokeStyle = 'rgba(210,245,255,.55)'; ctx.lineWidth = 1;
+  for (const s of amb) { s.y -= s.v * dt; s.x += Math.sin(t * 2 + s.p) * 10 * dt; if (s.y < -8) { s.y = H + 5; s.x = Math.random() * W; } ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.stroke(); }
+}
+function liveEmbers(t, dt) {
+  seedAmb(45, () => ({ x: Math.random() * W, y: Math.random() * H, r: .8 + Math.random() * 1.8, v: 25 + Math.random() * 60, p: Math.random() * 6 }));
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (const s of amb) {
+    s.y -= s.v * dt; s.x += Math.sin(t * 3 + s.p) * 18 * dt; if (s.y < -8) { s.y = H + 5; s.x = Math.random() * W; }
+    ctx.fillStyle = `rgba(255,${120 + Math.round(80 * Math.sin(t * 9 + s.p) ** 2)},40,.8)`; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
+  }
+  ctx.restore();
+}
+function liveFireflies(t) {
+  seedAmb(22, () => ({ x: Math.random() * W, y: Math.random() * horizonY, p: Math.random() * 6 }));
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (const s of amb) {
+    const a = .25 + .75 * Math.max(0, Math.sin(t * 1.7 + s.p)), x = s.x + Math.sin(t * .6 + s.p) * 20, y = s.y + Math.cos(t * .5 + s.p) * 14;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 7); g.addColorStop(0, `rgba(220,255,120,${a.toFixed(2)})`); g.addColorStop(1, 'rgba(220,255,120,0)');
+    ctx.fillStyle = g; ctx.fillRect(x - 7, y - 7, 14, 14);
+  }
+  ctx.restore();
+}
+function liveTwinkle(t, dt) {
+  seedAmb(26, () => ({ x: Math.random() * W, y: Math.random() * horizonY * .9, p: Math.random() * 6 }));
+  for (const s of amb) {
+    ctx.fillStyle = `rgba(255,255,255,${Math.max(0, Math.sin(t * 2.5 + s.p)).toFixed(2)})`;
+    ctx.fillRect(s.x - .5, s.y - 2.5, 1, 5); ctx.fillRect(s.x - 2.5, s.y - .5, 5, 1);
+  }
+  const sh = amb.shoot || (amb.shoot = { t: 2 });
+  sh.t -= dt;
+  if (sh.t < 0) {
+    if (!sh.on) { sh.on = true; sh.x = Math.random() * W * .6; sh.y = Math.random() * horizonY * .4; sh.k = 0; }
+    sh.k += dt * 1.6;
+    const x = sh.x + sh.k * W * .4, y = sh.y + sh.k * horizonY * .25, g = ctx.createLinearGradient(x - 60, y - 38, x, y);
+    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,.9)');
+    ctx.strokeStyle = g; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - 60, y - 38); ctx.lineTo(x, y); ctx.stroke();
+    if (sh.k > 1) { sh.on = false; sh.t = 3 + Math.random() * 4; }
+  }
+}
+function liveSprinkles(t, dt) {
+  const cols = ['#ff5aa8', '#5ac8ff', '#ffd000', '#7be495', '#ffffff', '#b07cff'];
+  seedAmb(40, i => ({ x: Math.random() * W, y: Math.random() * H, v: 30 + Math.random() * 40, r: Math.random() * 6, vr: (Math.random() - .5) * 6, c: cols[i % cols.length] }));
+  for (const s of amb) {
+    s.y += s.v * dt; s.r += s.vr * dt; if (s.y > H) { s.y = -6; s.x = Math.random() * W; }
+    ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(s.r); ctx.fillStyle = s.c; ctx.fillRect(-3, -1, 6, 2); ctx.restore();
+  }
+}
+function drawShape(c, shape, x, y, s, rot) {
+  c.save(); c.translate(x, y); c.rotate(rot || 0);
+  switch (shape) {
+    case 'square': c.fillRect(-s / 2, -s / 2, s, s); break;
+    case 'tri': c.beginPath(); c.moveTo(0, -s * .6); c.lineTo(s * .55, s * .45); c.lineTo(-s * .55, s * .45); c.closePath(); c.fill(); break;
+    case 'dot': c.beginPath(); c.arc(0, 0, s / 2, 0, 6.283); c.fill(); break;
+    case 'ring': c.lineWidth = Math.max(1, s * .14); c.strokeStyle = c.fillStyle; c.beginPath(); c.arc(0, 0, s / 2, 0, 6.283); c.stroke(); break;
+    case 'leaf': c.beginPath(); c.ellipse(0, 0, s * .6, s * .25, 0, 0, 6.283); c.fill(); break;
+    case 'flake':
+      c.lineWidth = Math.max(1, s * .12); c.strokeStyle = c.fillStyle; c.beginPath();
+      for (let i = 0; i < 3; i++) { const a = i * Math.PI / 3; c.moveTo(Math.cos(a) * s / 2, Math.sin(a) * s / 2); c.lineTo(-Math.cos(a) * s / 2, -Math.sin(a) * s / 2); }
+      c.stroke(); break;
+    case 'heart': {
+      const k = s / 2; c.beginPath(); c.moveTo(0, k * .9);
+      c.bezierCurveTo(-k * 1.4, -k * .1, -k * .6, -k * 1.1, 0, -k * .35); c.bezierCurveTo(k * .6, -k * 1.1, k * 1.4, -k * .1, 0, k * .9); c.fill(); break;
+    }
+    case 'star':
+      c.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? s * .18 : s * .6, a = i * Math.PI / 4; c.lineTo(Math.cos(a) * r, Math.sin(a) * r); } c.closePath(); c.fill(); break;
+  }
+  c.restore();
+}
+function paintTrail(cv, id) {
+  const c = cv.getContext('2d'), w = cv.width, h = cv.height, TR = TRAILS[id];
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, w, h);
+  if (TR) {
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 14; i++) {
+      const k = i / 13, x = w * (.12 + k * .5) + (rnd() - .5) * w * .1, y = h * (.85 - k * .5) + (rnd() - .5) * h * .1;
+      c.globalAlpha = .25 + k * .75; c.fillStyle = TR.colors[i % TR.colors.length];
+      if (TR.add) c.globalCompositeOperation = 'lighter';
+      drawShape(c, TR.shape, x, y, w * (.06 + k * .06), rnd() * 6);
+      c.globalCompositeOperation = 'source-over';
+    }
+    c.globalAlpha = 1;
+  }
+  drawBall(c, w * .72, h * .3, w * .17, -.3, false, false, 1, Prof.skin, 1.3);
 }
 function poly(c, pts, cont) { if (!cont) c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); }
 function line3(c, pts) {
@@ -784,7 +1338,17 @@ const SKIN_LOOK = {
   pumpkin26: { g: ['#ffc56e', '#f07a12', '#6e2c04'], seam: null },
   disco:   { g: ['#ffffff', '#b9bcc6', '#4d515c'], seam: null },
   flame:   { g: ['#ffe08a', '#ff5a1f', '#7d1604'], seam: 'rgba(60,8,0,.8)' },
-  golden:  { g: ['#fff6c4', '#f5c542', '#9a6a0c'], seam: 'rgba(90,55,0,.7)' }
+  golden:  { g: ['#fff6c4', '#f5c542', '#9a6a0c'], seam: 'rgba(90,55,0,.7)' },
+  rue:     { g: ['#d39466', '#a0582a', '#4a220c'], seam: 'rgba(30,12,2,.8)', scuff: true },
+  plage:   { g: ['#ffffff', '#f2f2f2', '#b9c2cc'], seam: null },
+  glace:   { g: ['#ffffff', '#a8dcf5', '#3d77a8'], seam: 'rgba(255,255,255,.95)', glow: true },
+  jade:    { g: ['#c8f7d4', '#2f9e63', '#0b3a22'], seam: '#e9c46a' },
+  chrome:  { g: ['#ffffff', '#c9c2ff', '#2b1f5e'], seam: '#ff3ec8', glow: true },
+  perle:   { g: ['#ffffff', '#e6eef3', '#8fa6b8'], seam: 'rgba(140,180,210,.75)', iris: true },
+  sucre:   { g: ['#ffd1e6', '#ff6fae', '#b0306a'], seam: null },
+  magma:   { g: ['#4a1d14', '#220a06', '#080202'], seam: '#ff7a1a', glow: true },
+  planete: { g: ['#f3d9b1', '#c9905a', '#6b3d1e'], seam: null },
+  onyx:    { g: ['#5a5a5a', '#1a1a1a', '#000000'], seam: '#f5c542', glow: true }
 };
 function drawBall(c, x, y, r, spin, golden, fire, alpha, skin = curSkin, t = performance.now() / 1000) {
   const id = golden ? 'golden' : skin, L = SKIN_LOOK[id] || SKIN_LOOK.classic;
@@ -819,6 +1383,20 @@ function drawBall(c, x, y, r, spin, golden, fire, alpha, skin = curSkin, t = per
     c.quadraticCurveTo(0, r * .78, -r * .58, r * .12);
     c.fill(); c.shadowBlur = 0;
     c.strokeStyle = '#3a1402'; c.lineWidth = Math.max(1, r * .06); c.lineJoin = 'round'; c.stroke();
+  } else if (id === 'plage') {
+    const cols = ['#ff4b4b', '#ffffff', '#2a7fff', '#ffd400', '#ffffff', '#2ecc71'];
+    for (let i = 0; i < 6; i++) { c.fillStyle = cols[i]; c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, r, i * Math.PI / 3, (i + 1) * Math.PI / 3); c.closePath(); c.fill(); }
+    c.fillStyle = '#ffffff'; c.beginPath(); c.arc(0, 0, r * .16, 0, 6.283); c.fill();
+    const sh = c.createRadialGradient(-r * .35, -r * .4, r * .05, 0, 0, r); sh.addColorStop(0, 'rgba(255,255,255,.45)'); sh.addColorStop(.6, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(0,0,0,.3)');
+    c.fillStyle = sh; c.fillRect(-r, -r, r * 2, r * 2);
+  } else if (id === 'sucre') {
+    c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = r * .14; c.beginPath();
+    for (let a = 0; a < 15; a += .15) { const rr = r * a / 13; a === 0 ? c.moveTo(0, 0) : c.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    c.stroke();
+  } else if (id === 'planete') {
+    const bands = ['rgba(140,80,40,.55)', 'rgba(255,240,215,.45)', 'rgba(170,100,55,.5)', 'rgba(255,230,200,.4)', 'rgba(120,70,35,.5)'];
+    bands.forEach((col, i) => { c.fillStyle = col; c.fillRect(-r, -r * .8 + i * r * .34, r * 2, r * .17); });
+    c.fillStyle = 'rgba(190,70,40,.75)'; c.beginPath(); c.ellipse(r * .3, r * .25, r * .2, r * .11, 0, 0, 6.283); c.fill();
   } else if (id === 'disco') {
     const n = 7, cs = r * 2 / n;
     for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
@@ -829,11 +1407,13 @@ function drawBall(c, x, y, r, spin, golden, fire, alpha, skin = curSkin, t = per
     for (let i = 0; i <= n; i++) { const p = -r + i * cs; c.moveTo(p, -r); c.lineTo(p, r); c.moveTo(-r, p); c.lineTo(r, p); }
     c.stroke();
   } else {
-    if (L.glow) { c.shadowColor = L.seam; c.shadowBlur = r * .5; }
+    if (L.glow) { c.shadowColor = typeof L.glow === 'string' ? L.glow : L.seam; c.shadowBlur = r * .5; }
     c.strokeStyle = L.seam; c.lineWidth = lw;
     c.beginPath(); c.moveTo(0, -r); c.lineTo(0, r); c.moveTo(-r, 0); c.lineTo(r, 0); c.stroke();
     c.beginPath(); c.arc(-r * 1.35, 0, r * .98, -.85, .85); c.stroke();
     c.beginPath(); c.arc(r * 1.35, 0, r * .98, Math.PI - .85, Math.PI + .85); c.stroke();
+    if (L.scuff) { c.shadowBlur = 0; c.fillStyle = 'rgba(255,225,190,.22)'; for (const [sx, sy, sr] of [[-.4, -.3, .18], [.35, .4, .14], [.1, -.55, .1], [-.2, .5, .12]]) { c.beginPath(); c.arc(sx * r, sy * r, sr * r, 0, 6.283); c.fill(); } }
+    if (L.iris) { c.shadowBlur = 0; const ir = c.createLinearGradient(-r, -r, r, r); ir.addColorStop(0, 'rgba(255,160,220,.3)'); ir.addColorStop(.5, 'rgba(160,240,255,.25)'); ir.addColorStop(1, 'rgba(255,240,160,.3)'); c.fillStyle = ir; c.fillRect(-r, -r, r * 2, r * 2); }
     if (id === 'retro') { c.lineWidth = lw * .6; c.setLineDash([lw * 1.2, lw * 1.2]); c.beginPath(); c.moveTo(lw * 2, -r * .5); c.lineTo(lw * 2, r * .5); c.stroke(); c.setLineDash([]); }
   }
   c.restore();
@@ -847,16 +1427,16 @@ function drawShadow(x, z, y, k = 1) {
 }
 
 function drawStand() {
-  const bz = hoop.z + RR + .15, hx = hoop.x;
+  const bz = hoop.z + RR + .15, hx = hoop.x, T = themeNow();
   // shadow of the stand on the floor
   const sh = proj(hx, 0, bz + 1);
   ctx.fillStyle = 'rgba(8,3,0,.3)'; ctx.beginPath(); ctx.ellipse(sh.x, sh.y, .7 * sh.s, .12 * sh.s, 0, 0, 6.283); ctx.fill();
   // pole and arm
   const pb = proj(hx, 0, bz + 1), pt = proj(hx, 3.4, bz + 1), w = .17 * pb.s;
-  ctx.fillStyle = '#2e2729'; ctx.fillRect(pb.x - w / 2, pt.y, w, pb.y - pt.y);
-  ctx.fillStyle = '#1f1a1c'; ctx.fillRect(pb.x - w * 1.6, pb.y - .55 * pb.s, w * 3.2, .55 * pb.s);
+  ctx.fillStyle = T.pole || '#2e2729'; ctx.fillRect(pb.x - w / 2, pt.y, w, pb.y - pt.y);
+  ctx.fillStyle = T.poleBase || '#1f1a1c'; ctx.fillRect(pb.x - w * 1.6, pb.y - .55 * pb.s, w * 3.2, .55 * pb.s);
   const a1 = proj(hx, 3.35, bz + 1), a2 = proj(hx, 3.35, bz + .02);
-  ctx.strokeStyle = '#2e2729'; ctx.lineWidth = .1 * a2.s; ctx.beginPath(); ctx.moveTo(a1.x, a1.y); ctx.lineTo(a2.x, a2.y); ctx.stroke();
+  ctx.strokeStyle = T.pole || '#2e2729'; ctx.lineWidth = .1 * a2.s; ctx.beginPath(); ctx.moveTo(a1.x, a1.y); ctx.lineTo(a2.x, a2.y); ctx.stroke();
   // glass board
   const tl = proj(hx - .9, 3.95, bz), br = proj(hx + .9, 2.9, bz), s = tl.s;
   const g = ctx.createLinearGradient(tl.x, tl.y, br.x, br.y);
@@ -899,7 +1479,7 @@ function drawNet(t) {
     bot.push(proj(hoop.x + Math.cos(a) * rb + sway, yb, hoop.z + Math.sin(a) * rb));
   }
   const s = top[0].s;
-  ctx.strokeStyle = 'rgba(246,239,226,.82)'; ctx.lineWidth = Math.max(.8, .009 * s); ctx.beginPath();
+  ctx.strokeStyle = themeNow().net || 'rgba(246,239,226,.82)'; ctx.lineWidth = Math.max(.8, .009 * s); ctx.beginPath();
   for (let i = 0; i < N; i++) {
     const j = (i + 1) % N;
     ctx.moveTo(top[i].x, top[i].y); ctx.lineTo(mid[i].x, mid[i].y); ctx.lineTo(top[j].x, top[j].y);
@@ -950,7 +1530,8 @@ function render(t) {
     else frontB.push(b);
   }
   const ballDraw = b => { const p = proj(b.x, b.y, b.z); drawBall(ctx, p.x, p.y, BR * p.s, b.spin, b.golden, b.fire && !b.scored, clamp(b.fade, 0, 1)); };
-  if (THEME === 'halloween') drawBats(t);
+  const dtR = Math.min(.05, Math.max(0, t - (render.last || t))); render.last = t;
+  ambient(themeNow(), t, dtR);
   farB.forEach(ballDraw);
   drawStand();
   drawRim(false);
@@ -965,6 +1546,10 @@ function render(t) {
     if (p.kind === 'f') {
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * .8; ctx.fillStyle = p.color;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.size * a + .5, 0, 6.283); ctx.fill(); ctx.globalCompositeOperation = 'source-over';
+    } else if (p.kind === 't') {
+      if (p.add) ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = a; ctx.fillStyle = p.color; drawShape(ctx, p.shape, p.x, p.y, p.size, p.rot);
+      ctx.globalCompositeOperation = 'source-over';
     } else {
       ctx.globalAlpha = a; ctx.fillStyle = p.color; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
       ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2); ctx.restore();
@@ -1043,9 +1628,15 @@ const SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 function paintMute() { const m = $('#muteBtn'); m.innerHTML = Sfx.muted ? SPK_OFF : SPK_ON; m.setAttribute('aria-label', Sfx.muted ? 'Activer le son' : 'Couper le son'); }
 
 /* ---------- Screens ---------- */
-function show(id) { for (const k of ['menu', 'over', 'board', 'locker', 'account']) $('#' + k).hidden = k !== id; }
+function show(id) {
+  for (const k of ['menu', 'over', 'board', 'locker', 'account', 'quests']) $('#' + k).hidden = k !== id;
+  if (id !== 'locker' && previewTheme) { previewTheme = null; drawBG(); }
+}
+const el = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
+const DPR_UI = Math.min(2, window.devicePixelRatio || 1);
+const themeName = id => (THEMES[id] || THEMES.mbc).name;
 
-/* ---------- Locker ---------- */
+/* ---------- Locker: balls, trails, courts ---------- */
 function paintBall(cv, skin) {
   const px = cv.width, c = cv.getContext('2d');
   c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, px, px);
@@ -1053,49 +1644,95 @@ function paintBall(cv, skin) {
   drawBall(c, px / 2, px / 2, px * .34, -.35, false, false, 1, skin, 1.3);
   c.restore();
 }
-let lockerFrom = 'menu';
+function paintItem(cv, it) { it.kind === 'theme' ? paintTheme(cv, it.id) : it.kind === 'trail' ? paintTrail(cv, it.id) : paintBall(cv, it.id); }
+let lockerFrom = 'menu', lockTab = 'balls';
+const LOCK_INTRO = {
+  balls: 'Choisis ton ballon. Les autres se débloquent en jouant et avec les quêtes.',
+  trails: 'La traînée suit ton ballon en vol. Chaque quête en donne une à l\'étape 2.',
+  themes: 'Touche un terrain verrouillé pour le voir en aperçu. Termine sa quête pour jouer dessus.'
+};
+function lockerCard(o) {
+  const b = el('button', 'skin' + (o.on ? ' on' : '') + (o.open ? '' : ' locked') + (o.preview ? ' preview' : ''));
+  b.type = 'button'; b.setAttribute('aria-pressed', o.on);
+  const cv = el('canvas'); cv.width = Math.round(o.w * DPR_UI); cv.height = Math.round(o.h * DPR_UI); o.paint(cv);
+  const nm = el('b'); nm.textContent = o.name;
+  const st = el('small'); st.textContent = o.on ? 'Choisi' : o.preview ? 'Aperçu' : o.open ? 'Débloqué' : o.need;
+  b.append(cv, nm, st); b.addEventListener('click', o.click);
+  return b;
+}
 function renderLocker() {
   const grid = $('#skinGrid'); if (!grid) return;
-  grid.textContent = '';
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
-  for (const s of SKINS) {
-    const open = isUnlocked(s), on = Prof.skin === s.id;
-    const b = document.createElement('button'); b.type = 'button';
-    b.className = 'skin' + (on ? ' on' : '') + (open ? '' : ' locked');
-    b.setAttribute('aria-pressed', on); if (!open) b.setAttribute('aria-disabled', 'true');
-    const cv = document.createElement('canvas'); cv.width = cv.height = Math.round(52 * dpr); paintBall(cv, s.id);
-    const nm = document.createElement('b'); nm.textContent = s.name;
-    const st = document.createElement('small');
-    const ev = s.need && s.need.event ? EVENTS.find(e => e.id === s.need.event) : null;
-    st.textContent = on ? 'Choisi' : open ? 'Débloqué'
-      : ev ? (LIVE_EVENT === ev ? 'Joue une partie ' + ev.until : todayKey() < ev.start ? ev.name + ' : bientôt' : s.need.label)
-      : s.need.label + ' (' + Math.min(Prof.stats[s.need.k], s.need.v) + '/' + s.need.v + ')';
-    b.append(cv, nm, st);
-    b.addEventListener('click', () => equipSkin(s.id));
-    grid.append(b);
+  grid.textContent = ''; grid.className = 'skins' + (lockTab === 'themes' ? ' wide' : '');
+  for (const [k, id] of [['balls', '#ltBalls'], ['trails', '#ltTrails'], ['themes', '#ltThemes']]) $(id).setAttribute('aria-selected', lockTab === k);
+  $('#lockerIntro').textContent = LOCK_INTRO[lockTab];
+  if (lockTab === 'balls') {
+    for (const sk of SKINS) {
+      const ev = sk.need && sk.need.event ? EVENTS.find(e => e.id === sk.need.event) : null;
+      const need = !sk.need ? '' : ev ? (LIVE_EVENT === ev ? 'Joue une partie ' + ev.until : todayKey() < ev.start ? ev.name + ' : bientôt' : sk.need.label)
+        : sk.need.quest ? sk.need.label : sk.need.label + ' (' + Math.min(Prof.stats[sk.need.k], sk.need.v) + '/' + sk.need.v + ')';
+      grid.append(lockerCard({ name: sk.name, open: isUnlocked(sk), on: Prof.skin === sk.id, need, w: 52, h: 52, paint: cv => paintBall(cv, sk.id), click: () => equipSkin(sk.id) }));
+    }
+  } else if (lockTab === 'trails') {
+    grid.append(lockerCard({ name: 'Aucune', open: true, on: Prof.trail === 'none', w: 52, h: 52, paint: cv => paintTrail(cv, 'none'), click: () => equipTrail('none') }));
+    for (const q of QUESTS) grid.append(lockerCard({ name: TRAILS[q.id].name, open: trailOpen(q.id), on: Prof.trail === q.id, need: 'Quête ' + themeName(q.id) + ', étape 2',
+      w: 52, h: 52, paint: cv => paintTrail(cv, q.id), click: () => equipTrail(q.id) }));
+  } else {
+    for (const id of ['mbc', 'hallo26', ...QUEST_IDS]) {
+      const open = themeOpen(id), need = id === 'hallo26' ? 'Événement Halloween 2026' : 'Termine la quête ' + themeName(id);
+      grid.append(lockerCard({ name: themeName(id), open, on: Prof.theme === id && !previewTheme, preview: previewTheme === id, need, w: 96, h: 72,
+        paint: cv => paintTheme(cv, id), click: () => { if (open) equipTheme(id); else { previewTheme = previewTheme === id ? null : id; drawBG(); renderLocker(); } } }));
+    }
   }
-  $('#lockerNote').textContent = loggedIn() ? 'Tes skins sont sauvegardés sur ton compte ' + Cloud.pseudo + ' : tu les retrouves sur tous tes appareils.'
-    : Cloud.on ? 'Tes skins sont sauvegardés sur cet appareil seulement. Crée un compte pour les retrouver partout.'
-    : 'Tes skins sont sauvegardés sur cet appareil.';
+  $('#lockerNote').textContent = loggedIn() ? 'Ton vestiaire est sauvegardé sur ton compte ' + Cloud.pseudo + ' : tu le retrouves sur tous tes appareils.'
+    : Cloud.on ? 'Ton vestiaire est sauvegardé sur cet appareil seulement. Crée un compte pour le retrouver partout.'
+    : 'Ton vestiaire est sauvegardé sur cet appareil.';
 }
-let unlockId = null;
-function showUnlock(list) {
+
+/* ---------- Quests screen ---------- */
+function renderQuests() {
+  const list = $('#questList'); list.textContent = '';
+  const done = QUESTS.filter(q => questDone(q.id, 3)).length;
+  $('#questSummary').textContent = done + ' terrain' + (done > 1 ? 's' : '') + ' débloqué' + (done > 1 ? 's' : '') + ' sur ' + QUESTS.length;
+  QUESTS.forEach((q, qi) => {
+    const cur = questStep(q.id), card = el('article', 'quest' + (cur > 3 ? ' done' : ''));
+    const head = el('header'), cv = el('canvas'); cv.width = Math.round(48 * DPR_UI); cv.height = Math.round(64 * DPR_UI); paintTheme(cv, q.id);
+    const tt = el('div'), h3 = el('h3'), sub = el('small'), cnt = el('span', 'count');
+    h3.textContent = themeName(q.id); sub.textContent = 'Quête ' + (qi + 1) + ' · ' + (cur > 3 ? 'terminée' : 'étape ' + cur + ' sur 3');
+    cnt.textContent = (cur - 1) + '/3'; tt.append(h3, sub); head.append(cv, tt, cnt);
+    const ol = el('ol');
+    q.steps.forEach(([label], i) => {
+      const n = i + 1, li = el('li', n < cur ? 'ok' : n === cur ? 'now' : ''), ic = el('i'), sp = el('span'), rw = el('small');
+      ic.textContent = n < cur ? '✓' : n === cur ? '▶' : '·'; sp.textContent = label;
+      rw.textContent = n === 1 ? 'Ballon ' + SKINS.find(x => x.id === q.ball).name : n === 2 ? 'Traînée ' + TRAILS[q.id].name : 'Terrain';
+      li.append(ic, sp, rw); ol.append(li);
+    });
+    card.append(head, ol); list.append(card);
+  });
+}
+let questsFrom = 'menu';
+function openQuests(from) { questsFrom = from; renderQuests(); show('quests'); }
+
+/* ---------- End-of-game unlock card ---------- */
+let unlockItem = null;
+function showUnlock(items) {
   const box = $('#unlockBox');
-  if (!list.length) { box.hidden = true; unlockId = null; return; }
-  const s = list[list.length - 1]; unlockId = s.id;
-  $('#unlockName').textContent = s.name;
-  $('#unlockMore').textContent = list.length > 1 ? 'et ' + (list.length - 1) + ' autre' + (list.length > 2 ? 's' : '') + ' dans le vestiaire' : s.need.label;
-  paintBall($('#unlockCv'), s.id);
-  $('#unlockEquip').textContent = "L'équiper"; $('#unlockEquip').disabled = false;
+  if (!items.length) { box.hidden = true; unlockItem = null; return; }
+  const rank = { theme: 3, trail: 2, ball: 1 }, it = [...items].sort((x, y) => rank[y.kind] - rank[x.kind])[0];
+  unlockItem = it;
+  $('#unlockLabel').textContent = it.kind === 'theme' ? 'Nouveau terrain débloqué' : it.kind === 'trail' ? 'Nouvelle traînée débloquée' : 'Nouveau ballon débloqué';
+  $('#unlockName').textContent = it.name;
+  $('#unlockMore').textContent = it.why + (items.length > 1 ? ' · +' + (items.length - 1) + ' au vestiaire' : '');
+  paintItem($('#unlockCv'), it);
+  $('#unlockEquip').textContent = it.kind === 'theme' ? 'Jouer dessus' : "L'équiper"; $('#unlockEquip').disabled = false;
   box.hidden = false; Sfx.level();
 }
 function renderEventTag() {
   const box = $('#eventTag');
   const soon = EVENTS.find(e => { const d = (new Date(e.start) - new Date(todayKey())) / 864e5; return d > 0 && d <= 14; });
-  const ev = LIVE_EVENT || EVENTS.find(e => e.theme === THEME) || soon;
+  const ev = LIVE_EVENT || EVENTS.find(e => e.theme === HASH_THEME) || soon;
   if (!ev) { box.hidden = true; return; }
   const skin = SKINS.find(s => s.id === ev.skin), won = Prof.events.includes(ev.id);
-  $('#eventLabel').textContent = LIVE_EVENT ? 'Spécial ' + ev.name : THEME ? 'Aperçu ' + ev.name : 'Bientôt : ' + ev.name;
+  $('#eventLabel').textContent = LIVE_EVENT ? 'Spécial ' + ev.name : ev.theme === HASH_THEME ? 'Aperçu ' + ev.name : 'Bientôt : ' + ev.name;
   $('#eventTitle').textContent = 'Ballon ' + skin.name;
   $('#eventTxt').textContent = won ? 'Gagné ! Il t\'attend dans le vestiaire.'
     : LIVE_EVENT ? 'Joue une partie ' + ev.until + ' pour le garder pour toujours.'
@@ -1172,14 +1809,26 @@ let lastResult = null;
 function endGame() {
   game.state = 'over';
   const prevBest = best;
-  const before = SKINS.filter(s => isUnlocked(s)).map(s => s.id);
+  const before = SKINS.filter(sk => isUnlocked(sk)).map(sk => sk.id);
   const st = Prof.stats;
   st.games++; st.best = Math.max(st.best, game.score);
   st.bestStreak = Math.max(st.bestStreak, game.bestStreak); st.bestSwishes = Math.max(st.bestSwishes, game.swishes);
   if (LIVE_EVENT && game.shots > 0 && !Prof.events.includes(LIVE_EVENT.id)) Prof.events.push(LIVE_EVENT.id);
+  // Quests: the current step of each quest is checked against this game; several steps can fall in one game.
+  const G = { score: game.score, makes: game.makes, shots: game.shots, acc: game.shots ? game.makes / game.shots : 0, swishes: game.swishes,
+    swishRun: game.bestSwishRun, streak: game.bestStreak, golds: game.golds, level: game.level + 1, buzzers: game.buzzers, bonus: game.bonus };
+  const items = [];
+  for (const q of QUESTS) {
+    for (let n = questStep(q.id); n <= 3 && q.steps[n - 1][1](G); n++) {
+      Prof.events.push('q-' + q.id + '-' + n);
+      if (n === 2) items.push({ kind: 'trail', id: q.id, name: TRAILS[q.id].name, why: 'Quête ' + themeName(q.id) + ' · étape 2/3' });
+      if (n === 3) items.push({ kind: 'theme', id: q.id, name: themeName(q.id), why: 'Quête ' + themeName(q.id) + ' terminée !' });
+    }
+  }
   best = st.best; saveProfile();
-  const fresh = SKINS.filter(s => isUnlocked(s) && !before.includes(s.id));
-  showUnlock(fresh); renderEventTag();
+  for (const sk of SKINS) if (isUnlocked(sk) && !before.includes(sk.id))
+    items.push({ kind: 'ball', id: sk.id, name: sk.name, why: sk.need.quest ? 'Quête ' + themeName(sk.need.quest) + ' · étape 1/3' : sk.need.label });
+  showUnlock(items); renderEventTag();
   lastResult = { score: game.score, saved: false };
   $('#finalScore').textContent = game.score;
   $('#overTitle').textContent = game.score >= 60 ? 'Énorme partie !' : game.score >= 30 ? 'Belle adresse !' : 'Temps écoulé !';
@@ -1267,7 +1916,14 @@ $('#menuBoardBtn').addEventListener('click', () => openBoard('menu'));
 $('#menuLockerBtn').addEventListener('click', () => openLocker('menu'));
 $('#lockerPlayBtn').addEventListener('click', startGame);
 $('#lockerBackBtn').addEventListener('click', () => show(lockerFrom === 'over' && game.state === 'over' ? 'over' : 'menu'));
-$('#unlockEquip').addEventListener('click', () => { if (unlockId) { equipSkin(unlockId); $('#unlockEquip').textContent = 'Équipé'; $('#unlockEquip').disabled = true; } });
+$('#unlockEquip').addEventListener('click', () => { if (unlockItem) { equipItem(unlockItem); $('#unlockEquip').textContent = unlockItem.kind === 'theme' ? 'Terrain choisi' : 'Équipé'; $('#unlockEquip').disabled = true; } });
+$('#menuQuestBtn').addEventListener('click', () => openQuests('menu'));
+$('#overQuestBtn').addEventListener('click', () => openQuests('over'));
+$('#questPlayBtn').addEventListener('click', startGame);
+$('#questBackBtn').addEventListener('click', () => show(questsFrom === 'over' && game.state === 'over' ? 'over' : 'menu'));
+$('#ltBalls').addEventListener('click', () => { lockTab = 'balls'; renderLocker(); });
+$('#ltTrails').addEventListener('click', () => { lockTab = 'trails'; renderLocker(); });
+$('#ltThemes').addEventListener('click', () => { lockTab = 'themes'; renderLocker(); });
 $('#overBoardBtn').addEventListener('click', () => openBoard('over'));
 $('#boardBackBtn').addEventListener('click', () => show(LB.from === 'over' && game.state === 'over' ? 'over' : 'menu'));
 $('#tabOnline').addEventListener('click', () => setTab('online'));
