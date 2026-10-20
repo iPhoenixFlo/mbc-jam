@@ -142,7 +142,9 @@ input[type=text],input[type=password]{flex:1;min-width:0;font:600 20px/1 var(--f
 .who small{color:var(--muted);font-size:15px}
 form .btn{margin-top:6px}
 .note.err{color:#ff8a80}
-.row.three>*{flex:1 1 90px}
+.row.three{flex-wrap:nowrap;gap:8px}
+.row.three>*{flex:1 1 auto;min-width:0}
+.row.three .btn{font-size:13px;padding:14px 4px}
 .skins.wide{grid-template-columns:repeat(3,1fr)}
 .skins.wide canvas{width:100%;height:auto;aspect-ratio:4/3;border-radius:8px}
 .skin.preview{border-color:var(--led)}
@@ -237,8 +239,9 @@ form .btn{margin-top:6px}
       </form>
       <p class="note" id="saveNote" hidden></p>
       <button class="btn ghost" id="overAccBtn" type="button" hidden>Crée ton compte pour le classement en ligne</button>
-      <div class="row">
-        <button class="btn" id="againBtn" type="button">Rejouer</button>
+      <button class="btn" id="againBtn" type="button">Rejouer</button>
+      <div class="row three">
+        <button class="btn ghost" id="overMenuBtn" type="button">Menu</button>
         <button class="btn ghost" id="overQuestBtn" type="button">Quêtes</button>
         <button class="btn ghost" id="overBoardBtn" type="button">Classement</button>
       </div>
@@ -1931,6 +1934,7 @@ $('#lockerBackBtn').addEventListener('click', () => show(lockerFrom === 'over' &
 $('#unlockEquip').addEventListener('click', () => { if (unlockItem) { equipItem(unlockItem); $('#unlockEquip').textContent = unlockItem.kind === 'theme' ? 'Terrain choisi' : 'Équipé'; $('#unlockEquip').disabled = true; } });
 $('#menuQuestBtn').addEventListener('click', () => openQuests('menu'));
 $('#overQuestBtn').addEventListener('click', () => openQuests('over'));
+$('#overMenuBtn').addEventListener('click', () => { resetGame(); game.state = 'menu'; renderEventTag(); show('menu'); });
 $('#questPlayBtn').addEventListener('click', startGame);
 $('#questBackBtn').addEventListener('click', () => show(questsFrom === 'over' && game.state === 'over' ? 'over' : 'menu'));
 $('#ltBalls').addEventListener('click', () => { lockTab = 'balls'; renderLocker(); });
