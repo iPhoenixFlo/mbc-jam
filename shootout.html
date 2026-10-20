@@ -95,7 +95,7 @@ h2{margin:0;font:400 clamp(24px,7vw,32px)/1 var(--f-display);text-align:center;t
 form{display:flex;flex-direction:column;gap:8px}
 form label{font:700 12px/1 var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .field{display:flex;gap:8px}
-input[type=text]{flex:1;min-width:0;font:600 20px/1 var(--f-body);color:var(--ink);background:rgba(14,8,10,.7);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;-webkit-user-select:text;user-select:text}
+input[type=text],input[type=password]{flex:1;min-width:0;font:600 20px/1 var(--f-body);color:var(--ink);background:rgba(14,8,10,.7);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;-webkit-user-select:text;user-select:text}
 .field .btn{flex:0 0 auto;font-size:15px;padding:12px 14px}
 .note{font-size:15px;color:var(--muted);line-height:1.3;text-align:center;margin:0}
 .note.ok{color:var(--led)}
@@ -131,6 +131,17 @@ input[type=text]{flex:1;min-width:0;font:600 20px/1 var(--f-body);color:var(--in
 .unlock-txt b{font:400 20px/1 var(--f-display)}
 .unlock-txt small{color:var(--muted);font-size:13px}
 .unlock .btn{font-size:14px;padding:11px 12px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.acct{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;border-radius:12px;border:1.5px dashed rgba(255,255,255,.28);background:transparent;color:var(--ink);font:600 16px/1.2 var(--f-body);text-align:left;cursor:pointer}
+.acct .dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%;background:var(--muted)}
+.acct.on{border-style:solid;border-color:rgba(186,42,47,.7);background:rgba(186,42,47,.16)}
+.acct.on .dot{background:#4cd97b;box-shadow:0 0 8px #4cd97b}
+.acct:focus-visible{outline:3px solid var(--led);outline-offset:2px}
+.who{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;border-radius:12px;background:rgba(186,42,47,.16);border:1px solid rgba(186,42,47,.6)}
+.who b{font:400 26px/1 var(--f-display)}
+.who small{color:var(--muted);font-size:15px}
+form .btn{margin-top:6px}
+.note.err{color:#ff8a80}
 .empty{padding:22px 10px;text-align:center;color:var(--muted);line-height:1.35}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
@@ -166,6 +177,7 @@ input[type=text]{flex:1;min-width:0;font:600 20px/1 var(--f-body);color:var(--in
       </div>
       <div class="logo"><span class="mbc">MBC</span><span class="sub">Shootout</span></div>
       <p class="tagline">60 secondes pour mettre un max de paniers.</p>
+      <button class="acct" id="menuAccBtn" type="button" hidden><span class="dot"></span><span id="menuAccTxt">Crée ton compte pour sauvegarder ta progression</span></button>
       <ul class="rules">
         <li><span class="chip">↑</span><span>Glisse vers le haut pour tirer. La longueur du geste règle la force.</span></li>
         <li><span class="chip hot">×2</span><span>3 paniers d'affilée et tu prends feu : les points comptent double.</span></li>
@@ -203,6 +215,7 @@ input[type=text]{flex:1;min-width:0;font:600 20px/1 var(--f-body);color:var(--in
         </div>
       </form>
       <p class="note" id="saveNote" hidden></p>
+      <button class="btn ghost" id="overAccBtn" type="button" hidden>Crée ton compte pour le classement en ligne</button>
       <div class="row">
         <button class="btn" id="againBtn" type="button">Rejouer</button>
         <button class="btn ghost" id="overBoardBtn" type="button">Classement</button>
@@ -219,6 +232,36 @@ input[type=text]{flex:1;min-width:0;font:600 20px/1 var(--f-body);color:var(--in
       <div class="row">
         <button class="btn" id="lockerPlayBtn" type="button">Jouer</button>
         <button class="btn ghost" id="lockerBackBtn" type="button">Retour</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="account" hidden>
+    <div class="panel">
+      <h2>Mon compte</h2>
+      <div id="accOut" class="stack">
+        <div class="tabs" role="tablist">
+          <button class="tab" id="accTabNew" role="tab" type="button" aria-selected="true">Créer un compte</button>
+          <button class="tab" id="accTabLogin" role="tab" type="button" aria-selected="false">J'ai un compte</button>
+        </div>
+        <form id="accForm" autocomplete="off">
+          <label for="accPseudo">Pseudo</label>
+          <input type="text" id="accPseudo" maxlength="14" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Ex. Tony Parker">
+          <label for="accPin">Code PIN à 4 chiffres</label>
+          <input type="password" id="accPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••">
+          <button class="btn" type="submit" id="accSubmit">Créer mon compte</button>
+        </form>
+        <p class="note" id="accMsg" hidden></p>
+        <p class="note" id="accHelp">Pas besoin d'e-mail. Retiens bien ton pseudo et ton code : ils te permettent de retrouver ton vestiaire sur n'importe quel appareil.</p>
+      </div>
+      <div id="accIn" class="stack" hidden>
+        <div class="who"><span class="label">Connecté</span><b id="accName"></b><small id="accRank"></small></div>
+        <p class="note">Ta progression et ton vestiaire sont sauvegardés sur ton compte. Sur un autre appareil, connecte-toi avec le même pseudo et le même code.</p>
+        <button class="btn ghost" id="accLogout" type="button">Se déconnecter</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="accPlayBtn" type="button">Jouer</button>
+        <button class="btn ghost" id="accBackBtn" type="button">Retour</button>
       </div>
     </div>
   </div>
@@ -332,7 +375,7 @@ const LIVE_EVENT = EVENTS.find(e => todayKey() >= e.start && todayKey() <= e.end
 const THEME = LIVE_EVENT ? LIVE_EVENT.theme : (EVENTS.find(e => '#' + e.theme === location.hash) || {}).theme || null;
 const STAT_KEYS = ['games', 'best', 'bestStreak', 'bestSwishes'];
 let curSkin = 'classic';
-const Prof = { stats: { games: 0, best: 0, bestStreak: 0, bestSwishes: 0 }, events: [], skin: 'classic', ref: null, where: 'device', chain: Promise.resolve() };
+const Prof = { stats: { games: 0, best: 0, bestStreak: 0, bestSwishes: 0 }, events: [], skin: 'classic' };
 const cleanStats = o => { const r = {}; for (const k of STAT_KEYS) r[k] = clamp(Math.floor(Number(o && o[k]) || 0), 0, 1e6); return r; };
 const mergeStats = (a, b) => { const r = {}; for (const k of STAT_KEYS) r[k] = Math.max(a[k], b[k]); return r; };
 const cleanEvents = a => Array.isArray(a) ? a.filter(id => EVENTS.some(e => e.id === id)) : [];
@@ -340,14 +383,7 @@ const mergeEvents = (a, b) => [...new Set([...a, ...b])];
 const isUnlocked = s => !s.need || (s.need.event ? Prof.events.includes(s.need.event) : Prof.stats[s.need.k] >= s.need.v);
 const validSkin = id => { const s = SKINS.find(x => x.id === id); return s && isUnlocked(s) ? id : 'classic'; };
 function saveLocalProfile() { store.set('mbc_stats', Prof.stats); store.set('mbc_events', Prof.events); store.set('mbc_skin', Prof.skin); store.set('mbc_best', Prof.stats.best); }
-function saveRemoteProfile() {
-  if (!Prof.ref) return;
-  const body = { stats: { ...Prof.stats }, events: [...Prof.events], skin: Prof.skin, at: Date.now() };
-  Prof.chain = Prof.chain.then(() => Prof.ref.set(body)).catch(e => {
-    if (e && (e.code === 'invalid_argument' || e.code === 'revoked' || e.code === 'not_granted')) { Prof.ref = null; Prof.where = 'device'; renderLocker(); }
-  });
-}
-function saveProfile() { saveLocalProfile(); saveRemoteProfile(); }
+function saveProfile() { saveLocalProfile(); syncProfile(); }
 function loadLocalProfile() {
   const st = store.get('mbc_stats', {}) || {};
   Prof.stats = cleanStats({ ...st, best: Math.max(Number(st.best) || 0, Number(store.get('mbc_best', 0)) || 0) });
@@ -355,22 +391,96 @@ function loadLocalProfile() {
   Prof.skin = validSkin(store.get('mbc_skin', 'classic'));
   curSkin = Prof.skin;
 }
-async function initProfile(db, uid) {
-  if (!db || !uid) return;
+function resetLocalProfile() {
+  Prof.stats = cleanStats({}); Prof.events = []; Prof.skin = curSkin = 'classic'; best = 0;
+  saveLocalProfile(); updateHUD(); renderLocker(); renderEventTag();
+}
+
+/* ---------- Player account (Supabase): pseudo + 4-digit PIN, no e-mail ---------- */
+// Fill in from Supabase > Project Settings > API: the Project URL and the public "anon" (or "publishable") key.
+// Left empty, the game runs exactly as before: progress and leaderboard stay on the device.
+const SUPABASE_URL = 'https://phggheeycveofdexsbjk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lbuXRt065EnZd62dbYJepw_C0fZNxYE';
+const Cloud = {
+  on: !!(SUPABASE_URL && SUPABASE_KEY),
+  token: store.get('mbc_token', null), pseudo: store.get('mbc_pseudo', null), rank: null,
+  board: [], loaded: false, failed: false, chain: Promise.resolve(),
+  async rpc(fn, args) {
+    const headers = { 'Content-Type': 'application/json', apikey: SUPABASE_KEY };
+    if (/^eyJ/.test(SUPABASE_KEY)) headers.Authorization = 'Bearer ' + SUPABASE_KEY;
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 10000);
+    try {
+      const r = await fetch(SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1/rpc/' + fn, { method: 'POST', headers, body: JSON.stringify(args || {}), signal: ctl.signal });
+      if (!r.ok) throw new Error('http ' + r.status);
+      return await r.json();
+    } finally { clearTimeout(timer); }
+  }
+};
+const loggedIn = () => Cloud.on && !!Cloud.token;
+function applyRemote(res, takeSkin) {
+  Prof.stats = mergeStats(Prof.stats, cleanStats(res.stats));
+  Prof.events = mergeEvents(Prof.events, cleanEvents(res.events));
+  if (takeSkin && typeof res.skin === 'string') Prof.skin = validSkin(res.skin);
+  curSkin = Prof.skin; best = Prof.stats.best;
+  if (typeof res.pseudo === 'string') { Cloud.pseudo = cleanName(res.pseudo); store.set('mbc_pseudo', Cloud.pseudo); }
+  Cloud.rank = Number.isFinite(res.rank) ? res.rank : null;
+  saveLocalProfile(); updateHUD(); renderLocker(); renderEventTag(); renderAccount();
+}
+// Sends local progress; the server keeps the best of both and answers with the merged profile.
+function syncProfile() {
+  if (!loggedIn()) return Cloud.chain;
+  Cloud.chain = Cloud.chain.then(async () => {
+    if (!loggedIn()) return;
+    const res = await Cloud.rpc('shootout_sync', { p_token: Cloud.token, p_stats: Prof.stats, p_events: Prof.events, p_skin: Prof.skin });
+    if (res && res.ok) { Cloud.failed = false; applyRemote(res, false); }
+    else if (res && res.error === 'session') dropSession();
+  }).catch(() => { Cloud.failed = true; renderAccount(); });
+  return Cloud.chain;
+}
+function dropSession() {
+  Cloud.token = null; store.set('mbc_token', null); renderAccount(); renderLocker();
+}
+async function authenticate(mode, pseudo, pin) {
+  const res = await Cloud.rpc(mode === 'new' ? 'shootout_register' : 'shootout_login', { p_pseudo: pseudo, p_pin: pin });
+  if (!res || !res.ok) return res || { error: 'network' };
+  Cloud.token = res.token; store.set('mbc_token', res.token);
+  applyRemote(res, mode === 'login');
+  await syncProfile();
+  refreshBoard();
+  return res;
+}
+async function logout() {
+  const t = Cloud.token; dropSession();
+  // Everything is safe on the account: the device starts fresh for the next player.
+  resetLocalProfile(); store.set('mbc_pseudo', null); Cloud.pseudo = null; Cloud.rank = null;
+  if (t) Cloud.rpc('shootout_logout', { p_token: t }).catch(() => {});
+  renderAccount(); renderBoard();
+}
+async function bootCloud() {
+  if (!Cloud.on) return;
+  $('#tabs').hidden = false; LB.tab = 'online'; setTab('online');
+  refreshBoard();
+  if (!Cloud.token) return;
   try {
-    const ref = db.doc('data/users/' + uid + '/profile'), snap = await ref.get();
-    const remote = snap.exists ? (snap.data() || {}) : {};
-    Prof.stats = mergeStats(Prof.stats, cleanStats(remote.stats));
-    Prof.events = mergeEvents(Prof.events, cleanEvents(remote.events));
-    if (snap.exists && typeof remote.skin === 'string') Prof.skin = validSkin(remote.skin);
-    Prof.ref = ref; Prof.where = 'account';
-    curSkin = Prof.skin; best = Prof.stats.best;
-    saveProfile(); updateHUD(); renderLocker(); renderEventTag();
-  } catch (e) {}
+    const res = await Cloud.rpc('shootout_profile', { p_token: Cloud.token });
+    if (res && res.ok) { applyRemote(res, true); syncProfile(); }
+    else if (res && res.error === 'session') dropSession();
+  } catch (e) { Cloud.failed = true; renderAccount(); }
+}
+async function refreshBoard() {
+  if (!Cloud.on) return;
+  try {
+    const rows = await Cloud.rpc('shootout_leaderboard', { p_limit: 50 });
+    Cloud.board = (Array.isArray(rows) ? rows : []).map(r => ({ name: cleanName(r && r.pseudo), score: Number(r && r.best) }))
+      .filter(r => r.name && Number.isFinite(r.score) && r.score > 0);
+    Cloud.loaded = true; Cloud.boardFailed = false;
+  } catch (e) { Cloud.loaded = true; Cloud.boardFailed = true; }
+  renderBoard();
 }
 function equipSkin(id) {
   const s = SKINS.find(x => x.id === id); if (!s || !isUnlocked(s) || Prof.skin === id) return;
-  Prof.skin = curSkin = id; saveProfile(); renderLocker();
+  Prof.skin = curSkin = id; saveLocalProfile(); renderLocker();
+  clearTimeout(equipSkin.t); equipSkin.t = setTimeout(syncProfile, 1200);
 }
 loadLocalProfile();
 let best = Prof.stats.best;
@@ -933,7 +1043,7 @@ const SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 function paintMute() { const m = $('#muteBtn'); m.innerHTML = Sfx.muted ? SPK_OFF : SPK_ON; m.setAttribute('aria-label', Sfx.muted ? 'Activer le son' : 'Couper le son'); }
 
 /* ---------- Screens ---------- */
-function show(id) { for (const k of ['menu', 'over', 'board', 'locker']) $('#' + k).hidden = k !== id; }
+function show(id) { for (const k of ['menu', 'over', 'board', 'locker', 'account']) $('#' + k).hidden = k !== id; }
 
 /* ---------- Locker ---------- */
 function paintBall(cv, skin) {
@@ -964,7 +1074,9 @@ function renderLocker() {
     b.addEventListener('click', () => equipSkin(s.id));
     grid.append(b);
   }
-  $('#lockerNote').textContent = Prof.where === 'account' ? 'Tes skins sont sauvegardés sur ton compte : tu les retrouves sur tous tes appareils.' : 'Tes skins sont sauvegardés sur cet appareil.';
+  $('#lockerNote').textContent = loggedIn() ? 'Tes skins sont sauvegardés sur ton compte ' + Cloud.pseudo + ' : tu les retrouves sur tous tes appareils.'
+    : Cloud.on ? 'Tes skins sont sauvegardés sur cet appareil seulement. Crée un compte pour les retrouver partout.'
+    : 'Tes skins sont sauvegardés sur cet appareil.';
 }
 let unlockId = null;
 function showUnlock(list) {
@@ -990,6 +1102,66 @@ function renderEventTag() {
     : 'Joue une partie à partir du ' + ev.from.replace(/^le /, '') + ' pour le gagner.';
   paintBall($('#eventCv'), skin.id); box.hidden = false;
 }
+/* ---------- Account panel ---------- */
+let accMode = 'new', accFrom = 'menu', accBusy = false;
+const ACC_ERRORS = {
+  pseudo_invalide: 'Le pseudo doit faire 2 à 14 caractères : lettres, chiffres, espaces, points ou tirets.',
+  pin_invalide: 'Le code PIN doit faire exactement 4 chiffres.',
+  pseudo_pris: 'Ce pseudo est déjà pris. Choisis-en un autre, ou connecte-toi si c\'est le tien.',
+  inconnu: 'Aucun compte avec ce pseudo. Vérifie l\'orthographe, ou crée un compte.',
+  pin: 'Code PIN incorrect.',
+  network: 'Impossible de joindre le serveur. Vérifie ta connexion et réessaie.'
+};
+function setAccMode(m) {
+  accMode = m;
+  $('#accTabNew').setAttribute('aria-selected', m === 'new'); $('#accTabLogin').setAttribute('aria-selected', m === 'login');
+  $('#accSubmit').textContent = m === 'new' ? 'Créer mon compte' : 'Me connecter';
+  $('#accPin').setAttribute('autocomplete', m === 'new' ? 'new-password' : 'current-password');
+  $('#accMsg').hidden = true;
+}
+function renderAccount() {
+  const btn = $('#menuAccBtn');
+  btn.hidden = !Cloud.on;
+  btn.classList.toggle('on', loggedIn());
+  $('#menuAccTxt').textContent = loggedIn() ? Cloud.pseudo + (Cloud.failed ? ' · hors ligne' : ' · progression sauvegardée') : 'Crée ton compte pour sauvegarder ta progression';
+  $('#accOut').hidden = loggedIn(); $('#accIn').hidden = !loggedIn();
+  if (loggedIn()) {
+    $('#accName').textContent = Cloud.pseudo || '';
+    $('#accRank').textContent = Cloud.rank ? (Cloud.rank === 1 ? '1er' : Cloud.rank + 'e') + ' au classement · record ' + Prof.stats.best : 'Record ' + Prof.stats.best;
+  }
+}
+function openAccount(from, mode) {
+  accFrom = from; if (mode) setAccMode(mode);
+  $('#accMsg').hidden = true; $('#accPin').value = '';
+  if (!loggedIn() && !$('#accPseudo').value) $('#accPseudo').value = store.get('mbc_name', '') || '';
+  renderAccount(); show('account');
+}
+$('#accForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (accBusy) return;
+  const msg = $('#accMsg'), pseudo = cleanName($('#accPseudo').value), pin = $('#accPin').value.trim();
+  const fail = t => { msg.hidden = false; msg.className = 'note err'; msg.textContent = t; };
+  if (pseudo.length < 2) return fail(ACC_ERRORS.pseudo_invalide);
+  if (!/^[0-9]{4}$/.test(pin)) return fail(ACC_ERRORS.pin_invalide);
+  accBusy = true; $('#accSubmit').disabled = true;
+  msg.hidden = false; msg.className = 'note'; msg.textContent = accMode === 'new' ? 'Création du compte…' : 'Connexion…';
+  let res;
+  try { res = await authenticate(accMode, pseudo, pin); } catch (err) { res = { error: 'network' }; }
+  accBusy = false; $('#accSubmit').disabled = false;
+  if (!res.ok) {
+    return fail(res.error === 'bloque' ? 'Trop de codes faux. Réessaie dans ' + (res.minutes || 15) + ' min.' : ACC_ERRORS[res.error] || ACC_ERRORS.network);
+  }
+  $('#accPin').value = ''; $('#accMsg').hidden = true; store.set('mbc_name', Cloud.pseudo);
+  $('#overAccBtn').hidden = true;
+  renderAccount();
+});
+$('#accTabNew').addEventListener('click', () => setAccMode('new'));
+$('#accTabLogin').addEventListener('click', () => setAccMode('login'));
+$('#accLogout').addEventListener('click', logout);
+$('#accPlayBtn').addEventListener('click', startGame);
+$('#accBackBtn').addEventListener('click', () => show(accFrom === 'over' && game.state === 'over' ? 'over' : 'menu'));
+$('#menuAccBtn').addEventListener('click', () => openAccount('menu'));
+$('#overAccBtn').addEventListener('click', () => openAccount('over', 'new'));
 function openLocker(from) { lockerFrom = from; renderLocker(); show('locker'); }
 function startGame() {
   Sfx.init(); show(null); resetGame();
@@ -1015,46 +1187,35 @@ function endGame() {
   $('#stMakes').textContent = game.makes; $('#stSwish').textContent = game.swishes; $('#stStreak').textContent = game.bestStreak;
   $('#stPct').textContent = (game.shots ? Math.round(game.makes / game.shots * 100) : 0) + '%';
   $('#pseudo').value = store.get('mbc_name', '');
-  $('#saveForm').hidden = game.score <= 0; $('#saveBtn').disabled = false;
-  $('#saveNote').hidden = true;
+  $('#saveBtn').disabled = false;
+  const note = $('#saveNote'); note.hidden = true; note.className = 'note';
+  $('#overAccBtn').hidden = !(Cloud.on && !loggedIn() && game.score > 0);
+  if (loggedIn() && game.score > 0) {
+    // Logged-in players are ranked automatically: saveProfile() above already sent the game.
+    $('#saveForm').hidden = true; lastResult.saved = true;
+    localAdd(Cloud.pseudo, game.score); LB.highlight = Cloud.pseudo;
+    note.hidden = false; note.textContent = 'Envoi du score…';
+    Cloud.chain.then(() => {
+      if (lastResult.score !== game.score || game.state !== 'over') return;
+      if (Cloud.failed) { note.textContent = 'Pas de connexion : ton score est gardé et sera envoyé à la prochaine partie.'; return; }
+      note.className = 'note ok';
+      note.textContent = Cloud.rank ? 'Score envoyé. Tu es ' + Cloud.rank + (Cloud.rank === 1 ? 'er' : 'e') + ' au classement en ligne.' : 'Score envoyé au classement en ligne.';
+      refreshBoard();
+    });
+  } else {
+    $('#saveForm').hidden = game.score <= 0;
+  }
   updateHUD(); show('over'); game.ready = null;
 }
 
 /* ---------- Leaderboard ---------- */
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14);
-const LB = { db: null, uid: null, online: [], loaded: false, tab: 'local', highlight: null };
+const LB = { online: [], tab: 'local', highlight: null };
 function localList() { const a = store.get('mbc_local', []); return Array.isArray(a) ? a.filter(r => r && typeof r.name === 'string' && Number.isFinite(r.score)) : []; }
 function localAdd(name, score) {
   let a = localList(); const k = name.toLowerCase(), i = a.findIndex(r => r.name.toLowerCase() === k);
   if (i >= 0) { if (score > a[i].score) a[i] = { name, score, at: Date.now() }; } else a.push({ name, score, at: Date.now() });
   a.sort((x, y) => y.score - x.score); store.set('mbc_local', a.slice(0, 50));
-}
-async function initOnline() {
-  if (!window.claude || typeof window.claude.use !== 'function') return;
-  try {
-    const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
-    if (!db) return;
-    LB.db = db; LB.uid = user ? await user.id() : null;
-    initProfile(db, LB.uid);
-    LB.tab = 'online'; $('#tabs').hidden = false; setTab('online');
-    db.collection('scores').orderBy('best', 'desc').limit(50).onSnapshot(snap => {
-      LB.online = snap.docs.map(d => { const v = d.data() || {}; return { id: d.id, name: cleanName(v.name), score: Number(v.best) }; })
-        .filter(r => r.name && Number.isFinite(r.score) && r.score >= 0 && r.score < 100000);
-      LB.loaded = true; renderBoard();
-    }, () => { LB.loaded = true; renderBoard(); });
-  } catch (e) {}
-}
-async function submitOnline(name, score) {
-  if (!LB.db) return 'none';
-  if (!LB.uid) return 'anon';
-  try {
-    const ref = LB.db.doc('scores/' + LB.uid), snap = await ref.get();
-    const prev = snap.exists ? (snap.data() || {}) : {};
-    const prevBest = Number(prev.best) || 0;
-    if (snap.exists && score <= prevBest && prev.name === name) return 'kept';
-    await ref.set({ name, best: Math.max(score, prevBest), games: (Number(prev.games) || 0) + 1, at: Date.now() });
-    return score > prevBest || !snap.exists ? 'ok' : 'kept';
-  } catch (e) { return e && e.code === 'quota_exceeded' ? 'full' : 'denied'; }
 }
 function setTab(t) {
   LB.tab = t;
@@ -1063,13 +1224,15 @@ function setTab(t) {
 }
 function renderBoard() {
   const ol = $('#lbList'); ol.textContent = '';
-  const online = LB.tab === 'online' && LB.db;
-  const rows = online ? LB.online : localList().slice(0, 30);
-  if (online && !LB.loaded) { emptyRow(ol, 'Chargement du classement…'); return; }
-  if (!rows.length) { emptyRow(ol, online ? 'Personne au classement pour l\'instant. Joue une partie et prends la première place !' : 'Aucun score sur cet appareil. Termine une partie pour inscrire ton pseudo.'); }
+  const online = LB.tab === 'online' && Cloud.on;
+  const rows = online ? Cloud.board : localList().slice(0, 30);
+  if (online && !Cloud.loaded) { emptyRow(ol, 'Chargement du classement…'); return; }
+  if (online && Cloud.boardFailed && !rows.length) { emptyRow(ol, 'Impossible de charger le classement. Vérifie ta connexion.'); }
+  else if (!rows.length) { emptyRow(ol, online ? 'Personne au classement pour l\'instant. Joue une partie et prends la première place !' : 'Aucun score sur cet appareil. Termine une partie pour inscrire ton pseudo.'); }
   rows.forEach((r, i) => {
     const li = document.createElement('li');
-    const me = online ? r.id === LB.uid : LB.highlight && r.name.toLowerCase() === LB.highlight.toLowerCase();
+    const mine = online ? (loggedIn() ? Cloud.pseudo : null) : LB.highlight;
+    const me = !!mine && r.name.toLowerCase() === mine.toLowerCase();
     if (me) li.className = 'me';
     const rk = document.createElement('span'); rk.className = 'rk'; rk.textContent = i + 1;
     const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = r.name;
@@ -1078,12 +1241,14 @@ function renderBoard() {
     li.append(rk, nm, sc); ol.append(li);
   });
   const note = $('#lbNote');
-  note.hidden = !online; if (online) note.textContent = 'Un seul score par joueur : ton meilleur.';
+  note.hidden = !online;
+  if (online) note.textContent = loggedIn() && Cloud.rank ? 'Tu es ' + Cloud.rank + (Cloud.rank === 1 ? 'er' : 'e') + '. Un seul score par joueur : ton meilleur.'
+    : loggedIn() ? 'Un seul score par joueur : ton meilleur.' : 'Crée ton compte pour apparaître dans ce classement.';
 }
 function emptyRow(ol, msg) { const li = document.createElement('li'); li.className = 'empty'; li.style.display = 'block'; li.textContent = msg; ol.append(li); }
-function openBoard(from) { LB.from = from; renderBoard(); show('board'); }
+function openBoard(from) { LB.from = from; renderBoard(); show('board'); refreshBoard(); }
 
-$('#saveForm').addEventListener('submit', async e => {
+$('#saveForm').addEventListener('submit', e => {
   e.preventDefault();
   if (!lastResult || lastResult.saved) return;
   const name = cleanName($('#pseudo').value);
@@ -1091,19 +1256,8 @@ $('#saveForm').addEventListener('submit', async e => {
   if (!name) { note.hidden = false; note.className = 'note'; note.textContent = 'Écris un pseudo pour apparaître au classement.'; $('#pseudo').focus(); return; }
   $('#saveBtn').disabled = true; lastResult.saved = true;
   store.set('mbc_name', name); localAdd(name, lastResult.score); LB.highlight = name;
-  const res = await submitOnline(name, lastResult.score);
-  note.hidden = false; note.className = 'note ok';
-  const msgs = {
-    ok: 'Score enregistré au classement en ligne.',
-    kept: 'Enregistré. Ton record en ligne reste plus haut, bats-le !',
-    none: 'Score enregistré sur cet appareil.',
-    anon: 'Score enregistré sur cet appareil. Connecte-toi pour entrer au classement en ligne.',
-    denied: 'Score enregistré sur cet appareil. Le classement en ligne n\'est pas ouvert à ton compte.',
-    full: 'Score enregistré sur cet appareil. Le classement en ligne est plein.'
-  };
-  note.textContent = msgs[res] || msgs.none;
-  if (res !== 'ok' && res !== 'kept') note.className = 'note';
-  if (LB.db) setTab(res === 'ok' || res === 'kept' ? 'online' : 'local');
+  note.hidden = false; note.className = 'note ok'; note.textContent = 'Score enregistré sur cet appareil.';
+  setTab('local');
   setTimeout(() => { if (game.state === 'over') openBoard('over'); }, 900);
 });
 $('#playBtn').addEventListener('click', startGame);
@@ -1153,7 +1307,7 @@ function resize() {
 window.addEventListener('resize', resize);
 resize(); resetGame(); paintMute(); renderBoard(); renderEventTag();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { cssFont = getComputedStyle(document.documentElement).getPropertyValue('--f-display').trim() || cssFont; drawBG(); });
-initOnline();
+renderAccount(); bootCloud();
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(.033, Math.max(0, (now - last) / 1000)); last = now;
