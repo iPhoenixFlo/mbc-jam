@@ -164,6 +164,25 @@ form .btn{margin-top:6px}
 .quest li.now{color:var(--ink);font-weight:700} .quest li.now i{color:var(--led)}
 .quest li small{font-size:12px;color:var(--muted);text-align:right}
 .stat .big,.stat .label,#hudBest{text-shadow:0 1px 4px rgba(0,0,0,.65)}
+select{font:600 17px/1.2 var(--f-body);color:var(--ink);background:rgba(14,8,10,.7);border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+select:focus-visible{outline:3px solid var(--led);outline-offset:2px}
+select option{background:#1a0d10;color:#fff}
+.catrow{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}
+.catrow label{font:700 12px/1 var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+#board .tab{font-size:13px;padding:10px 4px;letter-spacing:.06em}
+#lbList .cat{display:inline-block;margin-left:6px;padding:2px 5px;border-radius:4px;font:700 11px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,.08);vertical-align:2px}
+#lbList .sub{display:block;font-size:13px;font-weight:500;color:var(--muted)}
+.daily{display:grid;grid-template-columns:1fr auto;grid-template-areas:"l go" "m go" "i go";gap:4px 12px;align-items:center;width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid rgba(245,197,66,.65);background:linear-gradient(110deg,rgba(245,197,66,.2),rgba(186,42,47,.25));color:var(--ink);text-align:left;cursor:pointer;font-family:var(--f-body)}
+.daily .label{grid-area:l;color:var(--gold)}
+.daily b{grid-area:m;font:400 15px/1.2 var(--f-display)}
+.daily small{grid-area:i;font-size:14px;color:var(--muted);line-height:1.25}
+.daily .go{grid-area:go;font:400 13px/1.1 var(--f-display);background:var(--gold);color:#1d1203;padding:10px;border-radius:9px;text-align:center;max-width:92px}
+.daily:focus-visible{outline:3px solid var(--led);outline-offset:2px}
+.howto{border:1px solid var(--line);border-radius:12px;padding:0 14px}
+.howto summary{cursor:pointer;padding:12px 0;font:700 14px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);list-style-position:inside}
+.howto summary:focus-visible{outline:3px solid var(--led);outline-offset:2px}
+.howto[open] summary{color:var(--ink)}
+.howto .rules{padding-bottom:14px}
 .empty{padding:22px 10px;text-align:center;color:var(--muted);line-height:1.35}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
@@ -184,6 +203,7 @@ form .btn{margin-top:6px}
     <div class="stat right">
       <span class="label">Record</span><span id="hudBest">0</span>
       <button class="iconbtn" id="muteBtn" type="button" aria-label="Couper le son"></button>
+      <button class="iconbtn" id="musicBtn" type="button" aria-label="Couper la musique"></button>
     </div>
   </div>
 
@@ -199,19 +219,23 @@ form .btn{margin-top:6px}
       </div>
       <div class="logo"><span class="mbc">MBC</span><span class="sub">Shootout</span></div>
       <p class="tagline">60 secondes pour mettre un max de paniers.</p>
-      <button class="acct" id="menuAccBtn" type="button" hidden><span class="dot"></span><span id="menuAccTxt">Crée ton compte pour sauvegarder ta progression</span></button>
-      <ul class="rules">
-        <li><span class="chip">↑↓</span><span>Glisse vers le haut pour tirer, ou tire vers le bas puis lâche, comme un lance-pierre. La longueur du geste règle la force.</span></li>
-        <li><span class="chip hot">×2</span><span>3 paniers d'affilée et tu prends feu : les points comptent double.</span></li>
-        <li><span class="chip">+1 s</span><span>Un swish, sans toucher le cercle : 3 points et +1 s (+2 s si tu es en feu). Chaque série de 5 paniers : +3 s. Jusqu'à 20 s de bonus par partie.</span></li>
-        <li><span class="chip gold">OR</span><span>Le ballon doré vaut le double. Le panier bouge quand tu montes de niveau.</span></li>
-      </ul>
       <button class="btn" id="playBtn" type="button">Jouer</button>
+      <button class="daily" id="dailyBtn" type="button"><span class="label">Défi du jour</span><b id="dailyMods"></b><small id="dailyInfo"></small><span class="go">Relever le défi</span></button>
       <div class="row three">
         <button class="btn ghost" id="menuQuestBtn" type="button">Quêtes</button>
         <button class="btn ghost" id="menuLockerBtn" type="button">Vestiaire</button>
         <button class="btn ghost" id="menuBoardBtn" type="button">Classement</button>
       </div>
+      <button class="acct" id="menuAccBtn" type="button" hidden><span class="dot"></span><span id="menuAccTxt">Crée ton compte pour sauvegarder ta progression</span></button>
+      <details class="howto" id="howto">
+        <summary>Comment jouer</summary>
+        <ul class="rules">
+          <li><span class="chip">↑↓</span><span>Glisse vers le haut pour tirer, ou tire vers le bas puis lâche, comme un lance-pierre. La longueur du geste règle la force.</span></li>
+          <li><span class="chip hot">×2</span><span>3 paniers d'affilée et tu prends feu : les points comptent double.</span></li>
+          <li><span class="chip">+1 s</span><span>Un swish, sans toucher le cercle : 3 points et +1 s (+2 s si tu es en feu). Chaque série de 5 paniers : +3 s. Jusqu'à 20 s de bonus par partie.</span></li>
+          <li><span class="chip gold">OR</span><span>Le ballon doré vaut le double. Le panier bouge quand tu montes de niveau.</span></li>
+        </ul>
+      </details>
     </div>
   </div>
 
@@ -290,6 +314,8 @@ form .btn{margin-top:6px}
         <form id="accForm" autocomplete="off">
           <label for="accPseudo">Pseudo</label>
           <input type="text" id="accPseudo" maxlength="14" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Ex. Tony Parker">
+          <label for="accCat" id="accCatLabel">Ta catégorie au club</label>
+          <select id="accCat"><option value="">Choisis ta catégorie</option><option value="u9">U9</option><option value="u11">U11</option><option value="u13">U13</option><option value="u15">U15</option><option value="u18">U18</option><option value="seniors">Seniors</option><option value="loisirs">Loisirs</option><option value="parents">Parents</option><option value="coachs">Coachs</option></select>
           <label for="accPin">Code PIN à 4 chiffres</label>
           <input type="password" id="accPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••">
           <button class="btn" type="submit" id="accSubmit">Créer mon compte</button>
@@ -299,6 +325,8 @@ form .btn{margin-top:6px}
       </div>
       <div id="accIn" class="stack" hidden>
         <div class="who"><span class="label">Connecté</span><b id="accName"></b><small id="accRank"></small></div>
+        <div class="catrow"><label for="accCatEdit">Catégorie</label><select id="accCatEdit"><option value="">À choisir</option><option value="u9">U9</option><option value="u11">U11</option><option value="u13">U13</option><option value="u15">U15</option><option value="u18">U18</option><option value="seniors">Seniors</option><option value="loisirs">Loisirs</option><option value="parents">Parents</option><option value="coachs">Coachs</option></select></div>
+        <p class="note" id="accCatMsg" hidden></p>
         <p class="note">Ta progression et ton vestiaire sont sauvegardés sur ton compte. Sur un autre appareil, connecte-toi avec le même pseudo et le même code.</p>
         <button class="btn ghost" id="accLogout" type="button">Se déconnecter</button>
       </div>
@@ -313,9 +341,12 @@ form .btn{margin-top:6px}
     <div class="panel">
       <h2>Classement</h2>
       <div class="tabs" id="tabs" role="tablist" hidden>
-        <button class="tab" id="tabOnline" role="tab" type="button" aria-selected="true">En ligne</button>
-        <button class="tab" id="tabLocal" role="tab" type="button" aria-selected="false">Cet appareil</button>
+        <button class="tab" id="tabOnline" role="tab" type="button" aria-selected="true">Général</button>
+        <button class="tab" id="tabDaily" role="tab" type="button" aria-selected="false">Du jour</button>
+        <button class="tab" id="tabCats" role="tab" type="button" aria-selected="false">Équipes</button>
+        <button class="tab" id="tabLocal" role="tab" type="button" aria-selected="false">Appareil</button>
       </div>
+      <select id="lbFilter" aria-label="Filtrer par catégorie" hidden><option value="">Toutes les catégories</option><option value="u9">U9</option><option value="u11">U11</option><option value="u13">U13</option><option value="u15">U15</option><option value="u18">U18</option><option value="seniors">Seniors</option><option value="loisirs">Loisirs</option><option value="parents">Parents</option><option value="coachs">Coachs</option></select>
       <ol id="lbList"></ol>
       <p class="note" id="lbNote" hidden></p>
       <div class="row">
@@ -379,7 +410,19 @@ const Sfx = {
   go() { this.tone(880, .3, 'square', .08); },
   buzzer() { this.tone(170, 1.0, 'sawtooth', .16, .97); this.tone(176, 1.0, 'square', .08, .97); },
   shoot() { this.noise(.12, 700, .25, .8); },
-  level() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, .18, 'triangle', .12, 0, i * .08)); }
+  level() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, .18, 'triangle', .12, 0, i * .08)); },
+  noiseBuf() {
+    if (!this.nb) { const c = this.ac, n = c.sampleRate, b = c.createBuffer(1, n, c.sampleRate), a = b.getChannelData(0); for (let i = 0; i < n; i++) a[i] = Math.random() * 2 - 1; this.nb = b; }
+    return this.nb;
+  },
+  // A crowd roar: filtered noise that swells and fades.
+  crowd(v = 1) {
+    const c = this.ac; if (!c || this.muted) return;
+    const t = c.currentTime, src = c.createBufferSource(), lp = c.createBiquadFilter(), bp = c.createBiquadFilter(), g = c.createGain();
+    src.buffer = this.noiseBuf(); lp.type = 'lowpass'; lp.frequency.value = 1100; bp.type = 'peaking'; bp.frequency.value = 520; bp.gain.value = 9;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(.22 * v, t + .25); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+    src.connect(lp).connect(bp).connect(g).connect(c.destination); src.start(t, Math.random() * .5); src.stop(t + 1.5);
+  }
 };
 
 /* ---------- Game state ---------- */
@@ -496,7 +539,7 @@ const SUPABASE_URL = 'https://phggheeycveofdexsbjk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_lbuXRt065EnZd62dbYJepw_C0fZNxYE';
 const Cloud = {
   on: !!(SUPABASE_URL && SUPABASE_KEY),
-  token: store.get('mbc_token', null), pseudo: store.get('mbc_pseudo', null), rank: null,
+  token: store.get('mbc_token', null), pseudo: store.get('mbc_pseudo', null), category: store.get('mbc_cat', null), rank: null,
   board: [], loaded: false, failed: false, chain: Promise.resolve(),
   async rpc(fn, args) {
     const headers = { 'Content-Type': 'application/json', apikey: SUPABASE_KEY };
@@ -519,6 +562,7 @@ function applyRemote(res, takeSkin) {
   if (look !== Prof.theme) drawBG();
   if (typeof res.pseudo === 'string') { Cloud.pseudo = cleanName(res.pseudo); store.set('mbc_pseudo', Cloud.pseudo); }
   Cloud.rank = Number.isFinite(res.rank) ? res.rank : null;
+  if ('category' in res) { Cloud.category = CAT_NAMES[res.category] ? res.category : null; store.set('mbc_cat', Cloud.category); }
   saveLocalProfile(); updateHUD(); renderLocker(); renderEventTag(); renderAccount();
 }
 // Sends local progress; the server keeps the best of both and answers with the merged profile.
@@ -535,8 +579,10 @@ function syncProfile() {
 function dropSession() {
   Cloud.token = null; store.set('mbc_token', null); renderAccount(); renderLocker();
 }
-async function authenticate(mode, pseudo, pin) {
-  const res = await Cloud.rpc(mode === 'new' ? 'shootout_register' : 'shootout_login', { p_pseudo: pseudo, p_pin: pin });
+const CAT_NAMES = { u9: 'U9', u11: 'U11', u13: 'U13', u15: 'U15', u18: 'U18', seniors: 'Seniors', loisirs: 'Loisirs', parents: 'Parents', coachs: 'Coachs' };
+async function authenticate(mode, pseudo, pin, cat) {
+  const res = await Cloud.rpc(mode === 'new' ? 'shootout_register' : 'shootout_login',
+    mode === 'new' ? { p_pseudo: pseudo, p_pin: pin, p_category: cat || null } : { p_pseudo: pseudo, p_pin: pin });
   if (!res || !res.ok) return res || { error: 'network' };
   Cloud.token = res.token; store.set('mbc_token', res.token);
   applyRemote(res, mode === 'login');
@@ -547,14 +593,14 @@ async function authenticate(mode, pseudo, pin) {
 async function logout() {
   const t = Cloud.token; dropSession();
   // Everything is safe on the account: the device starts fresh for the next player.
-  resetLocalProfile(); store.set('mbc_pseudo', null); Cloud.pseudo = null; Cloud.rank = null;
+  resetLocalProfile(); store.set('mbc_pseudo', null); store.set('mbc_cat', null); store.set('mbc_daily', null); Cloud.pseudo = null; Cloud.rank = null; Cloud.category = null;
+  renderDailyCard();
   if (t) Cloud.rpc('shootout_logout', { p_token: t }).catch(() => {});
   renderAccount(); renderBoard();
 }
 async function bootCloud() {
   if (!Cloud.on) return;
-  $('#tabs').hidden = false; LB.tab = 'online'; setTab('online');
-  refreshBoard();
+  $('#tabs').hidden = false; setTab('online');
   if (!Cloud.token) return;
   try {
     const res = await Cloud.rpc('shootout_profile', { p_token: Cloud.token });
@@ -562,15 +608,38 @@ async function bootCloud() {
     else if (res && res.error === 'session') dropSession();
   } catch (e) { Cloud.failed = true; renderAccount(); }
 }
+// Online boards: "online" (general), "daily" (today's challenge), "cats" (teams). Filter = one category or all.
 async function refreshBoard() {
-  if (!Cloud.on) return;
+  if (!Cloud.on || LB.tab === 'local') { renderBoard(); return; }
+  const tab = LB.tab, cat = LB.filter || null, req = refreshBoard.req = (refreshBoard.req || 0) + 1;
+  Cloud.loaded = false; renderBoard();
   try {
-    const rows = await Cloud.rpc('shootout_leaderboard', { p_limit: 50 });
-    Cloud.board = (Array.isArray(rows) ? rows : []).map(r => ({ name: cleanName(r && r.pseudo), score: Number(r && r.best) }))
+    const rows = tab === 'cats' ? await Cloud.rpc('shootout_categories', {})
+      : tab === 'daily' ? await Cloud.rpc('shootout_daily_board', { p_day: todayKey(), p_limit: 50, p_category: cat })
+      : await Cloud.rpc('shootout_leaderboard', { p_limit: 50, p_category: cat });
+    if (req !== refreshBoard.req) return;
+    Cloud.board = (Array.isArray(rows) ? rows : []).map(r => tab === 'cats'
+      ? { cat: r && r.category, name: CAT_NAMES[r && r.category] || '', score: Number(r && r.score), players: Number(r && r.players), top: cleanName(r && r.top_pseudo), topScore: Number(r && r.top) }
+      : { name: cleanName(r && r.pseudo), score: Number(r && r.best), cat: CAT_NAMES[r && r.category] ? r.category : null })
       .filter(r => r.name && Number.isFinite(r.score) && r.score > 0);
-    Cloud.loaded = true; Cloud.boardFailed = false;
-  } catch (e) { Cloud.loaded = true; Cloud.boardFailed = true; }
-  renderBoard();
+    Cloud.boardFailed = false;
+  } catch (e) { if (req !== refreshBoard.req) return; Cloud.board = []; Cloud.boardFailed = true; }
+  Cloud.loaded = true; renderBoard();
+}
+const ordinal = n => n === 1 ? '1er' : n + 'e';
+async function submitDaily(score) {
+  try {
+    const res = await Cloud.rpc('shootout_daily_submit', { p_token: Cloud.token, p_day: todayKey(), p_score: score });
+    if (res && res.error === 'session') dropSession();
+    if (res && res.ok) { const dl = dailyLocal(); dl.rank = res.rank; dl.best = Math.max(dl.best, res.best); store.set('mbc_daily', dl); }
+    return res;
+  } catch (e) { return null; }
+}
+function renderDailyCard() {
+  const d = dailyFor(todayKey()), dl = dailyLocal();
+  $('#dailyMods').textContent = d.mods.map(m => m.label).join(' · ');
+  $('#dailyInfo').textContent = dl.games ? 'Ton meilleur aujourd\'hui : ' + dl.best + (dl.rank ? ' · ' + ordinal(dl.rank) + ' du jour' : '')
+    : 'Le même défi pour tout le monde. Nouveau défi et nouveau classement chaque jour.';
 }
 function queueSync() { clearTimeout(queueSync.t); queueSync.t = setTimeout(syncProfile, 1200); }
 function equipSkin(id) {
@@ -591,19 +660,51 @@ function equipItem(it) { it.kind === 'theme' ? equipTheme(it.id) : it.kind === '
 loadLocalProfile();
 let best = Prof.stats.best;
 
+/* ---------- Game rules and the daily challenge ----------
+   Normal games use NORMAL_RULES. The daily challenge applies two twists picked from the date, and draws ball
+   positions and golden balls from a generator seeded by the date, so everybody plays the same challenge. */
+const NORMAL_RULES = { time: 60, goldP: .1, minAmp: 0, minSpeed: 0, minSpread: 0, speedMul: 1, bonus: true, fireAt: 3, swishPts: 3, rng: Math.random };
+const DAILY_MODS = [
+  { id: 'moving',  label: 'Le panier bouge dès le début',          apply: R => { R.minAmp = .6; R.minSpeed = 1.1; } },
+  { id: 'gold',    label: 'Un ballon doré sur trois',              apply: R => { R.goldP = .33; } },
+  { id: 'short',   label: 'Seulement 45 secondes',                 apply: R => { R.time = 45; } },
+  { id: 'spread',  label: 'Le ballon change de place à chaque tir', apply: R => { R.minSpread = .45; } },
+  { id: 'nobonus', label: 'Aucun bonus de temps',                  apply: R => { R.bonus = false; } },
+  { id: 'fire2',   label: 'En feu dès 2 paniers d\'affilée',       apply: R => { R.fireAt = 2; } },
+  { id: 'swish5',  label: 'Les swishs valent 5 points',            apply: R => { R.swishPts = 5; } },
+  { id: 'turbo',   label: 'Le panier bouge deux fois plus vite',   apply: R => { R.speedMul = 2; R.minAmp = Math.max(R.minAmp, .5); R.minSpeed = Math.max(R.minSpeed, .9); } }
+];
+function seeded(str) {
+  let h = 1779033703 ^ str.length;
+  for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  return () => { h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
+}
+function dailyFor(day) {
+  const r = seeded('mbc-daily-' + day), pool = [...DAILY_MODS], mods = [];
+  while (mods.length < 2) mods.push(pool.splice(Math.floor(r() * pool.length), 1)[0]);
+  return { day, mods };
+}
+function rulesFor(mode) {
+  const R = { ...NORMAL_RULES };
+  if (mode === 'daily') { const d = dailyFor(todayKey()); d.mods.forEach(m => m.apply(R)); R.rng = seeded('mbc-balls-' + d.day); R.day = d.day; }
+  return R;
+}
+let RULES = rulesFor('normal');
+function dailyLocal() { const d = store.get('mbc_daily', null); return d && d.day === todayKey() ? d : { day: todayKey(), best: 0, games: 0, rank: null }; }
+
 function spawnReady() {
-  const L = LEVELS[game.level];
-  game.ready = { x: L.spread ? rand(-L.spread, L.spread) : 0, golden: game.state === 'playing' && Math.random() < .1, t: 0 };
+  const L = LEVELS[game.level], spread = Math.max(L.spread, RULES.minSpread), r = RULES.rng;
+  game.ready = { x: spread ? (r() * 2 - 1) * spread : 0, golden: game.state === 'playing' && r() < RULES.goldP, t: 0 };
 }
 function resetGame() {
-  Object.assign(game, { score: 0, time: GAME_TIME, bonus: 0, shots: 0, makes: 0, swishes: 0, streak: 0, bestStreak: 0, level: 0,
+  Object.assign(game, { score: 0, time: RULES.time, bonus: 0, shots: 0, makes: 0, swishes: 0, streak: 0, bestStreak: 0, level: 0,
     swishRun: 0, bestSwishRun: 0, golds: 0, buzzers: 0,
     balls: [], ready: null, cool: 0, shake: 0, lastSec: 99, endWait: 0, firstShot: false });
   Object.assign(hoop, { x: 0, amp: 0, speed: 0, phase: 0, net: 0, sway: 0 });
   fx = []; texts = []; flashes = [];
   spawnReady(); updateHUD();
 }
-const onFire = () => game.streak >= 3;
+const onFire = () => game.streak >= RULES.fireAt;
 
 // Two gestures: swipe up (flick), or pull down and release (slingshot, mirrored). Both end up as an upward aim vector.
 function aimOf(d) {
@@ -674,9 +775,10 @@ function scoreBall(b) {
   game.swishRun = swish ? game.swishRun + 1 : 0; game.bestSwishRun = Math.max(game.bestSwishRun, game.swishRun);
   if (b.golden) game.golds++;
   if (buzzer) game.buzzers++;
-  const pts = (swish ? 3 : 2) * (fire ? 2 : 1) * (b.golden ? 2 : 1);
+  const pts = (swish ? RULES.swishPts : 2) * (fire ? 2 : 1) * (b.golden ? 2 : 1);
+  buzz(swish ? [25, 40, 35] : 30); if (swish) Sfx.crowd(.7);
   game.score += pts;
-  if (game.state === 'playing') {
+  if (game.state === 'playing' && RULES.bonus) {
     // Time bonus: swish +1 s (+2 s on fire), every 5-shot streak +3 s, capped per game.
     const series = game.streak % 5 === 0;
     let add = (swish ? (fire ? 2 : 1) : 0) + (series ? 3 : 0);
@@ -693,7 +795,7 @@ function scoreBall(b) {
   confetti(p.x, p.y + 20, swish ? 34 : 18, b.golden);
   hoop.net = 1; if (swish) game.shake = .5;
   Sfx.swish(); Sfx.score();
-  if (game.streak === 3) { Sfx.fire(); addText('EN FEU !', W / 2, H * .55, '#ff4b3a', 42); }
+  if (game.streak === RULES.fireAt) { Sfx.fire(); Sfx.crowd(1); buzz(90); addText('EN FEU !', W / 2, H * .55, '#ff4b3a', 42); }
   b.vx *= .25; b.vz *= .25; b.vy *= .5;
   while (game.level < LEVELS.length - 1 && game.makes >= LEVELS[game.level + 1].at) {
     game.level++; showBanner('Niveau ' + (game.level + 1), LEVELS[game.level].name); Sfx.level();
@@ -719,8 +821,9 @@ function confetti(x, y, n, golden) {
 /* ---------- Loop ---------- */
 function step(dt, now) {
   const L = LEVELS[game.level];
-  hoop.amp += (L.amp - hoop.amp) * Math.min(1, dt * .8);
-  hoop.speed += (L.speed - hoop.speed) * Math.min(1, dt * .8);
+  const tAmp = Math.max(L.amp, RULES.minAmp), tSpeed = Math.max(L.speed, RULES.minSpeed) * RULES.speedMul;
+  hoop.amp += (tAmp - hoop.amp) * Math.min(1, dt * .8);
+  hoop.speed += (tSpeed - hoop.speed) * Math.min(1, dt * .8);
   hoop.phase += hoop.speed * dt; hoop.x = hoop.amp * Math.sin(hoop.phase);
   hoop.net *= Math.exp(-dt * 3.2); hoop.sway *= Math.exp(-dt * 4);
   game.shake *= Math.exp(-dt * 9);
@@ -1075,10 +1178,77 @@ const THEMES = {
     pole: '#141414', poleBase: '#000000'
   }
 };
-function themeNow() {
+function themeKey() {
   const id = previewTheme || (THEMES[HASH_THEME] ? HASH_THEME : LIVE_EVENT && Prof.theme === 'mbc' ? LIVE_EVENT.theme : Prof.theme);
-  return THEMES[id] || THEMES.mbc;
+  return THEMES[id] ? id : 'mbc';
 }
+function themeNow() { return THEMES[themeKey()]; }
+
+/* ---------- Background music: a small generated loop per court ----------
+   Each song is 4 bars of 16 steps: chords (semitones from the key), a bass line and drum steps. */
+const SONGS = {
+  arena:  { bpm: 104, key: 110, chords: [[0, 3, 7], [-4, 0, 3], [-2, 2, 5], [-5, -2, 2]], kick: [0, 8, 10], snare: [4, 12], hat: 2,
+            bass: [0, null, null, 0, null, null, 0, null, 0, null, null, 0, null, 7, null, null], pad: 'sawtooth', padVol: .03 },
+  hiphop: { bpm: 88, key: 98, chords: [[0, 3, 7, 10], [5, 8, 12, 15], [3, 7, 10, 14], [-2, 2, 5, 9]], kick: [0, 6, 10], snare: [4, 12], hat: 1,
+            bass: [0, null, null, null, null, null, 0, null, null, null, 0, null, null, null, null, null], pad: 'triangle', padVol: .05 },
+  chill:  { bpm: 96, key: 131, chords: [[0, 4, 7], [5, 9, 12], [9, 12, 16], [7, 11, 14]], kick: [0, 8], snare: [12], hat: 2,
+            bass: [0, null, null, null, 0, null, null, null, 0, null, null, null, 0, null, 7, null], arp: [0, 4, 7, 12, 7, 4], pad: 'triangle', padVol: .04 },
+  synth:  { bpm: 112, key: 110, chords: [[0, 3, 7], [-4, 0, 3], [3, 7, 10], [-2, 2, 5]], kick: [0, 4, 8, 12], snare: [4, 12], hat: 2,
+            bass: [0, 0, 12, 0, 0, 12, 0, 12, 0, 0, 12, 0, 0, 12, 0, 12], arp: [0, 3, 7, 12, 15, 12, 7, 3], pad: 'sawtooth', padVol: .025 },
+  calm:   { bpm: 72, key: 131, chords: [[0, 4, 7, 11], [-3, 0, 4, 7], [5, 9, 12, 16], [2, 5, 9, 12]], kick: [], snare: [], hat: 0,
+            bass: [0, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null], arp: [12, 7, 4, 7], pad: 'sine', padVol: .06 },
+  spooky: { bpm: 84, key: 98, chords: [[0, 3, 6], [1, 4, 7], [0, 3, 7], [-1, 3, 6]], kick: [0, 10], snare: [8], hat: 0,
+            bass: [0, null, null, 0, null, null, null, null, 0, null, null, 1, null, null, null, null], arp: [0, 6, 3, 12], pad: 'square', padVol: .018 }
+};
+const SONG_OF = { mbc: 'arena', grand: 'arena', hallo26: 'spooky', lava: 'spooky', street: 'hiphop', beach: 'chill', candy: 'chill', retro: 'synth', space: 'synth', snow: 'calm', deep: 'calm', jungle: 'calm' };
+const Music = {
+  on: store.get('mbc_music', true) !== false, bus: null, timer: null, next: 0, step: 0,
+  start() {
+    const ac = Sfx.ac; if (!ac || !this.on || Sfx.muted || this.timer || document.hidden) return;
+    if (!this.bus) { this.bus = ac.createGain(); this.bus.connect(ac.destination); }
+    const t = ac.currentTime; this.bus.gain.cancelScheduledValues(t); this.bus.gain.setValueAtTime(0.0001, t); this.bus.gain.exponentialRampToValueAtTime(.6, t + 1.5);
+    this.next = t + .1; this.step = 0; this.timer = setInterval(() => this.tick(), 60);
+  },
+  stop() {
+    if (!this.timer) return; clearInterval(this.timer); this.timer = null;
+    const ac = Sfx.ac; if (ac && this.bus) { this.bus.gain.cancelScheduledValues(ac.currentTime); this.bus.gain.setTargetAtTime(0.0001, ac.currentTime, .15); }
+  },
+  tick() {
+    const ac = Sfx.ac; if (!ac) return;
+    const song = SONGS[SONG_OF[themeKey()]] || SONGS.arena, spb = 60 / song.bpm / 4;
+    if (this.next < ac.currentTime - .3) this.next = ac.currentTime + .05;
+    while (this.next < ac.currentTime + .25) { this.play(song, this.step, this.next, spb); this.next += spb; this.step++; }
+  },
+  play(S, step, t, spb) {
+    const st = step % 16, ch = S.chords[Math.floor(step / 16) % S.chords.length], root = ch[0], f = n => S.key * Math.pow(2, n / 12);
+    if (S.kick.includes(st)) this.kick(t);
+    if (S.snare.includes(st)) this.hit(t, .14, 'bandpass', 1800, .16);
+    if (S.hat && st % S.hat === 0) this.hit(t, .03, 'highpass', 7000, st % 4 ? .03 : .05);
+    if (S.bass[st] != null) this.note(f(root + S.bass[st]) / 2, t, spb * 1.6, 'triangle', .16, 600);
+    if (st === 0) ch.forEach(n => this.note(f(n), t, spb * 15.5, S.pad, S.padVol, 1400, .25));
+    if (S.arp && st % 2 === 0) this.note(f(root + S.arp[(st / 2) % S.arp.length]) * 2, t, spb * 1.2, 'triangle', .045, 3000);
+  },
+  note(freq, t, dur, type, vol, cut, att = .01) {
+    const ac = Sfx.ac, o = ac.createOscillator(), g = ac.createGain(), fl = ac.createBiquadFilter();
+    o.type = type; o.frequency.value = freq; fl.type = 'lowpass'; fl.frequency.value = cut;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + att); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(fl).connect(g).connect(this.bus); o.start(t); o.stop(t + dur + .05);
+  },
+  kick(t) {
+    const ac = Sfx.ac, o = ac.createOscillator(), g = ac.createGain();
+    o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(45, t + .12);
+    g.gain.setValueAtTime(.5, t); g.gain.exponentialRampToValueAtTime(0.0001, t + .2);
+    o.connect(g).connect(this.bus); o.start(t); o.stop(t + .22);
+  },
+  hit(t, dur, type, freq, vol) {
+    const ac = Sfx.ac, src = ac.createBufferSource(), fl = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = Sfx.noiseBuf(); fl.type = type; fl.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(fl).connect(g).connect(this.bus); src.start(t, Math.random() * .5); src.stop(t + dur + .02);
+  }
+};
+// Short vibrations on phones that support them (most Android phones; iPhones ignore it).
+function buzz(pattern) { if (Sfx.muted) return; try { navigator.vibrate && navigator.vibrate(pattern); } catch (e) {} }
 
 function drawCrowd(S, cr) {
   const { c, W, rnd } = S; let row = 0;
@@ -1617,14 +1787,14 @@ const hudScore = $('#hudScore'), hudTime = $('#hudTime'), clock = $('#clock');
 let lastClock = '';
 function updateHUD() {
   hudScore.textContent = game.score;
-  $('#hudBest').textContent = Math.max(best, game.state === 'menu' ? 0 : game.score > best ? game.score : best);
-  $('#hudLevel').textContent = 'NIV. ' + (game.level + 1);
-  const pips = $('#pips').children, s = Math.min(3, game.streak);
-  for (let i = 0; i < 3; i++) pips[i].classList.toggle('on', i < s);
+  $('#hudBest').textContent = game.state === 'menu' || game.mode === 'daily' ? best : Math.max(best, game.score);
+  $('#hudLevel').textContent = (game.mode === 'daily' ? 'DÉFI · ' : '') + 'NIV. ' + (game.level + 1);
+  const pips = $('#pips').children, s = Math.min(RULES.fireAt, game.streak);
+  for (let i = 0; i < 3; i++) { pips[i].classList.toggle('on', i < s); pips[i].hidden = i >= RULES.fireAt; }
   const f = onFire() && game.state !== 'menu';
   document.body.classList.toggle('fire', f); $('#fireTag').hidden = !f;
   const hb = $('#hudBonus');
-  hb.textContent = game.bonus >= BONUS_CAP ? 'Bonus max 20 s' : 'Bonus ' + game.bonus + '/' + BONUS_CAP + ' s';
+  hb.textContent = !RULES.bonus ? 'Sans bonus' : game.bonus >= BONUS_CAP ? 'Bonus max 20 s' : 'Bonus ' + game.bonus + '/' + BONUS_CAP + ' s';
   hb.classList.toggle('max', game.bonus >= BONUS_CAP);
 }
 function updateClock() {
@@ -1640,7 +1810,12 @@ function showBanner(small, big) {
 }
 const SPK_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
-function paintMute() { const m = $('#muteBtn'); m.innerHTML = Sfx.muted ? SPK_OFF : SPK_ON; m.setAttribute('aria-label', Sfx.muted ? 'Activer le son' : 'Couper le son'); }
+const NOTE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>';
+function paintMute() {
+  const m = $('#muteBtn'); m.innerHTML = Sfx.muted ? SPK_OFF : SPK_ON; m.setAttribute('aria-label', Sfx.muted ? 'Activer le son' : 'Couper le son');
+  const mu = $('#musicBtn'); mu.innerHTML = NOTE_ICON; mu.style.opacity = Music.on && !Sfx.muted ? '1' : '.4';
+  mu.setAttribute('aria-label', Music.on ? 'Couper la musique' : 'Activer la musique'); mu.setAttribute('aria-pressed', Music.on);
+}
 
 /* ---------- Screens ---------- */
 function show(id) {
@@ -1769,6 +1944,7 @@ function setAccMode(m) {
   $('#accTabNew').setAttribute('aria-selected', m === 'new'); $('#accTabLogin').setAttribute('aria-selected', m === 'login');
   $('#accSubmit').textContent = m === 'new' ? 'Créer mon compte' : 'Me connecter';
   $('#accPin').setAttribute('autocomplete', m === 'new' ? 'new-password' : 'current-password');
+  $('#accCat').hidden = $('#accCatLabel').hidden = m !== 'new';
   $('#accMsg').hidden = true;
 }
 function renderAccount() {
@@ -1779,6 +1955,7 @@ function renderAccount() {
   $('#accOut').hidden = loggedIn(); $('#accIn').hidden = !loggedIn();
   if (loggedIn()) {
     $('#accName').textContent = Cloud.pseudo || '';
+    $('#accCatEdit').value = Cloud.category || '';
     $('#accRank').textContent = Cloud.rank ? (Cloud.rank === 1 ? '1er' : Cloud.rank + 'e') + ' au classement · record ' + Prof.stats.best : 'Record ' + Prof.stats.best;
   }
 }
@@ -1794,11 +1971,13 @@ $('#accForm').addEventListener('submit', async e => {
   const msg = $('#accMsg'), pseudo = cleanName($('#accPseudo').value), pin = $('#accPin').value.trim();
   const fail = t => { msg.hidden = false; msg.className = 'note err'; msg.textContent = t; };
   if (pseudo.length < 2) return fail(ACC_ERRORS.pseudo_invalide);
+  const cat = $('#accCat').value;
+  if (accMode === 'new' && !CAT_NAMES[cat]) return fail('Choisis ta catégorie : elle sert au classement des équipes.');
   if (!/^[0-9]{4}$/.test(pin)) return fail(ACC_ERRORS.pin_invalide);
   accBusy = true; $('#accSubmit').disabled = true;
   msg.hidden = false; msg.className = 'note'; msg.textContent = accMode === 'new' ? 'Création du compte…' : 'Connexion…';
   let res;
-  try { res = await authenticate(accMode, pseudo, pin); } catch (err) { res = { error: 'network' }; }
+  try { res = await authenticate(accMode, pseudo, pin, cat); } catch (err) { res = { error: 'network' }; }
   accBusy = false; $('#accSubmit').disabled = false;
   if (!res.ok) {
     return fail(res.error === 'bloque' ? 'Trop de codes faux. Réessaie dans ' + (res.minutes || 15) + ' min.' : ACC_ERRORS[res.error] || ACC_ERRORS.network);
@@ -1810,30 +1989,42 @@ $('#accForm').addEventListener('submit', async e => {
 $('#accTabNew').addEventListener('click', () => setAccMode('new'));
 $('#accTabLogin').addEventListener('click', () => setAccMode('login'));
 $('#accLogout').addEventListener('click', logout);
+$('#accCatEdit').addEventListener('change', async e => {
+  const msg = $('#accCatMsg'), v = e.target.value; if (!CAT_NAMES[v] || !loggedIn()) return;
+  msg.hidden = false; msg.className = 'note'; msg.textContent = 'Enregistrement…';
+  try {
+    const res = await Cloud.rpc('shootout_set_category', { p_token: Cloud.token, p_category: v });
+    if (res && res.ok) { applyRemote(res, false); msg.className = 'note ok'; msg.textContent = 'Tu joues maintenant pour les ' + CAT_NAMES[v] + '.'; }
+    else if (res && res.error === 'session') { dropSession(); msg.hidden = true; }
+    else msg.textContent = 'La catégorie n\'a pas pu être enregistrée. Réessaie.';
+  } catch (err) { msg.textContent = 'Impossible de joindre le serveur. Vérifie ta connexion et réessaie.'; }
+});
 $('#accPlayBtn').addEventListener('click', startGame);
 $('#accBackBtn').addEventListener('click', () => show(accFrom === 'over' && game.state === 'over' ? 'over' : 'menu'));
 $('#menuAccBtn').addEventListener('click', () => openAccount('menu'));
 $('#overAccBtn').addEventListener('click', () => openAccount('over', 'new'));
 function openLocker(from) { lockerFrom = from; renderLocker(); show('locker'); }
-function startGame() {
-  Sfx.init(); show(null); resetGame();
+function startGame(mode) {
+  game.mode = mode === 'daily' ? 'daily' : 'normal'; RULES = rulesFor(game.mode);
+  Sfx.init(); Music.start(); show(null); resetGame();
   game.state = 'countdown'; game.cd = 3; game.cdShown = 0;
   $('#count').hidden = false; $('#banner').textContent = '';
 }
 let lastResult = null;
 function endGame() {
   game.state = 'over';
-  const prevBest = best;
+  const daily = game.mode === 'daily', prevBest = best, dl = dailyLocal(), prevDaily = dl.best;
   const before = SKINS.filter(sk => isUnlocked(sk)).map(sk => sk.id);
   const st = Prof.stats;
-  st.games++; st.best = Math.max(st.best, game.score);
+  // The daily challenge has its own twists: it counts as a game, but not for the record, the main ranking or the quests.
+  st.games++; if (!daily) st.best = Math.max(st.best, game.score);
   st.bestStreak = Math.max(st.bestStreak, game.bestStreak); st.bestSwishes = Math.max(st.bestSwishes, game.swishes);
   if (LIVE_EVENT && game.shots > 0 && !Prof.events.includes(LIVE_EVENT.id)) Prof.events.push(LIVE_EVENT.id);
   // Quests: the current step of each quest is checked against this game; several steps can fall in one game.
   const G = { score: game.score, makes: game.makes, shots: game.shots, acc: game.shots ? game.makes / game.shots : 0, swishes: game.swishes,
     swishRun: game.bestSwishRun, streak: game.bestStreak, golds: game.golds, level: game.level + 1, buzzers: game.buzzers, bonus: game.bonus };
   const items = [];
-  for (const q of QUESTS) {
+  if (!daily) for (const q of QUESTS) {
     for (let n = questStep(q.id); n <= 3 && q.steps[n - 1][1](G); n++) {
       Prof.events.push('q-' + q.id + '-' + n);
       if (n === 2) items.push({ kind: 'trail', id: q.id, name: TRAILS[q.id].name, why: 'Quête ' + themeName(q.id) + ' · étape 2/3' });
@@ -1846,15 +2037,30 @@ function endGame() {
   showUnlock(items); renderEventTag();
   lastResult = { score: game.score, saved: false };
   $('#finalScore').textContent = game.score;
-  $('#overTitle').textContent = game.score >= 60 ? 'Énorme partie !' : game.score >= 30 ? 'Belle adresse !' : 'Temps écoulé !';
-  $('#newBest').hidden = !(game.score > prevBest && game.score > 0);
+  $('#overTitle').textContent = daily ? 'Défi du jour terminé !' : game.score >= 60 ? 'Énorme partie !' : game.score >= 30 ? 'Belle adresse !' : 'Temps écoulé !';
+  $('#newBest').textContent = daily ? 'Nouveau record du jour' : 'Nouveau record perso';
+  $('#newBest').hidden = !(game.score > (daily ? prevDaily : prevBest) && game.score > 0);
+  if (daily) { dl.best = Math.max(dl.best, game.score); dl.games++; store.set('mbc_daily', dl); }
   $('#stMakes').textContent = game.makes; $('#stSwish').textContent = game.swishes; $('#stStreak').textContent = game.bestStreak;
   $('#stPct').textContent = (game.shots ? Math.round(game.makes / game.shots * 100) : 0) + '%';
   $('#pseudo').value = store.get('mbc_name', '');
   $('#saveBtn').disabled = false;
   const note = $('#saveNote'); note.hidden = true; note.className = 'note';
   $('#overAccBtn').hidden = !(Cloud.on && !loggedIn() && game.score > 0);
-  if (loggedIn() && game.score > 0) {
+  $('#overAccBtn').textContent = daily ? 'Crée ton compte pour le classement du jour' : 'Crée ton compte pour le classement en ligne';
+  if (daily) {
+    $('#saveForm').hidden = true; lastResult.saved = true;
+    if (loggedIn() && game.score > 0) {
+      note.hidden = false; note.textContent = 'Envoi au classement du jour…';
+      submitDaily(game.score).then(res => {
+        if (game.state !== 'over' || lastResult.score !== game.score) return;
+        if (res && res.ok) { note.className = 'note ok'; note.textContent = 'Défi du jour : tu es ' + ordinal(res.rank) + ' aujourd\'hui (ton meilleur : ' + res.best + ').'; }
+        else note.textContent = 'Le classement du jour n\'a pas pu être mis à jour. Ton score est gardé sur cet appareil.';
+        renderDailyCard();
+      });
+    }
+    renderDailyCard();
+  } else if (loggedIn() && game.score > 0) {
     // Logged-in players are ranked automatically: saveProfile() above already sent the game.
     $('#saveForm').hidden = true; lastResult.saved = true;
     localAdd(Cloud.pseudo, game.score); LB.highlight = Cloud.pseudo;
@@ -1874,7 +2080,7 @@ function endGame() {
 
 /* ---------- Leaderboard ---------- */
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14);
-const LB = { online: [], tab: 'local', highlight: null };
+const LB = { online: [], tab: 'local', filter: '', highlight: null };
 function localList() { const a = store.get('mbc_local', []); return Array.isArray(a) ? a.filter(r => r && typeof r.name === 'string' && Number.isFinite(r.score)) : []; }
 function localAdd(name, score) {
   let a = localList(); const k = name.toLowerCase(), i = a.findIndex(r => r.name.toLowerCase() === k);
@@ -1883,34 +2089,43 @@ function localAdd(name, score) {
 }
 function setTab(t) {
   LB.tab = t;
-  $('#tabOnline').setAttribute('aria-selected', t === 'online'); $('#tabLocal').setAttribute('aria-selected', t === 'local');
-  renderBoard();
+  for (const [k, id] of [['online', '#tabOnline'], ['daily', '#tabDaily'], ['cats', '#tabCats'], ['local', '#tabLocal']]) $(id).setAttribute('aria-selected', t === k);
+  $('#lbFilter').hidden = !(Cloud.on && (t === 'online' || t === 'daily'));
+  refreshBoard();
 }
 function renderBoard() {
   const ol = $('#lbList'); ol.textContent = '';
-  const online = LB.tab === 'online' && Cloud.on;
+  const tab = Cloud.on ? LB.tab : 'local', online = tab !== 'local';
   const rows = online ? Cloud.board : localList().slice(0, 30);
+  const note = $('#lbNote'); note.hidden = true;
   if (online && !Cloud.loaded) { emptyRow(ol, 'Chargement du classement…'); return; }
-  if (online && Cloud.boardFailed && !rows.length) { emptyRow(ol, 'Impossible de charger le classement. Vérifie ta connexion.'); }
-  else if (!rows.length) { emptyRow(ol, online ? 'Personne au classement pour l\'instant. Joue une partie et prends la première place !' : 'Aucun score sur cet appareil. Termine une partie pour inscrire ton pseudo.'); }
+  if (online && Cloud.boardFailed) emptyRow(ol, 'Impossible de charger ce classement. Vérifie ta connexion et réessaie.');
+  else if (!rows.length) emptyRow(ol, tab === 'daily' ? 'Personne n\'a encore relevé le défi aujourd\'hui. Sois le premier !'
+    : tab === 'cats' ? 'Aucune équipe pour l\'instant : choisis ta catégorie dans Mon compte et joue une partie.'
+    : tab === 'online' ? (LB.filter ? 'Personne dans cette catégorie pour l\'instant.' : 'Personne au classement pour l\'instant. Joue une partie et prends la première place !')
+    : 'Aucun score sur cet appareil. Termine une partie pour inscrire ton pseudo.');
   rows.forEach((r, i) => {
     const li = document.createElement('li');
-    const mine = online ? (loggedIn() ? Cloud.pseudo : null) : LB.highlight;
-    const me = !!mine && r.name.toLowerCase() === mine.toLowerCase();
+    const mine = tab === 'cats' ? null : online ? (loggedIn() ? Cloud.pseudo : null) : LB.highlight;
+    const me = tab === 'cats' ? (loggedIn() && r.cat === Cloud.category) : !!mine && r.name.toLowerCase() === mine.toLowerCase();
     if (me) li.className = 'me';
     const rk = document.createElement('span'); rk.className = 'rk'; rk.textContent = i + 1;
     const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = r.name;
-    if (me) { const em = document.createElement('em'); em.textContent = 'toi'; nm.append(em); }
+    if (online && tab !== 'cats' && r.cat) { const c = document.createElement('span'); c.className = 'cat'; c.textContent = CAT_NAMES[r.cat]; nm.append(c); }
+    if (me) { const em = document.createElement('em'); em.textContent = tab === 'cats' ? 'ton équipe' : 'toi'; nm.append(em); }
+    if (tab === 'cats') { const sub = document.createElement('span'); sub.className = 'sub'; sub.textContent = r.players + ' joueur' + (r.players > 1 ? 's' : '') + ' · meilleur : ' + r.top + ' (' + r.topScore + ')'; nm.append(sub); }
     const sc = document.createElement('span'); sc.className = 'sc'; sc.textContent = r.score;
     li.append(rk, nm, sc); ol.append(li);
   });
-  const note = $('#lbNote');
-  note.hidden = !online;
-  if (online) note.textContent = loggedIn() && Cloud.rank ? 'Tu es ' + Cloud.rank + (Cloud.rank === 1 ? 'er' : 'e') + '. Un seul score par joueur : ton meilleur.'
-    : loggedIn() ? 'Un seul score par joueur : ton meilleur.' : 'Crée ton compte pour apparaître dans ce classement.';
+  if (!online) return;
+  note.hidden = false;
+  note.textContent = tab === 'cats' ? 'Score d\'une équipe : la moyenne des 5 meilleurs records de la catégorie.'
+    : !loggedIn() ? 'Crée ton compte pour apparaître dans ce classement.'
+    : tab === 'daily' ? 'Un score par joueur : ton meilleur du jour. Remis à zéro chaque jour.'
+    : Cloud.rank && !LB.filter ? 'Tu es ' + ordinal(Cloud.rank) + '. Un seul score par joueur : ton meilleur.' : 'Un seul score par joueur : ton meilleur.';
 }
 function emptyRow(ol, msg) { const li = document.createElement('li'); li.className = 'empty'; li.style.display = 'block'; li.textContent = msg; ol.append(li); }
-function openBoard(from) { LB.from = from; renderBoard(); show('board'); refreshBoard(); }
+function openBoard(from, tab) { LB.from = from; show('board'); if (Cloud.on) setTab(tab || LB.tab || 'online'); else renderBoard(); }
 
 $('#saveForm').addEventListener('submit', e => {
   e.preventDefault();
@@ -1925,7 +2140,8 @@ $('#saveForm').addEventListener('submit', e => {
   setTimeout(() => { if (game.state === 'over') openBoard('over'); }, 900);
 });
 $('#playBtn').addEventListener('click', startGame);
-$('#againBtn').addEventListener('click', startGame);
+$('#againBtn').addEventListener('click', () => startGame(game.mode));
+$('#dailyBtn').addEventListener('click', () => startGame('daily'));
 $('#boardPlayBtn').addEventListener('click', startGame);
 $('#menuBoardBtn').addEventListener('click', () => openBoard('menu'));
 $('#menuLockerBtn').addEventListener('click', () => openLocker('menu'));
@@ -1934,17 +2150,23 @@ $('#lockerBackBtn').addEventListener('click', () => show(lockerFrom === 'over' &
 $('#unlockEquip').addEventListener('click', () => { if (unlockItem) { equipItem(unlockItem); $('#unlockEquip').textContent = unlockItem.kind === 'theme' ? 'Terrain choisi' : 'Équipé'; $('#unlockEquip').disabled = true; } });
 $('#menuQuestBtn').addEventListener('click', () => openQuests('menu'));
 $('#overQuestBtn').addEventListener('click', () => openQuests('over'));
-$('#overMenuBtn').addEventListener('click', () => { resetGame(); game.state = 'menu'; renderEventTag(); show('menu'); });
+$('#overMenuBtn').addEventListener('click', () => { game.mode = 'normal'; RULES = rulesFor('normal'); resetGame(); game.state = 'menu'; renderEventTag(); renderDailyCard(); show('menu'); });
 $('#questPlayBtn').addEventListener('click', startGame);
 $('#questBackBtn').addEventListener('click', () => show(questsFrom === 'over' && game.state === 'over' ? 'over' : 'menu'));
 $('#ltBalls').addEventListener('click', () => { lockTab = 'balls'; renderLocker(); });
 $('#ltTrails').addEventListener('click', () => { lockTab = 'trails'; renderLocker(); });
 $('#ltThemes').addEventListener('click', () => { lockTab = 'themes'; renderLocker(); });
-$('#overBoardBtn').addEventListener('click', () => openBoard('over'));
+$('#overBoardBtn').addEventListener('click', () => openBoard('over', game.mode === 'daily' ? 'daily' : 'online'));
 $('#boardBackBtn').addEventListener('click', () => show(LB.from === 'over' && game.state === 'over' ? 'over' : 'menu'));
 $('#tabOnline').addEventListener('click', () => setTab('online'));
+$('#tabDaily').addEventListener('click', () => setTab('daily'));
+$('#tabCats').addEventListener('click', () => setTab('cats'));
 $('#tabLocal').addEventListener('click', () => setTab('local'));
-$('#muteBtn').addEventListener('click', () => { Sfx.muted = !Sfx.muted; store.set('mbc_muted', Sfx.muted); Sfx.init(); paintMute(); });
+$('#lbFilter').addEventListener('change', e => { LB.filter = CAT_NAMES[e.target.value] ? e.target.value : ''; refreshBoard(); });
+$('#muteBtn').addEventListener('click', () => { Sfx.muted = !Sfx.muted; store.set('mbc_muted', Sfx.muted); Sfx.init(); Sfx.muted ? Music.stop() : Music.start(); paintMute(); });
+$('#musicBtn').addEventListener('click', () => { Music.on = !Music.on; store.set('mbc_music', Music.on); Sfx.init(); Music.on ? Music.start() : Music.stop(); paintMute(); });
+document.addEventListener('pointerdown', () => { Sfx.init(); Music.start(); }, { once: true });
+document.addEventListener('visibilitychange', () => document.hidden ? Music.stop() : Music.start());
 
 /* ---------- Input ---------- */
 cv.addEventListener('pointerdown', e => {
@@ -1980,7 +2202,8 @@ function resize() {
 window.addEventListener('resize', resize);
 resize(); resetGame(); paintMute(); renderBoard(); renderEventTag();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { cssFont = getComputedStyle(document.documentElement).getPropertyValue('--f-display').trim() || cssFont; drawBG(); });
-renderAccount(); bootCloud();
+renderAccount(); renderDailyCard(); bootCloud();
+if (!Prof.stats.games) $('#howto').open = true;
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(.033, Math.max(0, (now - last) / 1000)); last = now;
