@@ -3,7 +3,7 @@
   "short_name": "MBC Jam",
   "description": "Basket arcade 2 contre 2 aux couleurs du MBC",
   "lang": "fr",
-  "start_url": "./",
+  "start_url": "./jam.html",
   "scope": "./",
   "display": "fullscreen",
   "orientation": "landscape",

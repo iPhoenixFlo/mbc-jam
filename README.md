@@ -2,7 +2,7 @@
 
 Basket arcade 2 contre 2 aux couleurs du MBC (#BA2A2F), dans l'esprit de NBA JAM.
 
-**Jouer :** https://iphoenixflo.github.io/mbc-jam/
+**Jouer :** https://jeu.morieres-basket.club/jam.html
 
 - Match rapide, tournoi de 5 équipes, défis, niveaux et vestiaire à débloquer
 - 2 joueurs sur le même clavier ou avec deux manettes
@@ -10,4 +10,4 @@ Basket arcade 2 contre 2 aux couleurs du MBC (#BA2A2F), dans l'esprit de NBA JAM
 
 Commandes, téléphone : joystick à gauche, boutons TIR, PASSE et TURBO à droite. Clavier : flèches ou ZQSD, Espace (tir), K (passe), Maj (turbo).
 
-Aussi dans ce dépôt : [MBC Shootout](https://iphoenixflo.github.io/mbc-jam/shootout.html), concours de tirs en 60 secondes.
+**MBC Shootout**, le concours de tirs en 60 secondes, est la page d'accueil du domaine : https://jeu.morieres-basket.club/
