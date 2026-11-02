@@ -494,7 +494,7 @@ const themeOpen = id => id === 'mbc' || (id === 'hallo26' && Prof.events.include
 /* Dated events: play one game between start and end (inclusive, phone's date) to keep the skin forever.
    To add one: an entry here, a skin in SKINS with need.event, and its look in SKIN_LOOK. */
 const EVENTS = [
-  { id: 'halloween-2026', name: 'Halloween', skin: 'pumpkin26', theme: 'hallo26', start: '2026-10-25', end: '2026-11-02', until: 'jusqu\'au 2 novembre', from: 'le 25 octobre' }
+  { id: 'halloween-2026', name: 'Halloween', skin: 'pumpkin26', theme: 'hallo26', start: '2026-10-25', end: '2026-11-10', until: 'jusqu\'au 10 novembre', from: 'le 25 octobre' }
 ];
 const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 const LIVE_EVENT = EVENTS.find(e => todayKey() >= e.start && todayKey() <= e.end) || null;
