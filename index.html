@@ -59,6 +59,7 @@ body.fire .clock{border-color:rgba(255,75,58,.7);box-shadow:0 0 28px rgba(255,75
 @keyframes pop{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:scale(1);opacity:1}}
 #banner{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 132px);display:flex;justify-content:center;pointer-events:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 #banner div{background:var(--led);color:#1d1203;font:400 clamp(15px,4vw,20px)/1.1 var(--f-display);padding:10px 16px;border-radius:8px;text-align:center;animation:slide 2.2s ease both}
+#banner em{display:block;font:600 14px/1.2 var(--f-body);font-style:normal;margin-top:4px;opacity:.85}
 #banner small{display:block;font:700 13px/1.2 var(--f-body);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px;opacity:.75}
 @keyframes slide{0%{transform:translateY(-14px) scale(.9);opacity:0}12%,80%{transform:none;opacity:1}100%{opacity:0;transform:translateY(-8px)}}
 #hint{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);text-align:center;font:700 16px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink);pointer-events:none;animation:nudge 1.1s ease-in-out infinite}
@@ -426,16 +427,24 @@ const Sfx = {
 };
 
 /* ---------- Game state ---------- */
+// Levels alternate between "faster" and "think differently": wind (m/s² pushing the ball sideways),
+// depth (the hoop moves forward and back, in m) and stop-and-go (the hoop pauses, then jumps).
 const LEVELS = [
-  { at: 0,  amp: 0,   speed: 0,   spread: 0,   name: 'Échauffement' },
-  { at: 5,  amp: 0,   speed: 0,   spread: .35, name: 'Le ballon change de place' },
-  { at: 10, amp: .5,  speed: .9,  spread: .3,  name: 'Le panier bouge !' },
-  { at: 17, amp: .8,  speed: 1.35, spread: .35, name: 'Plus vite !' },
-  { at: 25, amp: .95, speed: 1.8, spread: .35, name: 'Mode pro' },
-  { at: 35, amp: 1,   speed: 2.35, spread: .4, name: 'Légende du MBC' }
+  { at: 0,  amp: 0,   speed: 0,    spread: 0,   name: 'Échauffement' },
+  { at: 5,  amp: 0,   speed: 0,    spread: .35, name: 'Le ballon change de place' },
+  { at: 10, amp: .4,  speed: .7,   spread: .3,  name: 'Le panier bouge !' },
+  { at: 15, amp: .4,  speed: .7,   spread: .3,  wind: .9, name: 'Coup de vent', tip: 'Vise un peu contre le vent' },
+  { at: 21, amp: .45, speed: .75,  spread: .3,  depth: .3, name: 'Le panier avance et recule', tip: 'Dose ta force : suis la zone dorée' },
+  { at: 28, amp: .8,  speed: 1.35, spread: .35, name: 'Plus vite !' },
+  { at: 34, amp: .9,  speed: 0,    spread: .35, stop: true, name: 'Stop and go', tip: 'Tire pendant les pauses' },
+  { at: 40, amp: .7,  speed: 1.1,  spread: .35, wind: 1.6, name: 'Tempête', tip: 'Le vent souffle fort' },
+  { at: 46, amp: .95, speed: 1.8,  spread: .35, name: 'Mode pro' },
+  { at: 55, amp: 1,   speed: 2,    spread: .4,  wind: 1.1, depth: .3, name: 'Légende du MBC', tip: 'Un peu de tout !' }
 ];
-const hoop = { x: 0, z: BASE_Z, amp: 0, speed: 0, phase: 0, net: 0, sway: 0,
-  predict(t) { return this.amp * Math.sin(this.phase + this.speed * t); } };
+const hoop = { x: 0, z: BASE_Z, amp: 0, speed: 0, phase: 0, net: 0, sway: 0, depth: 0, dphase: 0, tx: 0, moving: false, pause: 0, stopMode: false,
+  // Where the hoop will be in t seconds (used by the aim assist and the power gauge)
+  predict(t) { return this.stopMode ? (this.moving ? this.tx : this.x) : this.amp * Math.sin(this.phase + this.speed * t); },
+  predictZ(t) { return BASE_Z + this.depth * Math.sin(this.dphase + .9 * t); } };
 const game = { state: 'menu', score: 0, time: GAME_TIME, bonus: 0, shots: 0, makes: 0, swishes: 0, streak: 0, bestStreak: 0,
   level: 0, balls: [], ready: null, cool: 0, shake: 0, cd: 0, cdShown: 0, lastSec: 99, endWait: 0, firstShot: false, flashT: 0 };
 let fx = [], texts = [], flashes = [], drag = null;
@@ -469,7 +478,7 @@ const QUESTS = [
   { id: 'jungle', ball: 'jade',    steps: [['20 paniers', G => G.makes >= 20], ['8 swishs d\'affilée', G => G.swishRun >= 8], ['120 points', G => G.score >= 120]] },
   { id: 'retro',  ball: 'chrome',  steps: [['90 % d\'adresse sur 20 tirs ou plus', G => G.shots >= 20 && G.acc >= .9], ['20 s de bonus gagnées', G => G.bonus >= 20], ['130 points', G => G.score >= 130]] },
   { id: 'deep',   ball: 'perle',   steps: [['30 paniers', G => G.makes >= 30], ['5 ballons dorés marqués', G => G.golds >= 5], ['140 points', G => G.score >= 140]] },
-  { id: 'candy',  ball: 'sucre',   steps: [['Série de 20 paniers', G => G.streak >= 20], ['Atteindre le niveau 6', G => G.level >= 6], ['150 points', G => G.score >= 150]] },
+  { id: 'candy',  ball: 'sucre',   steps: [['Série de 20 paniers', G => G.streak >= 20], ['Atteindre le niveau 7', G => G.level >= 7], ['150 points', G => G.score >= 150]] },
   { id: 'lava',   ball: 'magma',   steps: [['35 paniers', G => G.makes >= 35], ['10 swishs d\'affilée', G => G.swishRun >= 10], ['170 points', G => G.score >= 170]] },
   { id: 'space',  ball: 'planete', steps: [['100 % d\'adresse sur 25 tirs ou plus', G => G.shots >= 25 && G.makes === G.shots], ['2 buzzer beaters', G => G.buzzers >= 2], ['190 points', G => G.score >= 190]] },
   { id: 'grand',  ball: 'onyx',    steps: [['Série de 25 paniers', G => G.streak >= 25], ['15 swishs', G => G.swishes >= 15], ['220 points', G => G.score >= 220]] }
@@ -694,13 +703,14 @@ function dailyLocal() { const d = store.get('mbc_daily', null); return d && d.da
 
 function spawnReady() {
   const L = LEVELS[game.level], spread = Math.max(L.spread, RULES.minSpread), r = RULES.rng;
-  game.ready = { x: spread ? (r() * 2 - 1) * spread : 0, golden: game.state === 'playing' && r() < RULES.goldP, t: 0 };
+  const w = L.wind ? (r() < .5 ? -1 : 1) * L.wind * (.5 + .5 * r()) : 0;
+  game.ready = { x: spread ? (r() * 2 - 1) * spread : 0, golden: game.state === 'playing' && r() < RULES.goldP, wind: w, t: 0 };
 }
 function resetGame() {
   Object.assign(game, { score: 0, time: RULES.time, bonus: 0, shots: 0, makes: 0, swishes: 0, streak: 0, bestStreak: 0, level: 0,
     swishRun: 0, bestSwishRun: 0, golds: 0, buzzers: 0,
     balls: [], ready: null, cool: 0, shake: 0, lastSec: 99, endWait: 0, firstShot: false });
-  Object.assign(hoop, { x: 0, amp: 0, speed: 0, phase: 0, net: 0, sway: 0 });
+  Object.assign(hoop, { x: 0, z: BASE_Z, amp: 0, speed: 0, phase: 0, net: 0, sway: 0, depth: 0, dphase: 0, tx: 0, moving: false, pause: 0, stopMode: false });
   fx = []; texts = []; flashes = [];
   spawnReady(); updateHUD();
 }
@@ -718,11 +728,13 @@ function shoot(sdx, sdy, ref = L0) {
   let zT = BASE_Z + (ratio - 1) * .9;
   let xT = rb.x + clamp(sdx / len, -1.2, 1.2) * 1.8;
   // Gentle aim assist: shots that are close get pulled toward the rim.
-  const hx = hoop.predict(FLIGHT), ex = xT - hx, ez = zT - hoop.z;
+  // Gentle aim assist: shots that would land close (wind included) get pulled toward the rim.
+  const drift = .5 * (rb.wind || 0) * FLIGHT * FLIGHT;
+  const hx = hoop.predict(FLIGHT), ex = xT + drift - hx, ez = zT - hoop.predictZ(FLIGHT);
   if (Math.hypot(ex, ez) < .34) { xT -= ex * .45; zT -= ez * .45; }
   const T = FLIGHT;
   game.balls.push({ x: rb.x, y: START_Y, z: 0, vx: (xT - rb.x) / T, vy: (RIM_Y - START_Y) / T + .5 * G * T, vz: zT / T,
-    spin: 0, spinV: -10 - rand(0, 5), golden: rb.golden, fire: onFire(), scored: false, resolved: false,
+    spin: 0, spinV: -10 - rand(0, 5), wind: rb.wind || 0, golden: rb.golden, fire: onFire(), scored: false, resolved: false,
     touched: false, bounces: 0, age: 0, fade: 1, tb: -1 });
   game.ready = null; game.cool = .38; game.shots++;
   if (!game.firstShot) { game.firstShot = true; $('#hint').hidden = true; }
@@ -731,6 +743,7 @@ function shoot(sdx, sdy, ref = L0) {
 
 function physics(b, h) {
   const py = b.y;
+  if (b.wind && !b.resolved) b.vx += b.wind * h;
   b.vy -= G * h; b.x += b.vx * h; b.y += b.vy * h; b.z += b.vz * h;
   // Rim: nearest point on the hoop circle, then a sphere bounce.
   const rx = b.x - hoop.x, rz = b.z - hoop.z, d = Math.hypot(rx, rz);
@@ -798,7 +811,7 @@ function scoreBall(b) {
   if (game.streak === RULES.fireAt) { Sfx.fire(); Sfx.crowd(1); buzz(90); addText('EN FEU !', W / 2, H * .55, '#ff4b3a', 42); }
   b.vx *= .25; b.vz *= .25; b.vy *= .5;
   while (game.level < LEVELS.length - 1 && game.makes >= LEVELS[game.level + 1].at) {
-    game.level++; showBanner('Niveau ' + (game.level + 1), LEVELS[game.level].name); Sfx.level();
+    game.level++; showBanner('Niveau ' + (game.level + 1), LEVELS[game.level].name, LEVELS[game.level].tip); Sfx.level();
   }
   updateHUD();
 }
@@ -824,7 +837,22 @@ function step(dt, now) {
   const tAmp = Math.max(L.amp, RULES.minAmp), tSpeed = Math.max(L.speed, RULES.minSpeed) * RULES.speedMul;
   hoop.amp += (tAmp - hoop.amp) * Math.min(1, dt * .8);
   hoop.speed += (tSpeed - hoop.speed) * Math.min(1, dt * .8);
-  hoop.phase += hoop.speed * dt; hoop.x = hoop.amp * Math.sin(hoop.phase);
+  if (L.stop) {
+    // Stop and go: pause, then dash to a new spot
+    hoop.stopMode = true;
+    if (hoop.moving) {
+      const d = hoop.tx - hoop.x, st = 2.6 * dt;
+      if (Math.abs(d) <= st) { hoop.x = hoop.tx; hoop.moving = false; hoop.pause = 1.1; } else hoop.x += Math.sign(d) * st;
+    } else if ((hoop.pause -= dt) <= 0) {
+      let n = hoop.x; for (let k = 0; k < 8 && Math.abs(n - hoop.x) < .35; k++) n = (RULES.rng() * 2 - 1) * hoop.amp;
+      hoop.tx = n; hoop.moving = true;
+    }
+  } else {
+    if (hoop.stopMode) { hoop.stopMode = false; hoop.phase = Math.asin(clamp(hoop.x / Math.max(.01, hoop.amp), -1, 1)); }
+    hoop.phase += hoop.speed * dt; hoop.x = hoop.amp * Math.sin(hoop.phase);
+  }
+  hoop.depth += ((L.depth || 0) - hoop.depth) * Math.min(1, dt * .8);
+  hoop.dphase += .9 * dt; hoop.z = hoop.predictZ(0);
   hoop.net *= Math.exp(-dt * 3.2); hoop.sway *= Math.exp(-dt * 4);
   game.shake *= Math.exp(-dt * 9);
 
@@ -1744,6 +1772,8 @@ function render(t) {
   }
   ctx.restore();
 
+  drawWind(t);
+
   // Floating text (not shaken)
   for (const tx of texts) {
     const k = tx.life / tx.max, sc = k > .85 ? 1 + (k - .85) * 3 : 1;
@@ -1752,6 +1782,20 @@ function render(t) {
     ctx.lineWidth = tx.size * .18; ctx.strokeStyle = 'rgba(18,8,10,.85)'; ctx.lineJoin = 'round';
     ctx.strokeText(tx.t, 0, 0); ctx.fillStyle = tx.color; ctx.fillText(tx.t, 0, 0); ctx.restore();
   }
+}
+// Wind sock under the score: arrow length and the number of streaks show the strength of the wind for the next shot.
+function drawWind(t) {
+  const w = game.ready ? game.ready.wind : 0;
+  if (!w || game.state === 'menu') return;
+  const x = 56, y = 112, dir = Math.sign(w), k = Math.min(1, Math.abs(w) / 1.6), len = 22 + 34 * k;
+  ctx.save();
+  ctx.fillStyle = 'rgba(14,8,10,.7)'; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x - 40, y - 15, 96, 30, 15); else ctx.rect(x - 40, y - 15, 96, 30); ctx.fill();
+  ctx.font = `700 11px ${getComputedStyle(document.documentElement).getPropertyValue('--f-body')}`; ctx.fillStyle = '#c9bcbd'; ctx.textBaseline = 'middle'; ctx.fillText('VENT', x - 32, y);
+  const ax = x + 22, wob = Math.sin(t * 12) * 1.5;
+  ctx.strokeStyle = k > .6 ? '#ff8a5a' : '#ffffff'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(ax - dir * len / 2, y + wob); ctx.lineTo(ax + dir * len / 2, y - wob); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ax + dir * len / 2, y - wob); ctx.lineTo(ax + dir * (len / 2 - 7), y - 6); ctx.moveTo(ax + dir * len / 2, y - wob); ctx.lineTo(ax + dir * (len / 2 - 7), y + 6); ctx.stroke();
+  ctx.restore();
 }
 function drawAim(p, r) {
   const a = aimOf(drag), dx = a.x, dy = a.y, len = Math.max(0, -dy), ratio = clamp(len / a.ref, 0, 1.8);
@@ -1774,10 +1818,11 @@ function drawAim(p, r) {
   // power gauge
   const gh = Math.max(90, r * 3.4), gw = 12, gx = p.x + r * 1.7 + 8, gy = p.y + r - gh;
   ctx.fillStyle = 'rgba(14,8,10,.65)'; roundRect(gx - 3, gy - 3, gw + 6, gh + 6, 8); ctx.fill();
-  const fill = gh * ratio / 1.8, good = Math.abs(ratio - 1) < .12;
-  ctx.fillStyle = good ? '#f5c542' : ratio > 1.12 ? '#ff4b3a' : 'rgba(246,239,226,.75)';
+  const ideal = clamp(1 + (hoop.predictZ(FLIGHT) - BASE_Z) / .9, .5, 1.6);
+  const fill = gh * ratio / 1.8, good = Math.abs(ratio - ideal) < .12;
+  ctx.fillStyle = good ? '#f5c542' : ratio > ideal + .12 ? '#ff4b3a' : 'rgba(246,239,226,.75)';
   roundRect(gx, gy + gh - fill, gw, fill, 5); ctx.fill();
-  const zy = gy + gh - gh * 1 / 1.8, zb = gh * .24 / 1.8;
+  const zy = gy + gh - gh * ideal / 1.8, zb = gh * .24 / 1.8;
   ctx.strokeStyle = '#f5c542'; ctx.lineWidth = 2; ctx.strokeRect(gx - 4, zy - zb / 2, gw + 8, zb);
 }
 function roundRect(x, y, w, h, r) { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, Math.max(0, h), Math.min(r, h / 2 || 0)); else ctx.rect(x, y, w, h); }
@@ -1802,11 +1847,13 @@ function updateClock() {
   if (txt !== lastClock) { lastClock = txt; hudTime.textContent = txt; clock.classList.toggle('low', t <= 10 && game.state === 'playing'); }
 }
 let bannerTimer = 0;
-function showBanner(small, big) {
+function showBanner(small, big, tip) {
   const b = $('#banner'); b.textContent = '';
   const d = document.createElement('div'), sm = document.createElement('small');
-  sm.textContent = small; d.append(sm, document.createTextNode(big)); b.append(d);
-  clearTimeout(bannerTimer); bannerTimer = setTimeout(() => { b.textContent = ''; }, 2300);
+  sm.textContent = small; d.append(sm, document.createTextNode(big));
+  if (tip) { const em = document.createElement('em'); em.textContent = tip; d.append(em); }
+  b.append(d);
+  clearTimeout(bannerTimer); bannerTimer = setTimeout(() => { b.textContent = ''; }, tip ? 3000 : 2300);
 }
 const SPK_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
