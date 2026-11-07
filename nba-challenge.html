@@ -262,6 +262,64 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tcd{font-size:.62rem;color:var(--fg2);margin-top:2px;line-height:1.3}
 .tck{position:absolute;top:6px;right:8px;color:var(--gold);font-size:.7rem;font-weight:700}
 
+/* ===== ACCOUNT ===== */
+.acc-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;margin-top:10px;padding:12px;
+  background:var(--bg2);border:1px solid var(--brd);color:var(--fg2);
+  border-radius:var(--r);font-family:'Bebas Neue',system-ui,sans-serif;
+  font-size:.95rem;letter-spacing:.04em;cursor:pointer;
+}
+.acc-btn:active{transform:scale(.98)}
+.acc-btn.logged{border-color:var(--xp);color:var(--xp);background:var(--xp2)}
+.acc-pseudo{font-weight:700;color:var(--fg)}
+
+.acc-tabs{display:flex;gap:0;margin-bottom:16px;border-radius:var(--rs);overflow:hidden;border:1px solid var(--brd)}
+.acc-tab{flex:1;padding:10px;text-align:center;background:var(--bg2);color:var(--fg2);font-family:'Bebas Neue',system-ui,sans-serif;font-size:.9rem;letter-spacing:.04em;cursor:pointer;border:none;transition:all .12s}
+.acc-tab[aria-selected="true"]{background:var(--accent);color:#fff}
+
+.acc-field{margin-bottom:12px}
+.acc-field label{display:block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--fg3);margin-bottom:5px}
+.acc-field input{
+  width:100%;padding:12px 14px;background:var(--bg2);
+  border:1.5px solid var(--brd);border-radius:var(--rs);
+  color:var(--fg);font-family:'DM Sans',system-ui,sans-serif;font-size:.9rem;
+}
+.acc-field input:focus{outline:none;border-color:var(--accent)}
+.acc-field input::placeholder{color:var(--fg3)}
+.acc-submit{
+  width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);
+  font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.05rem;letter-spacing:.04em;cursor:pointer;margin-top:4px;
+}
+.acc-submit:active{opacity:.85}
+.acc-submit:disabled{opacity:.4;cursor:default}
+.acc-err{text-align:center;color:var(--red);font-size:.78rem;margin-top:8px;min-height:20px}
+.acc-profile{text-align:center;padding:20px 0}
+.acc-avatar{width:64px;height:64px;border-radius:50%;background:var(--xp2);border:2px solid var(--xp);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.6rem;color:var(--xp)}
+.acc-name{font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.4rem;letter-spacing:.03em}
+.acc-logout{
+  margin-top:16px;padding:10px 20px;background:var(--bg2);color:var(--fg2);
+  border:1px solid var(--brd);border-radius:var(--rs);font-family:'DM Sans',system-ui,sans-serif;
+  font-size:.8rem;cursor:pointer;
+}
+.acc-logout:active{opacity:.7}
+
+/* Leaderboard */
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:6px}
+.lb-pos{font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.1rem;color:var(--fg3);min-width:24px;text-align:center}
+.lb-pos.top3{color:var(--gold)}
+.lb-info{flex:1;min-width:0}
+.lb-pseudo{font-weight:600;font-size:.85rem}
+.lb-detail{font-size:.68rem;color:var(--fg3)}
+.lb-lvl{font-family:'Bebas Neue',system-ui,sans-serif;font-size:.9rem;color:var(--xp)}
+.lb-btn{
+  width:100%;margin-top:20px;padding:13px;
+  background:var(--xp2);border:1.5px solid var(--xp);color:var(--xp);
+  border-radius:var(--r);font-family:'Bebas Neue',system-ui,sans-serif;
+  font-size:1rem;letter-spacing:.04em;cursor:pointer;
+}
+.lb-btn:active{transform:scale(.98)}
+
 .toast{
   position:fixed;top:calc(env(safe-area-inset-top,0px)+10px);
   left:50%;transform:translateX(-50%) translateY(-120%);
@@ -307,6 +365,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <div class="play-sub" id="play-sub">10 questions • Toutes catégories</div>
 
   <button class="trophy-btn" onclick="go('trophies')">Trophées <span class="tb" id="tbadge">0</span></button>
+
+  <button class="acc-btn" id="acc-btn" onclick="go('account')">Compte</button>
+  <button class="lb-btn" onclick="go('leaderboard')">🏅 Classement</button>
 </div>
 
 <!-- ===== QUIZ ===== -->
@@ -365,6 +426,44 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="tb2"><div class="tf" id="tpf" style="width:0%"></div></div>
   </div>
   <div class="tg" id="tgrid"></div>
+</div>
+
+<!-- ===== ACCOUNT ===== -->
+<div class="screen" id="account">
+  <div class="q-top">
+    <button class="q-back" onclick="go('home')">← Retour</button>
+    <span class="q-cat d">Compte</span><span></span>
+  </div>
+  <!-- Login form (shown when not logged in) -->
+  <div id="acc-form">
+    <div class="acc-tabs">
+      <button class="acc-tab" id="accTabNew" aria-selected="true" onclick="setAccMode('new')">Créer un compte</button>
+      <button class="acc-tab" id="accTabLogin" aria-selected="false" onclick="setAccMode('login')">Se connecter</button>
+    </div>
+    <div class="acc-field"><label>Surnom</label><input type="text" id="acc-pseudo" placeholder="Ton pseudo" maxlength="14" autocomplete="off"></div>
+    <div class="acc-field"><label>Code PIN (4 chiffres)</label><input type="tel" id="acc-pin" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric" autocomplete="off"></div>
+    <button class="acc-submit" id="acc-go" onclick="submitAccount()">C'est parti</button>
+    <div class="acc-err" id="acc-err"></div>
+  </div>
+  <!-- Profile (shown when logged in) -->
+  <div id="acc-profile" hidden>
+    <div class="acc-profile">
+      <div class="acc-avatar" id="acc-avatar">?</div>
+      <div class="acc-name" id="acc-pname">—</div>
+      <div style="color:var(--fg3);font-size:.78rem;margin-top:4px">Niveau <span id="acc-plvl">1</span> • <span id="acc-pxp">0</span> XP total</div>
+      <button class="acc-logout" onclick="doLogout()">Se déconnecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LEADERBOARD ===== -->
+<div class="screen" id="leaderboard">
+  <div class="q-top">
+    <button class="q-back" onclick="go('home')">← Retour</button>
+    <span class="q-cat d">Classement</span><span></span>
+  </div>
+  <div id="lb-list" style="margin-top:12px"></div>
+  <div style="text-align:center;color:var(--fg3);font-size:.75rem;margin-top:12px" id="lb-msg"></div>
 </div>
 
 <script>
@@ -1093,8 +1192,170 @@ function renderTrophies(){
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+const $=s=>document.getElementById(s);
 
-load();renderLvl();renderHome();
+// ===== CLOUD (Supabase) =====
+const SB_URL='https://phggheeycveofdexsbjk.supabase.co';
+const SB_KEY='sb_publishable_lbuXRt065EnZd62dbYJepw_C0fZNxYE';
+
+const Cloud={
+  token:null, pseudo:null,
+  async rpc(fn,args){
+    const ctl=new AbortController();
+    setTimeout(()=>ctl.abort(),8000);
+    const headers={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+    try{
+      const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers,body:JSON.stringify(args||{}),signal:ctl.signal});
+      return await r.json();
+    }catch(e){return{ok:false,error:'réseau'}}
+  }
+};
+function storeGet(k,d){try{const v=localStorage.getItem(k);return v!==null?v:d}catch(e){return d}}
+function storeSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+const loggedIn=()=>!!Cloud.token;
+
+function loadCloud(){
+  Cloud.token=storeGet('mbc_nba_token',null);
+  Cloud.pseudo=storeGet('mbc_nba_pseudo',null);
+}
+
+async function cloudLoad(){
+  if(!loggedIn())return;
+  try{
+    const res=await Cloud.rpc('nba_load',{p_token:Cloud.token});
+    if(!res.ok){if(res.error==='session'){dropSession()}return}
+    // Merge: keep best of local vs remote
+    S.xp=res.xp; S.lvl=res.lvl; S.totalXp=res.xp_total;
+    S.played=Math.max(S.played,res.played);
+    S.correct=Math.max(S.correct,res.correct);
+    S.total=Math.max(S.total,res.total_q);
+    S.bestStreak=Math.max(S.bestStreak,res.best_streak);
+    S.hadFastAnswer=S.hadFastAnswer||res.had_fast;
+    // Merge trophies
+    if(Array.isArray(res.trophies))res.trophies.forEach(t=>{if(!S.trophies.includes(t))S.trophies.push(t)});
+    // Merge catsDone
+    if(res.cats_done){for(const k in res.cats_done){S.catsDone[k]=Math.max(S.catsDone[k]||0,res.cats_done[k])}}
+    save();renderLvl();renderHome();
+  }catch(e){}
+}
+
+async function cloudSave(){
+  if(!loggedIn())return;
+  try{
+    await Cloud.rpc('nba_save',{
+      p_token:Cloud.token, p_xp:S.xp, p_lvl:S.lvl, p_xp_total:S.totalXp,
+      p_played:S.played, p_correct:S.correct, p_total_q:S.total,
+      p_best_streak:S.bestStreak, p_trophies:JSON.stringify(S.trophies),
+      p_cats_done:S.catsDone, p_had_fast:S.hadFastAnswer
+    });
+  }catch(e){}
+}
+
+// Patch save to also sync cloud
+const _origSave=save;
+save=function(){_origSave();cloudSave()};
+
+function dropSession(){
+  Cloud.token=null;Cloud.pseudo=null;
+  storeSet('mbc_nba_token','');storeSet('mbc_nba_pseudo','');
+  renderAccBtn();
+}
+
+// Account UI
+let accMode='new';
+function setAccMode(m){
+  accMode=m;
+  $('accTabNew').setAttribute('aria-selected',m==='new');
+  $('accTabLogin').setAttribute('aria-selected',m==='login');
+  $('acc-go').textContent=m==='new'?'Créer mon compte':'Se connecter';
+  $('acc-err').textContent='';
+}
+
+async function submitAccount(){
+  const pseudo=$('acc-pseudo').value.trim();
+  const pin=$('acc-pin').value.trim();
+  $('acc-err').textContent='';
+  $('acc-go').disabled=true;
+  const fn=accMode==='new'?'shootout_register':'shootout_login';
+  const res=await Cloud.rpc(fn,{p_pseudo:pseudo,p_pin:pin});
+  $('acc-go').disabled=false;
+  if(!res||!res.ok){
+    const msgs={pseudo_invalide:'Pseudo invalide (2-14 caractères)',pin_invalide:'PIN invalide (4 chiffres)',pseudo_pris:'Ce pseudo est déjà pris',inconnu:'Pseudo inconnu',pin:'Code PIN incorrect',bloque:'Compte bloqué, réessaie dans '+((res&&res.minutes)||15)+' min',réseau:'Erreur réseau'};
+    $('acc-err').textContent=msgs[res&&res.error]||'Erreur';
+    return;
+  }
+  Cloud.token=res.token;Cloud.pseudo=res.pseudo;
+  storeSet('mbc_nba_token',res.token);storeSet('mbc_nba_pseudo',res.pseudo);
+  toast('Connecté : '+res.pseudo);
+  renderAccBtn();
+  await cloudLoad();
+  go('home');
+}
+
+function doLogout(){
+  const t=Cloud.token;
+  dropSession();
+  if(t)Cloud.rpc('shootout_logout',{p_token:t}).catch(()=>{});
+  toast('Déconnecté');
+  go('home');
+}
+
+function renderAccBtn(){
+  const btn=$('acc-btn');
+  if(loggedIn()){
+    btn.className='acc-btn logged';
+    btn.innerHTML=`<span class="acc-pseudo">${Cloud.pseudo}</span> • Connecté`;
+  }else{
+    btn.className='acc-btn';
+    btn.innerHTML='Créer un compte / Se connecter';
+  }
+}
+
+function renderAccount(){
+  if(loggedIn()){
+    $('acc-form').hidden=true;
+    $('acc-profile').hidden=false;
+    $('acc-avatar').textContent=Cloud.pseudo.charAt(0).toUpperCase();
+    $('acc-pname').textContent=Cloud.pseudo;
+    $('acc-plvl').textContent=S.lvl;
+    $('acc-pxp').textContent=S.totalXp;
+  }else{
+    $('acc-form').hidden=false;
+    $('acc-profile').hidden=true;
+  }
+}
+
+// Leaderboard
+async function renderLeaderboard(){
+  const list=$('lb-list');
+  list.innerHTML='<div style="text-align:center;color:var(--fg3);font-size:.8rem;padding:20px">Chargement…</div>';
+  $('lb-msg').textContent='';
+  const rows=await Cloud.rpc('nba_leaderboard',{p_limit:50});
+  if(!Array.isArray(rows)||!rows.length){
+    list.innerHTML='';
+    $('lb-msg').textContent='Pas encore de joueurs. Sois le premier !';
+    return;
+  }
+  list.innerHTML='';
+  rows.forEach((r,i)=>{
+    const div=document.createElement('div');div.className='lb-row';
+    div.innerHTML=`<span class="lb-pos ${i<3?'top3':''}">${i+1}</span><div class="lb-info"><div class="lb-pseudo">${r.pseudo}</div><div class="lb-detail">${r.correct}/${r.total_q} • Streak ${r.best_streak} • 🏆${r.trophies}</div></div><span class="lb-lvl">Niv.${r.lvl}</span>`;
+    list.appendChild(div);
+  });
+}
+
+// Patch go() to handle new screens
+const _origGo=go;
+go=function(id){
+  _origGo(id);
+  if(id==='account')renderAccount();
+  if(id==='leaderboard')renderLeaderboard();
+};
+
+// Init
+loadCloud();load();renderLvl();renderHome();renderAccBtn();
+if(loggedIn())cloudLoad();
 </script>
 
 </body>
