@@ -436,13 +436,17 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   </div>
   <!-- Login form (shown when not logged in) -->
   <div id="acc-form">
-    <div class="acc-tabs">
-      <button class="acc-tab" id="accTabNew" aria-selected="true" onclick="setAccMode('new')">Créer un compte</button>
-      <button class="acc-tab" id="accTabLogin" aria-selected="false" onclick="setAccMode('login')">Se connecter</button>
+    <div style="background:var(--accent2);border:1.5px solid var(--accent);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;text-align:center">
+      <div style="font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.1rem;color:var(--accent);letter-spacing:.03em">Même compte que MBC Shootout !</div>
+      <div style="font-size:.78rem;color:var(--fg2);margin-top:4px">Si tu as déjà un pseudo et un PIN sur Shootout ou Jam, utilise-les ici. Pas besoin d'en créer un nouveau.</div>
     </div>
-    <div class="acc-field"><label>Surnom</label><input type="text" id="acc-pseudo" placeholder="Ton pseudo" maxlength="14" autocomplete="off"></div>
+    <div class="acc-tabs">
+      <button class="acc-tab" id="accTabNew" aria-selected="false" onclick="setAccMode('new')">Nouveau compte</button>
+      <button class="acc-tab" id="accTabLogin" aria-selected="true" onclick="setAccMode('login')">Se connecter</button>
+    </div>
+    <div class="acc-field"><label>Surnom</label><input type="text" id="acc-pseudo" placeholder="Ton pseudo Shootout / Jam" maxlength="14" autocomplete="off"></div>
     <div class="acc-field"><label>Code PIN (4 chiffres)</label><input type="tel" id="acc-pin" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric" autocomplete="off"></div>
-    <button class="acc-submit" id="acc-go" onclick="submitAccount()">C'est parti</button>
+    <button class="acc-submit" id="acc-go" onclick="submitAccount()">Se connecter</button>
     <div class="acc-err" id="acc-err"></div>
   </div>
   <!-- Profile (shown when logged in) -->
@@ -1269,7 +1273,7 @@ function dropSession(){
 }
 
 // Account UI
-let accMode='new';
+let accMode='login';
 function setAccMode(m){
   accMode=m;
   $('accTabNew').setAttribute('aria-selected',m==='new');
@@ -1314,7 +1318,7 @@ function renderAccBtn(){
     btn.innerHTML=`<span class="acc-pseudo">${Cloud.pseudo}</span> • Connecté`;
   }else{
     btn.className='acc-btn';
-    btn.innerHTML='Créer un compte / Se connecter';
+    btn.innerHTML='Se connecter (même compte que Shootout)';
   }
 }
 
