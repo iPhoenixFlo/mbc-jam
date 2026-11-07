@@ -1059,20 +1059,49 @@ const TROPHIES=[
   {id:"hof",icon:"👑",name:"Hall of Fame",desc:"Tous les autres trophées",ck:s=>s.unlocked>=11},
 ];
 
-// Avatars
+// Avatars — unlocked by level, some by trophies, some by Shootout crossover
 const AVATARS=[
+  // Niveau 1 — dispo de base
   {id:"ball",emoji:"🏀",name:"Ballon",lvl:1},
+  {id:"hoop",emoji:"⛹️",name:"Joueur",lvl:1},
+  {id:"wave",emoji:"👋",name:"Salut",lvl:1},
+  // Niveaux 2-4
   {id:"sneaker",emoji:"👟",name:"Sneaker",lvl:2},
+  {id:"medal",emoji:"🥇",name:"Médaille",lvl:2},
   {id:"fire",emoji:"🔥",name:"On Fire",lvl:3},
+  {id:"thunder",emoji:"⚡",name:"Éclair",lvl:3},
   {id:"star",emoji:"⭐",name:"Étoile",lvl:4},
+  {id:"cool",emoji:"😎",name:"Cool",lvl:4},
+  // Niveaux 5-8
   {id:"muscle",emoji:"💪",name:"Force",lvl:5},
+  {id:"rocket",emoji:"🚀",name:"Fusée",lvl:5},
+  {id:"eagle",emoji:"🦅",name:"Aigle",lvl:6},
+  {id:"bear",emoji:"🐻",name:"Grizzly",lvl:6},
+  {id:"wolf",emoji:"🐺",name:"Loup",lvl:7},
   {id:"crown",emoji:"👑",name:"Couronne",lvl:7},
+  {id:"lion",emoji:"🦁",name:"Lion",lvl:8},
+  {id:"shark",emoji:"🦈",name:"Requin",lvl:8},
+  // Niveaux 9-14
   {id:"diamond",emoji:"💎",name:"Diamant",lvl:9},
+  {id:"ninja",emoji:"🥷",name:"Ninja",lvl:9},
+  {id:"dragon",emoji:"🐉",name:"Dragon",lvl:10},
+  {id:"ufo",emoji:"🛸",name:"OVNI",lvl:10},
   {id:"alien",emoji:"👽",name:"Alien",lvl:11},
+  {id:"samurai",emoji:"⚔️",name:"Samurai",lvl:12},
   {id:"robot",emoji:"🤖",name:"Robot",lvl:13},
+  {id:"phoenix",emoji:"🔱",name:"Phoenix",lvl:14},
+  // Niveaux 15+
   {id:"skull",emoji:"💀",name:"Skull",lvl:15},
+  {id:"devil",emoji:"😈",name:"Démon",lvl:16},
   {id:"ghost",emoji:"👻",name:"Fantôme",lvl:17},
+  {id:"unicorn",emoji:"🦄",name:"Licorne",lvl:18},
+  {id:"octopus",emoji:"🐙",name:"Kraken",lvl:19},
   {id:"goat",emoji:"🐐",name:"GOAT",lvl:20},
+  // Spéciaux — débloqués par trophées
+  {id:"target",emoji:"🎯",name:"Sniper",lvl:1,trophy:"sniper"},
+  {id:"lightning",emoji:"🌩️",name:"Orage",lvl:1,trophy:"speed"},
+  {id:"hundred",emoji:"💯",name:"100",lvl:1,trophy:"cent"},
+  {id:"trophy",emoji:"🏆",name:"Champion",lvl:1,trophy:"hof"},
 ];
 
 function getAvatar(id){return AVATARS.find(a=>a.id===id)||AVATARS[0]}
@@ -1375,6 +1404,8 @@ async function cloudLoad(){
     if(Array.isArray(res.trophies))res.trophies.forEach(t=>{if(!S.trophies.includes(t))S.trophies.push(t)});
     // Merge catsDone
     if(res.cats_done){for(const k in res.cats_done){S.catsDone[k]=Math.max(S.catsDone[k]||0,res.cats_done[k])}}
+    // Avatar from server (shared across games)
+    if(res.avatar)S.avatar=res.avatar;
     save();renderLvl();renderHome();
   }catch(e){}
 }
@@ -1386,7 +1417,7 @@ async function cloudSave(){
       p_token:Cloud.token, p_xp:S.xp, p_lvl:S.lvl, p_xp_total:S.totalXp,
       p_played:S.played, p_correct:S.correct, p_total_q:S.total,
       p_best_streak:S.bestStreak, p_trophies:JSON.stringify(S.trophies),
-      p_cats_done:S.catsDone, p_had_fast:S.hadFastAnswer
+      p_cats_done:S.catsDone, p_had_fast:S.hadFastAnswer, p_avatar:S.avatar
     });
   }catch(e){}
 }
@@ -1479,17 +1510,22 @@ async function renderLeaderboard(){
   list.innerHTML='';
   rows.forEach((r,i)=>{
     const div=document.createElement('div');div.className='lb-row';
-    div.innerHTML=`<span class="lb-pos ${i<3?'top3':''}">${i+1}</span><div class="lb-info"><div class="lb-pseudo">${r.pseudo}</div><div class="lb-detail">${r.correct}/${r.total_q} • Streak ${r.best_streak} • 🏆${r.trophies}</div></div><span class="lb-lvl">Niv.${r.lvl}</span>`;
+    const av=getAvatar(r.avatar||'ball');
+    div.innerHTML=`<span class="lb-pos ${i<3?'top3':''}">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><span style="font-size:1.4rem">${av.emoji}</span><div class="lb-info"><div class="lb-pseudo">${r.pseudo}</div><div class="lb-detail">${r.correct}/${r.total_q} • Streak ${r.best_streak} • 🏆${r.trophies}</div></div><span class="lb-lvl">Niv.${r.lvl}</span>`;
     list.appendChild(div);
   });
 }
 
 // ===== AVATARS =====
+function isAvatarUnlocked(av){
+  if(av.trophy)return S.trophies.includes(av.trophy);
+  return S.lvl>=av.lvl;
+}
 function renderAvatars(){
   const grid=$('av-grid');grid.innerHTML='';
   let unlocked=0;
   AVATARS.forEach(av=>{
-    const ok=S.lvl>=av.lvl;
+    const ok=isAvatarUnlocked(av);
     if(ok)unlocked++;
     const card=document.createElement('div');
     card.className=`av-card ${ok?'unlocked':'locked'} ${S.avatar===av.id?'selected':''}`;
@@ -1497,8 +1533,13 @@ function renderAvatars(){
     if(ok)card.onclick=()=>{S.avatar=av.id;save();renderAvatars();renderLvl();toast(av.name+' sélectionné !')};
     const wrap=document.createElement('div');wrap.style.textAlign='center';
     wrap.appendChild(card);
-    if(!ok){const req=document.createElement('div');req.className='av-req';req.textContent='Niv. '+av.lvl;wrap.appendChild(req)}
-    else{const nm=document.createElement('div');nm.className='av-req';nm.style.color='var(--fg2)';nm.textContent=av.name;wrap.appendChild(nm)}
+    if(!ok){
+      const req=document.createElement('div');req.className='av-req';
+      req.textContent=av.trophy?'Trophée '+av.name:'Niv. '+av.lvl;
+      wrap.appendChild(req);
+    }else{
+      const nm=document.createElement('div');nm.className='av-req';nm.style.color='var(--fg2)';nm.textContent=av.name;wrap.appendChild(nm);
+    }
     grid.appendChild(wrap);
   });
   $('avbadge').textContent=unlocked;
