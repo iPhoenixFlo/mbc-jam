@@ -996,6 +996,7 @@ function startGame(){
   renderQ();
 }
 
+let shuffledCorrect; // index of correct answer after shuffle
 function renderQ(){
   const t=curQs.length;
   document.getElementById('qcnt').textContent=`${curIdx+1}/${t}`;
@@ -1005,11 +1006,16 @@ function renderQ(){
   document.getElementById('qtag').textContent=`${curQ._icon} ${curQ._name}`;
   document.getElementById('qq').textContent=curQ.q;
 
+  // Shuffle answers so the correct one isn't always A
+  const indices=[0,1,2,3];
+  for(let i=indices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[indices[i],indices[j]]=[indices[j],indices[i]]}
+  shuffledCorrect=indices.indexOf(curQ.c);
+
   const al=document.getElementById('al');al.innerHTML='';
-  curQs[curIdx].a.forEach((a,i)=>{
+  indices.forEach((origIdx,displayIdx)=>{
     const b=document.createElement('button');b.className='ab';b.disabled=false;
-    b.innerHTML=`<span class="al">${LETTERS[i]}</span><span>${a}</span>`;
-    b.onclick=()=>answer(i);
+    b.innerHTML=`<span class="al">${LETTERS[displayIdx]}</span><span>${curQ.a[origIdx]}</span>`;
+    b.onclick=()=>answer(displayIdx);
     al.appendChild(b);
   });
 
@@ -1051,7 +1057,7 @@ function stopTimer(){clearInterval(timerInterval)}
 
 function timeUp(){
   answered=true;
-  const cor=curQs[curIdx].c;
+  const cor=shuffledCorrect;
   const btns=document.querySelectorAll('.ab');
   btns.forEach((b,i)=>{b.disabled=true;if(i===cor)b.classList.add('ok');else b.classList.add('dim')});
   curStreak=0;sesStreak=0;
@@ -1065,7 +1071,7 @@ function timeUp(){
 function answer(sel){
   if(answered)return;
   answered=true;stopTimer();
-  const cor=curQs[curIdx].c;
+  const cor=shuffledCorrect;
   const btns=document.querySelectorAll('.ab');
   btns.forEach((b,i)=>{b.disabled=true;if(i===cor)b.classList.add('ok');if(i===sel&&sel!==cor)b.classList.add('ko');if(i!==cor&&i!==sel)b.classList.add('dim')});
 
