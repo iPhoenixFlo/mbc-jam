@@ -1038,6 +1038,8 @@ function renderLvl(){
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
+  // Show level bar only on home and quiz screens
+  document.getElementById('lvl-bar').hidden=(id!=='home'&&id!=='quiz');
   if(id==='home')renderHome();
   if(id==='trophies')renderTrophies();
   renderLvl();
