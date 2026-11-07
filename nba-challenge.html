@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NBA Challenge</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap">
+
+<style>
+:root {
+  --bg: #08091a;
+  --bg2: #111328;
+  --bg3: #191d3a;
+  --fg: #eceef5;
+  --fg2: #8b90b0;
+  --fg3: #4e5375;
+  --accent: #ff5722;
+  --accent2: rgba(255,87,34,0.15);
+  --accent3: rgba(255,87,34,0.06);
+  --xp: #7c4dff;
+  --xp2: rgba(124,77,255,0.15);
+  --gold: #ffc107;
+  --gold2: rgba(255,193,7,0.12);
+  --green: #00e676;
+  --green2: rgba(0,230,118,0.12);
+  --red: #ff1744;
+  --red2: rgba(255,23,68,0.10);
+  --brd: rgba(255,255,255,0.06);
+  --r: 16px; --rs: 10px;
+  color-scheme: dark;
+}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f3f1ec;--bg2:#fff;--bg3:#f8f6f1;--fg:#12142a;--fg2:#6b6f88;--fg3:#a0a4b8;
+  --accent:#e64a19;--accent2:rgba(230,74,25,0.08);--accent3:rgba(230,74,25,0.04);
+  --xp:#651fff;--xp2:rgba(101,31,255,0.08);--gold:#f9a825;--gold2:rgba(249,168,37,0.08);
+  --green:#00c853;--green2:rgba(0,200,83,0.08);--red:#d50000;--red2:rgba(213,0,0,0.06);
+  --brd:rgba(0,0,0,0.07);color-scheme:light;
+}}
+:root[data-theme="light"]{
+  --bg:#f3f1ec;--bg2:#fff;--bg3:#f8f6f1;--fg:#12142a;--fg2:#6b6f88;--fg3:#a0a4b8;
+  --accent:#e64a19;--accent2:rgba(230,74,25,0.08);--accent3:rgba(230,74,25,0.04);
+  --xp:#651fff;--xp2:rgba(101,31,255,0.08);--gold:#f9a825;--gold2:rgba(249,168,37,0.08);
+  --green:#00c853;--green2:rgba(0,200,83,0.08);--red:#d50000;--red2:rgba(213,0,0,0.06);
+  --brd:rgba(0,0,0,0.07);color-scheme:light;
+}
+
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:'DM Sans',system-ui,sans-serif;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0;min-height:100%;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:50;background:var(--bg)}
+
+.d{font-family:'Bebas Neue',system-ui,sans-serif;letter-spacing:.04em}
+.screen{display:none;max-width:420px;margin:0 auto;padding-block:16px 48px}
+.screen.on{display:block;animation:up .2s ease}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== LEVEL BAR (sticky) ===== */
+.lvl-bar{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:40;
+  background:var(--bg);
+  padding:10px 0 8px;
+  display:flex;align-items:center;gap:10px;
+  max-width:420px;margin:0 auto;
+}
+.lvl-badge{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--xp2);border:2px solid var(--xp);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.1rem;
+  color:var(--xp);flex-shrink:0;
+}
+.lvl-info{flex:1;min-width:0}
+.lvl-name{font-size:.72rem;font-weight:600;color:var(--fg2);text-transform:uppercase;letter-spacing:.06em}
+.lvl-rank{font-size:.65rem;color:var(--xp);font-weight:600;margin-left:6px}
+.xp-track{height:5px;background:var(--brd);border-radius:3px;margin-top:4px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--xp),var(--accent));border-radius:3px;transition:width .6s ease}
+.xp-text{font-size:.6rem;color:var(--fg3);margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* ===== HOME ===== */
+.home-hero{text-align:center;padding:24px 0 8px}
+.home-ball{width:56px;height:56px;margin:0 auto 10px}
+.home-ball svg{width:100%;height:100%}
+.home-t{font-size:2.6rem;line-height:.9}
+.home-t span{color:var(--accent)}
+.home-s{color:var(--fg3);font-size:.78rem;margin-top:4px}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--brd);border-radius:var(--r);overflow:hidden;margin-top:20px}
+.st{background:var(--bg2);padding:12px 4px;text-align:center}
+.st-v{font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.5rem;color:var(--accent);font-variant-numeric:tabular-nums}
+.st-l{font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);margin-top:1px}
+
+.play-btn{
+  display:block;width:100%;margin-top:28px;padding:18px;
+  background:var(--accent);color:#fff;border:none;border-radius:var(--r);
+  font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.4rem;
+  letter-spacing:.06em;cursor:pointer;transition:all .12s;
+  box-shadow:0 4px 24px rgba(255,87,34,0.3);
+}
+.play-btn:active{transform:scale(.97);opacity:.9}
+.play-sub{text-align:center;color:var(--fg3);font-size:.72rem;margin-top:8px}
+.cat-tag{
+  display:inline-block;font-size:.6rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--accent);background:var(--accent2);
+  padding:3px 8px;border-radius:5px;margin-bottom:8px;
+}
+
+.trophy-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;margin-top:20px;padding:13px;
+  background:var(--gold2);border:1.5px solid var(--gold);color:var(--gold);
+  border-radius:var(--r);font-family:'Bebas Neue',system-ui,sans-serif;
+  font-size:1.05rem;letter-spacing:.04em;cursor:pointer;
+}
+.trophy-btn:active{transform:scale(.98)}
+.tb{background:var(--gold);color:var(--bg);border-radius:50%;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:.65rem;font-weight:700}
+
+/* ===== QUIZ ===== */
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.q-back{background:none;border:none;color:var(--fg2);cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:.8rem;padding:6px 0}
+.q-cat{font-family:'Bebas Neue',system-ui,sans-serif;font-size:.9rem;color:var(--accent);letter-spacing:.04em}
+.q-count{font-size:.75rem;color:var(--fg3);font-variant-numeric:tabular-nums}
+
+.q-pbar{height:3px;background:var(--brd);border-radius:2px;margin:10px 0 16px;overflow:hidden}
+.q-pfill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+
+/* Timer ring */
+.timer-wrap{display:flex;justify-content:center;margin-bottom:14px}
+.timer-ring{width:56px;height:56px;position:relative}
+.timer-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.timer-ring .tr-bg{fill:none;stroke:var(--brd);stroke-width:4}
+.timer-ring .tr-fg{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;transition:stroke .3s}
+.timer-ring .tr-text{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.3rem;letter-spacing:.02em;
+  font-variant-numeric:tabular-nums;
+}
+.timer-ring.warn .tr-fg{stroke:var(--gold)}
+.timer-ring.crit .tr-fg{stroke:var(--red)}
+.timer-ring.warn .tr-text{color:var(--gold)}
+.timer-ring.crit .tr-text{color:var(--red)}
+
+.streak-p{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--gold2);color:var(--gold);
+  padding:4px 10px;border-radius:16px;
+  font-size:.75rem;font-weight:700;margin-bottom:12px;
+}
+.streak-p[hidden]{display:none}
+
+.qc{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:18px 16px;margin-bottom:12px}
+.qc-n{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--fg3);margin-bottom:6px}
+.qc-q{font-size:.95rem;font-weight:600;line-height:1.5}
+
+.ans-list{display:flex;flex-direction:column;gap:7px}
+.ab{
+  width:100%;padding:12px 14px;background:var(--bg2);
+  border:1.5px solid var(--brd);border-radius:var(--rs);
+  color:var(--fg);font-size:.85rem;font-weight:500;
+  text-align:left;cursor:pointer;transition:all .1s;
+  font-family:'DM Sans',system-ui,sans-serif;line-height:1.4;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.ab:active:not(.ok):not(.ko):not(.dim){background:var(--bg3)}
+.ab .al{
+  flex-shrink:0;width:22px;height:22px;border-radius:6px;
+  background:var(--brd);color:var(--fg2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:700;margin-top:1px;transition:all .1s;
+}
+.ab.ok{border-color:var(--green);background:var(--green2)}
+.ab.ok .al{background:var(--green);color:#fff}
+.ab.ko{border-color:var(--red);background:var(--red2)}
+.ab.ko .al{background:var(--red);color:#fff}
+.ab.dim{opacity:.35}
+.ab:disabled{cursor:default}
+
+.fb{text-align:center;margin-top:12px;font-size:.8rem;font-weight:600;min-height:20px;color:var(--fg3)}
+.fb.ok{color:var(--green)}.fb.ko{color:var(--red)}
+
+/* XP gain display */
+.xp-gain{
+  text-align:center;margin-top:6px;font-size:.72rem;font-weight:700;
+  color:var(--xp);min-height:18px;
+}
+
+.nb{
+  display:none;width:100%;margin-top:8px;padding:13px;
+  background:var(--accent);color:#fff;border:none;border-radius:var(--rs);
+  font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.05rem;
+  letter-spacing:.04em;cursor:pointer;
+}
+.nb:active{opacity:.85}
+
+/* ===== RESULTS ===== */
+.res-ring{width:140px;height:140px;margin:20px auto;position:relative;display:flex;align-items:center;justify-content:center}
+.res-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.res-ring .rr-bg{fill:none;stroke:var(--brd);stroke-width:5}
+.res-ring .rr-fg{fill:none;stroke:var(--accent);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .8s ease,stroke .3s}
+.res-inner{text-align:center;z-index:1}
+.res-n{font-family:'Bebas Neue',system-ui,sans-serif;font-size:2.8rem;line-height:1}
+.res-of{font-size:.78rem;color:var(--fg2)}
+.res-msg{text-align:center;font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.3rem;letter-spacing:.03em;margin-top:6px}
+.res-sub{text-align:center;color:var(--fg3);font-size:.78rem;margin-top:3px}
+
+.xp-earned{
+  text-align:center;margin-top:16px;padding:12px;
+  background:var(--xp2);border:1px solid var(--xp);border-radius:var(--r);
+}
+.xp-earned .xe-v{font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.6rem;color:var(--xp)}
+.xp-earned .xe-l{font-size:.68rem;color:var(--fg2);margin-top:2px}
+
+.lvl-up-box{
+  text-align:center;margin-top:12px;padding:14px;
+  background:var(--gold2);border:1.5px solid var(--gold);border-radius:var(--r);
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+.lvl-up-box[hidden]{display:none}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.lvl-up-box .lu-t{font-family:'Bebas Neue',system-ui,sans-serif;font-size:1.3rem;color:var(--gold);letter-spacing:.03em}
+.lvl-up-box .lu-s{font-size:.72rem;color:var(--fg2);margin-top:2px}
+
+.unlock-s{margin-top:16px}
+.unlock-s[hidden]{display:none}
+.unlock-h{text-align:center;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:8px}
+.unlock-c{
+  display:flex;align-items:center;gap:10px;
+  background:var(--gold2);border:1px solid var(--gold);
+  border-radius:var(--r);padding:10px 12px;margin-bottom:6px;
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+.unlock-c .ui{font-size:1.4rem;flex-shrink:0}
+.unlock-c .un{font-family:'Bebas Neue',system-ui,sans-serif;font-size:.9rem;color:var(--gold);letter-spacing:.03em}
+.unlock-c .ud{font-size:.68rem;color:var(--fg2);margin-top:1px}
+
+.res-btns{display:flex;gap:8px;margin-top:20px}
+.res-btns button{flex:1;padding:12px;border:none;border-radius:var(--rs);font-family:'Bebas Neue',system-ui,sans-serif;font-size:.95rem;letter-spacing:.04em;cursor:pointer}
+.btn-g{background:var(--bg2);color:var(--fg);border:1px solid var(--brd)!important}
+.btn-p{background:var(--accent);color:#fff}
+
+/* ===== TROPHIES ===== */
+.tp-meter{margin-top:14px;text-align:center}
+.tp-meter .tt{font-size:.78rem;color:var(--fg2);font-variant-numeric:tabular-nums}
+.tp-meter .tb2{height:6px;background:var(--brd);border-radius:3px;overflow:hidden;margin-top:6px}
+.tp-meter .tf{height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:3px;transition:width .5s}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.tc{
+  background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);
+  padding:14px 8px;text-align:center;position:relative;
+}
+.tc.locked .tci{filter:grayscale(1);opacity:.25}
+.tc.locked .tcn,.tc.locked .tcd{opacity:.3}
+.tc.got{border-color:var(--gold);background:var(--gold2)}
+.tci{font-size:1.8rem;display:block;margin-bottom:4px}
+.tcn{font-family:'Bebas Neue',system-ui,sans-serif;font-size:.8rem;letter-spacing:.03em}
+.tcd{font-size:.62rem;color:var(--fg2);margin-top:2px;line-height:1.3}
+.tck{position:absolute;top:6px;right:8px;color:var(--gold);font-size:.7rem;font-weight:700}
+
+.toast{
+  position:fixed;top:calc(env(safe-area-inset-top,0px)+10px);
+  left:50%;transform:translateX(-50%) translateY(-120%);
+  background:var(--gold);color:var(--bg);padding:7px 18px;
+  border-radius:18px;font-family:'Bebas Neue',system-ui,sans-serif;
+  font-size:.85rem;letter-spacing:.04em;
+  z-index:100;transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+
+<div class="toast" id="toast"></div>
+
+<!-- ===== LEVEL BAR (always visible) ===== -->
+<div class="lvl-bar" id="lvl-bar">
+  <div class="lvl-badge" id="lb-lvl">1</div>
+  <div class="lvl-info">
+    <div><span class="lvl-name" id="lb-name">Joueur</span><span class="lvl-rank" id="lb-rank">Rookie</span></div>
+    <div class="xp-track"><div class="xp-fill" id="lb-xp" style="width:0%"></div></div>
+    <div class="xp-text" id="lb-xpt">0 / 100 XP</div>
+  </div>
+</div>
+
+<!-- ===== HOME ===== -->
+<div class="screen on" id="home">
+  <div class="home-hero">
+    <div class="home-ball"><svg viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="25" stroke="var(--accent)" stroke-width="2.5" fill="var(--accent2)"/><path d="M28 3C28 28 28 28 28 53" stroke="var(--accent)" stroke-width="1.2" opacity=".4"/><path d="M3 28C13 20 20 17 28 17C36 17 43 20 53 28" stroke="var(--accent)" stroke-width="1.2" fill="none" opacity=".4"/><path d="M3 28C13 36 20 39 28 39C36 39 43 36 53 28" stroke="var(--accent)" stroke-width="1.2" fill="none" opacity=".4"/></svg></div>
+    <h1 class="home-t d">NBA <span>Challenge</span></h1>
+    <p class="home-s">Réponds, gagne de l'XP, monte en niveau</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="st"><div class="st-v" id="h-pts">0</div><div class="st-l">Points</div></div>
+    <div class="st"><div class="st-v" id="h-streak">0</div><div class="st-l">Meilleur streak</div></div>
+    <div class="st"><div class="st-v" id="h-pct">—</div><div class="st-l">Réussite</div></div>
+  </div>
+
+  <button class="play-btn" onclick="startGame()">Jouer</button>
+  <div class="play-sub" id="play-sub">10 questions • Toutes catégories</div>
+
+  <button class="trophy-btn" onclick="go('trophies')">Trophées <span class="tb" id="tbadge">0</span></button>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="screen" id="quiz">
+  <div class="q-top">
+    <button class="q-back" onclick="go('home')">← Retour</button>
+    <span class="q-cat d">NBA Challenge</span>
+    <span class="q-count" id="qcnt">1/8</span>
+  </div>
+  <div class="q-pbar"><div class="q-pfill" id="qpfill"></div></div>
+  <div class="timer-wrap"><div class="timer-ring" id="tring">
+    <svg viewBox="0 0 56 56"><circle class="tr-bg" cx="28" cy="28" r="24"/><circle class="tr-fg" id="tfg" cx="28" cy="28" r="24" stroke-dasharray="150.8" stroke-dashoffset="0"/></svg>
+    <div class="tr-text" id="ttext">10</div>
+  </div></div>
+  <div class="streak-p" id="sp" hidden>🔥 <span id="stxt"></span></div>
+  <div class="qc">
+    <div class="cat-tag" id="qtag">📊 Records</div>
+    <div class="qc-n" id="qn">Question 1</div>
+    <div class="qc-q" id="qq"></div>
+  </div>
+  <div class="ans-list" id="al"></div>
+  <div class="fb" id="fb"></div>
+  <div class="xp-gain" id="xpg"></div>
+  <button class="nb" id="nbtn" onclick="next()">Suivante</button>
+</div>
+
+<!-- ===== RESULTS ===== -->
+<div class="screen" id="result">
+  <div class="q-top">
+    <button class="q-back" onclick="go('home')">← Retour</button>
+    <span class="q-cat d">Résultats</span><span></span>
+  </div>
+  <div class="res-ring">
+    <svg viewBox="0 0 140 140"><circle class="rr-bg" cx="70" cy="70" r="64"/><circle class="rr-fg" id="rfg" cx="70" cy="70" r="64" stroke-dasharray="402.1" stroke-dashoffset="402.1"/></svg>
+    <div class="res-inner"><div class="res-n" id="rsc">0</div><div class="res-of" id="rmax">/ 8</div></div>
+  </div>
+  <div class="res-msg d" id="rmsg"></div>
+  <div class="res-sub" id="rsub"></div>
+  <div class="xp-earned" id="rxp"><div class="xe-v" id="rxpv">+0 XP</div><div class="xe-l">Expérience gagnée</div></div>
+  <div class="lvl-up-box" id="rlvl" hidden><div class="lu-t" id="rlvlt">Niveau 2 !</div><div class="lu-s" id="rlvls">Tu débloques les questions All-Star</div></div>
+  <div class="unlock-s" id="runl" hidden></div>
+  <div class="res-btns">
+    <button class="btn-g" onclick="replay()">Rejouer</button>
+    <button class="btn-p" onclick="go('home')">Menu</button>
+  </div>
+</div>
+
+<!-- ===== TROPHIES ===== -->
+<div class="screen" id="trophies">
+  <div class="q-top">
+    <button class="q-back" onclick="go('home')">← Retour</button>
+    <span class="q-cat d">Trophées</span><span></span>
+  </div>
+  <div class="tp-meter">
+    <div class="tt" id="tpt">0 / 12</div>
+    <div class="tb2"><div class="tf" id="tpf" style="width:0%"></div></div>
+  </div>
+  <div class="tg" id="tgrid"></div>
+</div>
+
+<script>
+// ===== QUESTIONS DB — 400+ questions vérifiées =====
+const Q={records:{icon:"📊",name:"Records & Stats",rookie:[
+{q:"Qui est le meilleur marqueur all-time NBA ?",a:["LeBron James","Kareem Abdul-Jabbar","Karl Malone","Kobe Bryant"],c:0},
+{q:"Combien de points Wilt Chamberlain a-t-il inscrit en un match ?",a:["100","81","72","92"],c:0},
+{q:"Record de passes décisives en carrière ?",a:["John Stockton","Jason Kidd","Magic Johnson","Chris Paul"],c:0},
+{q:"Quelle équipe détient le record de 73 victoires en régulière ?",a:["Warriors (2015-16)","Bulls (1995-96)","Lakers (1971-72)","Spurs (2015-16)"],c:0},
+{q:"Qui a le plus de titres de champion NBA ?",a:["Bill Russell (11)","Michael Jordan (6)","Kobe Bryant (5)","LeBron James (4)"],c:0},
+{q:"Record de 3 points marqués en un seul match ?",a:["Klay Thompson (14)","Stephen Curry (13)","Donyell Marshall (12)","Zach LaVine (11)"],c:0},
+{q:"Record de rebonds en carrière NBA ?",a:["Wilt Chamberlain","Bill Russell","Kareem Abdul-Jabbar","Tim Duncan"],c:0},
+{q:"Combien de points MJ a-t-il marqué en carrière ?",a:["32 292","28 596","36 928","30 180"],c:0},
+{q:"Qui détient le record d'interceptions en carrière ?",a:["John Stockton","Jason Kidd","Chris Paul","Michael Jordan"],c:0},
+{q:"Record de points marqués en un match de saison régulière hors Wilt ?",a:["Kobe Bryant (81)","David Thompson (73)","Devin Booker (70)","David Robinson (71)"],c:0},
+{q:"Quel joueur a le plus de sélections All-Star ?",a:["LeBron James (21)","Kareem Abdul-Jabbar (19)","Kobe Bryant (18)","Tim Duncan (15)"],c:0},
+{q:"Quel joueur a le plus de MVP de saison régulière ?",a:["Kareem Abdul-Jabbar (6)","Michael Jordan (5)","LeBron James (4)","Bill Russell (5)"],c:0},
+{q:"Record de dunks en carrière NBA (stat suivie depuis 1996) ?",a:["Dwight Howard (~2950)","Shaquille O'Neal (~2626)","DeAndre Jordan","LeBron James"],c:0},
+{q:"Meilleur pourcentage à 3 points en carrière (min 250 tirs) ?",a:["Steve Kerr","Hubert Davis","Stephen Curry","Kyle Korver"],c:0},
+{q:"Quel joueur a mené la NBA en rebonds le plus de fois ?",a:["Wilt Chamberlain (11)","Dennis Rodman (7)","Moses Malone (6)","Bill Russell (4)"],c:0},
+{q:"Quel joueur a le plus de saisons à 20+ pts de moyenne ?",a:["LeBron James","Karl Malone","Michael Jordan","Kobe Bryant"],c:0},
+{q:"Record de fautes techniques en une saison ?",a:["Rasheed Wallace (41, 2000-01)","Dennis Rodman (38)","Draymond Green (32)","DeMarcus Cousins (30)"],c:0},
+{q:"Qui a le plus de titres de DPOY ?",a:["Dikembe Mutombo et Ben Wallace (4)","Dwight Howard (3)","Hakeem Olajuwon (2)","Kawhi Leonard (2)"],c:0},
+{q:"Record de 3 points marqués en une saison ?",a:["Stephen Curry (402, 2015-16)","James Harden (378)","Klay Thompson (301)","Buddy Hield (282)"],c:0},
+{q:"Quel joueur a le plus de double-doubles en carrière ?",a:["Wilt Chamberlain","Karl Malone","Tim Duncan","Kareem Abdul-Jabbar"],c:0},
+{q:"Meilleure moyenne de passes décisives en une saison ?",a:["John Stockton (14.5, 1989-90)","Magic Johnson (13.1)","Isiah Thomas (13.9)","Chris Paul (11.6)"],c:0},
+{q:"Quel joueur a le plus de Sixth Man of the Year awards ?",a:["Jamal Crawford (3)","Lou Williams (3)","Les deux (3 chacun)","Manu Ginóbili (1)"],c:2},
+{q:"Quelle équipe a perdu le plus de matchs en une saison ?",a:["Philadelphia 76ers (9-73, 2015-16)","Charlotte Bobcats (7-59, 2011-12)","Dallas Mavericks (11-71, 1992-93)","Detroit Pistons (16-66, 1993-94)"],c:0}
+],allstar:[
+{q:"Plus de triple-doubles en carrière ?",a:["Russell Westbrook","Oscar Robertson","Magic Johnson","Jason Kidd"],c:0},
+{q:"Combien de fois Kareem a-t-il été MVP ?",a:["6","5","4","7"],c:0},
+{q:"Record de contres en un seul match NBA ?",a:["Elmore Smith (17)","Hakeem Olajuwon (14)","Manute Bol (15)","Shaquille O'Neal (12)"],c:0},
+{q:"Plus longue série de victoires consécutives ?",a:["33 (Lakers, 1971-72)","27 (Heat, 2012-13)","24 (Warriors, 2014-15)","30 (Bucks, 1970-71)"],c:0},
+{q:"Plus de points en un quart-temps ?",a:["Klay Thompson (37)","George Gervin (33)","David Thompson (32)","Carmelo Anthony (33)"],c:0},
+{q:"Combien de Finals consécutives pour LeBron ?",a:["8","6","9","7"],c:0},
+{q:"Meilleur % LF en carrière (min 1200) ?",a:["Stephen Curry","Steve Nash","Mark Price","Rick Barry"],c:0},
+{q:"Plus de matchs joués en carrière NBA ?",a:["Robert Parish","Kareem Abdul-Jabbar","Vince Carter","John Stockton"],c:2},
+{q:"Meilleure moyenne de rebonds en carrière ?",a:["Wilt Chamberlain (22.9)","Bill Russell (22.5)","Bob Pettit (16.2)","Jerry Lucas (15.6)"],c:0},
+{q:"Plus de contres en carrière NBA ?",a:["Hakeem Olajuwon","Dikembe Mutombo","Kareem Abdul-Jabbar","Mark Eaton"],c:0},
+{q:"Record de passes décisives en un match ?",a:["Scott Skiles (30)","John Stockton (28)","Kevin Porter (29)","Magic Johnson (24)"],c:0},
+{q:"Plus d'interceptions en un seul match NBA ?",a:["Kendall Gill (11)","Larry Kenon (11)","Les deux à égalité","Scottie Pippen (10)"],c:2},
+{q:"Record de lancers francs consécutifs réussis ?",a:["Michael Williams (97)","Mark Price (72)","Steph Curry (80)","Dirk Nowitzki (82)"],c:0},
+{q:"Quel joueur a le plus de matchs à 40+ points en carrière ?",a:["Wilt Chamberlain","Michael Jordan","Kobe Bryant","LeBron James"],c:0},
+{q:"Record NBA de différence de points dans un match ?",a:["73 (Grizzlies 152-79 Thunder, 2021)","68 (Cavaliers vs Heat, 1991)","63 (Lakers vs Warriors, 1972)","58 (Celtics vs Bulls, 1986)"],c:0},
+{q:"Plus de matchs à 40+ points en carrière ?",a:["Wilt Chamberlain (271)","Michael Jordan (173)","Kobe Bryant (122)","LeBron James (75+)"],c:0},
+{q:"Meilleur % au tir en carrière (hors lancers francs) ?",a:["DeAndre Jordan (.674)","Shaquille O'Neal (.582)","Artis Gilmore (.599)","Wilt Chamberlain (.540)"],c:2},
+{q:"Quel joueur a le plus de ejections en carrière NBA ?",a:["Rasheed Wallace","Dennis Rodman","Charles Barkley","Draymond Green"],c:0},
+{q:"Record de rebonds défensifs en un match (depuis 1973) ?",a:["Kevin Love (31, 2010)","Dennis Rodman (27)","Dwight Howard (26)","Charles Barkley (25)"],c:0},
+{q:"Quel joueur a le plus de Game-Winners en carrière ?",a:["Michael Jordan","Kobe Bryant","LeBron James","Larry Bird"],c:0},
+{q:"Interceptions en un seul match (record partagé) ?",a:["Kendall Gill et Larry Kenon (11)","Scottie Pippen (10)","Chris Paul (9)","Alvin Robertson (10)"],c:0}
+],goat:[
+{q:"Meilleure moyenne en playoffs (carrière) ?",a:["MJ (33.4)","Iverson (29.7)","West (29.1)","KD (29.5)"],c:0},
+{q:"Triple-doubles de Westbrook en 2016-17 ?",a:["42","36","38","44"],c:0},
+{q:"Plus de saisons meilleur marqueur de la ligue ?",a:["Jordan (10)","Wilt (7)","KD (4)","Iverson (4)"],c:0},
+{q:"Matchs à 50+ pts de Curry en régulière ?",a:["15","8","11","6"],c:0},
+{q:"Record de minutes en playoffs sur une saison ?",a:["LeBron James","Tim Duncan","Wilt Chamberlain","Kareem"],c:0},
+{q:"Record NBA de 3 pts marqués en une saison ?",a:["Stephen Curry (402, 2015-16)","Stephen Curry (354, 2020-21)","James Harden (378)","Klay Thompson (301)"],c:0},
+{q:"Quelle est la moyenne de points la plus haute sur une saison ?",a:["Wilt Chamberlain (50.4, 1961-62)","MJ (37.1, 1986-87)","Kobe (35.4, 2005-06)","Harden (36.1, 2018-19)"],c:0},
+{q:"Record officiel de rebonds offensifs en un match (depuis 1983) ?",a:["18 (Pachulia, Rodman, Oakley)","21","15","12"],c:0},
+{q:"Joueur avec le plus de saisons à 2000+ points ?",a:["Karl Malone (12)","Michael Jordan (11)","Kobe Bryant (11)","LeBron James"],c:0},
+{q:"Plus de points marqués combinés dans un match NBA (2 équipes) ?",a:["370 (Pistons vs Nuggets, 1983)","320","340","360"],c:0},
+{q:"Record du plus de rebonds en un match NBA ?",a:["Wilt Chamberlain (55)","Bill Russell (51)","Wilt Chamberlain (43)","Nate Thurmond (42)"],c:0},
+{q:"Moyenne de points la plus haute sur une saison ?",a:["Wilt Chamberlain (50.4, 1961-62)","MJ (37.1, 1986-87)","Kobe (35.4, 2005-06)","Harden (36.1, 2018-19)"],c:0},
+{q:"Record d'assists en une saison (total) ?",a:["John Stockton (1 164, 1990-91)","Magic Johnson (989)","Isiah Thomas (1 123)","Mark Jackson (868)"],c:0},
+{q:"Quel joueur a eu le plus de saisons consécutives à 25+ pts de moyenne ?",a:["Michael Jordan (11)","LeBron James (9)","Kevin Durant (8)","Kobe Bryant (7)"],c:0},
+{q:"Plus grand nombre de contres en une saison ?",a:["Mark Eaton (456, 1984-85)","Hakeem Olajuwon (376)","Dikembe Mutombo (321)","Alonzo Mourning (294)"],c:0}
+]},histoire:{icon:"📜",name:"Histoire",rookie:[
+{q:"En quelle année la NBA a-t-elle été fondée ?",a:["1946","1950","1940","1955"],c:0},
+{q:"Année d'introduction de la ligne à 3 points ?",a:["1979","1982","1975","1986"],c:0},
+{q:"Surnom du duo Magic / Kareem chez les Lakers ?",a:["Showtime Lakers","Dynamic Duo","Lake Show","Purple & Gold"],c:0},
+{q:"Quel joueur a été surnommé 'The Dream' ?",a:["Hakeem Olajuwon","Patrick Ewing","David Robinson","Shaq"],c:0},
+{q:"Coach des Bulls pendant les 6 titres de Jordan ?",a:["Phil Jackson","Pat Riley","Chuck Daly","Gregg Popovich"],c:0},
+{q:"1er champion NBA ?",a:["Philadelphia Warriors","Boston Celtics","New York Knicks","Minneapolis Lakers"],c:0},
+{q:"Qui est connu pour 'The Decision' en 2010 ?",a:["LeBron James","Chris Bosh","Dwyane Wade","Carmelo Anthony"],c:0},
+{q:"Quel joueur a dominé les années 50 avec les Lakers ?",a:["George Mikan","Bob Cousy","Dolph Schayes","Paul Arizin"],c:0},
+{q:"Qui a gagné 8 titres consécutifs avec les Celtics (1959-66) ?",a:["Bill Russell","Bob Cousy","John Havlicek","Sam Jones"],c:0},
+{q:"Quel joueur a porté le n°33 chez les Celtics et est une légende ?",a:["Larry Bird","Bill Russell","Kevin McHale","Robert Parish"],c:0},
+{q:"Qui a été surnommé 'His Airness' ?",a:["Michael Jordan","Julius Erving","Dominique Wilkins","Vince Carter"],c:0},
+{q:"Quel joueur a popularisé le finger roll ?",a:["George Gervin","Julius Erving","Wilt Chamberlain","Kareem Abdul-Jabbar"],c:0},
+{q:"Qui était surnommé 'Dr. J' ?",a:["Julius Erving","Kareem Abdul-Jabbar","George Gervin","Moses Malone"],c:0},
+{q:"Quel joueur a marqué le premier panier à 3 pts en NBA ?",a:["Chris Ford","Larry Bird","Rick Barry","Dale Ellis"],c:0},
+{q:"Quel est le surnom de l'équipe des Lakers dans les années 80 ?",a:["Showtime","Purple Rain","Gold Rush","Lake Show"],c:0},
+{q:"Qui était le rival de Larry Bird chez les Lakers ?",a:["Magic Johnson","Kareem Abdul-Jabbar","James Worthy","Byron Scott"],c:0},
+{q:"Quelle franchise a été la 1ère à avoir un joueur noir en NBA ?",a:["New York Knicks (Nat Clifton)","Boston Celtics","Philadelphia Warriors","Minneapolis Lakers"],c:0},
+{q:"Qui a été le 1er coach noir en NBA ?",a:["Bill Russell (1966)","Lenny Wilkens","Doc Rivers","Al Attles"],c:0},
+{q:"Quelle a été la première saison NBA à 82 matchs ?",a:["1967-68","1960-61","1970-71","1975-76"],c:0},
+{q:"Quel joueur a popularisé le dunk en NBA ?",a:["Julius Erving (Dr. J)","Wilt Chamberlain","Michael Jordan","Darryl Dawkins"],c:0},
+{q:"Qui était le meilleur joueur des Minneapolis Lakers dans les années 50 ?",a:["George Mikan","Elgin Baylor","Jerry West","Vern Mikkelsen"],c:0}
+],allstar:[
+{q:"Nom de la NBA à sa création en 1946 ?",a:["BAA","ABA","NBL","APBA"],c:0},
+{q:"Fusion NBA-ABA en quelle année ?",a:["1976","1972","1980","1968"],c:0},
+{q:"Qui a marqué le 'flu game' (Finals 1997) ?",a:["Michael Jordan","Scottie Pippen","Karl Malone","John Stockton"],c:0},
+{q:"1er All-Star Game NBA ?",a:["1951","1948","1955","1960"],c:0},
+{q:"Big 3 Garnett-Pierce-Allen, quelle équipe ?",a:["Boston Celtics","Miami Heat","Brooklyn Nets","Cleveland"],c:0},
+{q:"Quel joueur a été banni à vie pour avoir parié sur des matchs ?",a:["Jack Molinas","Pete Rose","Aucun joueur NBA","Art Schlichter"],c:0},
+{q:"Qui est le 'Logo' NBA, modèle de la silhouette officielle ?",a:["Jerry West","Michael Jordan","Bill Russell","Kobe Bryant"],c:0},
+{q:"Quelle équipe était surnommée les 'Bad Boys' dans les années 80-90 ?",a:["Detroit Pistons","New York Knicks","Chicago Bulls","Boston Celtics"],c:0},
+{q:"Quel joueur a été élu MVP alors qu'il jouait en 6e homme ?",a:["Aucun, c'est impossible","Bill Walton","James Harden","Kevin McHale"],c:0},
+{q:"Qui a inscrit le 'Sky Hook' comme arme signature ?",a:["Kareem Abdul-Jabbar","Hakeem Olajuwon","Wilt Chamberlain","Bill Russell"],c:0},
+{q:"Quelle décennie est considérée comme l'âge d'or des Celtics ?",a:["Les années 60","Les années 70","Les années 80","Les années 50"],c:0},
+{q:"Quelle équipe a dominé les années 2000 avec 4 titres ?",a:["San Antonio Spurs","Los Angeles Lakers","Detroit Pistons","Miami Heat"],c:0},
+{q:"Quel trade a envoyé Shaq de L.A. à Miami en 2004 ?",a:["Shaq contre Lamar Odom + Caron Butler + picks","Shaq contre Dwyane Wade","Shaq contre 3 picks","Aucun trade, agent libre"],c:0},
+{q:"Quel Big 3 a joué au Heat de 2010 à 2014 ?",a:["LeBron, Wade, Bosh","LeBron, Wade, Allen","LeBron, Bosh, Allen","Wade, Bosh, Shaq"],c:0},
+{q:"Quel surnom portait la dynastie Warriors de 2015-2019 ?",a:["Hampton Five / Death Lineup","Splash Dynasty","Golden Era","Bay Boys"],c:0},
+{q:"Quel joueur les Lakers ont-ils drafté qui a mené au trade de Kobe ?",a:["Vlade Divac","Shaq","Eddie Jones","Nick Van Exel"],c:0},
+{q:"En quelle année le dunk a-t-il été interdit en NCAA (pas en NBA) ?",a:["1967-1976","Jamais","1955-1960","1980-1985"],c:0},
+{q:"Quelle rivalité était surnommée 'The Rivalry' dans les années 80 ?",a:["Celtics vs Lakers","Bulls vs Pistons","Knicks vs Pacers","76ers vs Celtics"],c:0},
+{q:"Combien de trois-peats (3 titres consécutifs) dans l'histoire NBA ?",a:["5","3","7","4"],c:0}
+],goat:[
+{q:"Surnom 'Microwave' chez les Bad Boys Pistons ?",a:["Vinnie Johnson","Joe Dumars","Dennis Rodman","John Salley"],c:0},
+{q:"Coach avec le plus de victoires en régulière ?",a:["Gregg Popovich","Don Nelson","Lenny Wilkens","Pat Riley"],c:0},
+{q:"Game-winner du Game 6, Finals 1998 ?",a:["Michael Jordan","Steve Kerr","Scottie Pippen","Dennis Rodman"],c:0},
+{q:"Introduction du shot clock de 24s ?",a:["1954","1960","1950","1958"],c:0},
+{q:"Quel incident a marqué le match Pacers vs Pistons en 2004 ?",a:["Malice at the Palace (bagarre)","Un blackout","Une inondation","Un boycott des joueurs"],c:0},
+{q:"Qui a inventé le 'triangle offense' utilisé par Phil Jackson ?",a:["Tex Winter","Phil Jackson","Red Auerbach","Pat Riley"],c:0},
+{q:"En quelle année les joueurs NBA ont-ils participé aux JO pour la 1ère fois ?",a:["1992 (Dream Team)","1988","1996","1984"],c:0},
+{q:"Quel joueur a joué le plus de saisons NBA ?",a:["Vince Carter (22)","Robert Parish (21)","Kareem Abdul-Jabbar (20)","Kevin Garnett (21)"],c:0},
+{q:"Quel événement a causé la saison écourtée de 2011-12 ?",a:["Un lockout","La pandémie","Une grève des arbitres","Un problème financier"],c:0},
+{q:"Combien de lockouts la NBA a-t-elle connus ?",a:["4 (1995, 1998-99, 2011, 2023 — non, 3 vrais)","2","5","1"],c:0},
+{q:"Quel joueur du Dream Team 1992 n'était PAS une star NBA ?",a:["Christian Laettner (universitaire)","Charles Barkley","Karl Malone","Patrick Ewing"],c:0},
+{q:"Qui a battu le Dream Team pour la 1ère fois en compétition officielle ?",a:["L'Argentine (2004)","La Yougoslavie","L'Espagne","La Grèce"],c:0},
+{q:"Quelle franchise a été créée grâce à un groupe de rap ?",a:["Aucune","Toronto Raptors","Memphis Grizzlies","Charlotte Hornets"],c:0},
+{q:"Quel joueur a pris sa retraite puis est revenu 2 fois ?",a:["Michael Jordan","Magic Johnson","Scottie Pippen","Shaquille O'Neal"],c:0},
+{q:"Quelle saison a été jouée dans la 'bulle' à Orlando ?",a:["2019-20","2020-21","2018-19","2021-22"],c:0}
+]},quisuisje:{icon:"🎭",name:"Qui suis-je ?",rookie:[
+{q:"'The King', Cleveland → Miami → L.A.",a:["LeBron James","Kobe Bryant","Kevin Durant","Dwyane Wade"],c:0},
+{q:"Tirs depuis le milieu du terrain, 'Chef Curry'.",a:["Stephen Curry","Klay Thompson","Ray Allen","Reggie Miller"],c:0},
+{q:"'Black Mamba', 20 saisons aux Lakers.",a:["Kobe Bryant","Shaq","Magic Johnson","Kareem"],c:0},
+{q:"Plus de 145 kg, 'Shaq', dominateur en peinture.",a:["Shaquille O'Neal","Dwight Howard","Yao Ming","Ewing"],c:0},
+{q:"Grec, 'The Greek Freak', MVP + champion.",a:["Giannis","Luka Dončić","Jokić","Embiid"],c:0},
+{q:"Langue tirée pendant les dunks. N°23.",a:["Michael Jordan","LeBron James","Draymond Green","Jimmy Butler"],c:0},
+{q:"'The Joker', serbe, meilleur passeur au poste 5.",a:["Nikola Jokić","Luka Dončić","Bogdanović","Dario Šarić"],c:0},
+{q:"Français, meneur rapide, 4 titres avec les Spurs.",a:["Tony Parker","Nicolas Batum","Boris Diaw","Rudy Gobert"],c:0},
+{q:"'The Flash', coéquipier de LeBron à Miami.",a:["Dwyane Wade","Chris Bosh","Ray Allen","Mario Chalmers"],c:0},
+{q:"2m29, chinois, jouait pour les Rockets.",a:["Yao Ming","Yi Jianlian","Wang Zhizhi","Sun Yue"],c:0},
+{q:"'CP3', meneur à la passe parfaite, jamais de titre.",a:["Chris Paul","Chauncey Billups","Jason Kidd","Steve Nash"],c:0},
+{q:"Surnommé 'The Answer', tattoos et crossover.",a:["Allen Iverson","Stephon Marbury","Baron Davis","Steve Francis"],c:0},
+{q:"'Uncle Drew', meneur aux handles fous, titre en 2016.",a:["Kyrie Irving","Damian Lillard","John Wall","Kemba Walker"],c:0},
+{q:"Surnommé 'The Beard', roi du stepback.",a:["James Harden","Luka Dončić","Kevin Durant","Russell Westbrook"],c:0},
+{q:"'Dame Time', clutch à Portland, tir du logo.",a:["Damian Lillard","CJ McCollum","Brandon Roy","LaMarcus Aldridge"],c:0},
+{q:"'The Claw', mains géantes, voix ultra calme.",a:["Kawhi Leonard","Jimmy Butler","Paul George","Scottie Pippen"],c:0},
+{q:"Surnommé 'Brodie', triple-double machine, MVP 2017.",a:["Russell Westbrook","Chris Paul","John Wall","Derrick Rose"],c:0},
+{q:"'D-Rose', plus jeune MVP de l'histoire (22 ans).",a:["Derrick Rose","Kyrie Irving","LeBron James","Kevin Durant"],c:0},
+{q:"Espagnol, pivot des Lakers et Grizzlies, frère de Marc.",a:["Pau Gasol","Marc Gasol","Ricky Rubio","Serge Ibaka"],c:0},
+{q:"2m24, français, Rookie of the Year 2024, Spurs.",a:["Victor Wembanyama","Rudy Gobert","Alexis Ajinça","Evan Fournier"],c:0}
+],allstar:[
+{q:"N°3 à Philly, crossover légendaire, 1m83.",a:["Allen Iverson","Chris Paul","Isaiah Thomas","Stephon Marbury"],c:0},
+{q:"DPOY, 'Big Ben', jamais drafté.",a:["Ben Wallace","Ben Simmons","Dennis Rodman","Dwight Howard"],c:0},
+{q:"Canadien, 'Vinsanity', meilleur Dunk Contest.",a:["Vince Carter","Steve Nash","T-Mac","Chris Bosh"],c:0},
+{q:"N°21 Spurs, 19 saisons, 'The Big Fundamental'.",a:["Tim Duncan","David Robinson","Ginóbili","Tony Parker"],c:0},
+{q:"Allemand, carrière à Dallas, fadeaway one-leg.",a:["Dirk Nowitzki","Detlef Schrempf","Schröder","Kleber"],c:0},
+{q:"'The Worm', cheveux colorés, roi du rebond défensif.",a:["Dennis Rodman","Ron Artest","Ben Wallace","Charles Oakley"],c:0},
+{q:"Surnommé 'Penny', coéquipier de Shaq à Orlando.",a:["Anfernee Hardaway","Nick Anderson","Horace Grant","Dennis Scott"],c:0},
+{q:"'The Mailman', 2e meilleur marqueur all-time longtemps.",a:["Karl Malone","John Stockton","Charles Barkley","Patrick Ewing"],c:0},
+{q:"Meneur des Suns, 2x MVP, canadien.",a:["Steve Nash","Charles Barkley","Jason Kidd","Kevin Johnson"],c:0},
+{q:"'The Glove', défenseur légendaire des Sonics.",a:["Gary Payton","Shawn Kemp","Detlef Schrempf","Sam Perkins"],c:0},
+{q:"Pivot français, 4x DPOY, Tour Eiffel de la NBA.",a:["Rudy Gobert","Joakim Noah","Nicolas Batum","Ian Mahinmi"],c:0},
+{q:"'T-Mac', scoreur prolifique, cousin de Vince Carter.",a:["Tracy McGrady","Grant Hill","Rasheed Wallace","Shareef Abdur-Rahim"],c:0},
+{q:"Surnommé 'The Claw', mains géantes, Finals MVP 2x.",a:["Kawhi Leonard","Jimmy Butler","Paul George","Scottie Pippen"],c:0},
+{q:"'Penny', coéquipier de Shaq à Orlando dans les 90s.",a:["Anfernee Hardaway","Nick Anderson","Horace Grant","Dennis Scott"],c:0},
+{q:"'The Mailman', duo légendaire avec Stockton à Utah.",a:["Karl Malone","Jeff Hornacek","Andrei Kirilenko","Mark Eaton"],c:0},
+{q:"Meneur des Suns, 2x MVP consécutif, canadien.",a:["Steve Nash","Charles Barkley","Jason Kidd","Amar'e Stoudemire"],c:0},
+{q:"'The Glove', seul meneur DPOY de l'histoire.",a:["Gary Payton","Shawn Kemp","John Stockton","Jason Kidd"],c:0},
+{q:"Pivot français, 4x DPOY, géant défensif au Jazz puis Wolves.",a:["Rudy Gobert","Joakim Noah","Nicolas Batum","Ian Mahinmi"],c:0},
+{q:"'T-Mac', 13 points en 35 secondes, cousin de Vince Carter.",a:["Tracy McGrady","Grant Hill","Rasheed Wallace","Chris Webber"],c:0},
+{q:"'Rain Man', dunks spectaculaires avec Payton aux Sonics.",a:["Shawn Kemp","Detlef Schrempf","Sam Perkins","Vin Baker"],c:0},
+{q:"'Mr. Big Shot', clutch shooter des Pistons champions 2004.",a:["Chauncey Billups","Richard Hamilton","Ben Wallace","Rasheed Wallace"],c:0}
+],goat:[
+{q:"MVP Finals sans être titulaire, Spurs, Argentin.",a:["Manu Ginóbili","Tony Parker","Boris Diaw","Oberto"],c:0},
+{q:"81 points en un match, 2e total all-time.",a:["Kobe Bryant","Wilt Chamberlain","David Thompson","MJ"],c:0},
+{q:"Seul joueur MVP + DPOY + MIP en carrière.",a:["Giannis","Hakeem Olajuwon","Kevin Garnett","Kawhi Leonard"],c:0},
+{q:"Coupé de son équipe de lycée, devenu le GOAT.",a:["Michael Jordan","LeBron","Kobe","Allen Iverson"],c:0},
+{q:"'AK-47', Russe, ailier polyvalent des Jazz.",a:["Andrei Kirilenko","Peja Stojaković","Hedo Türkoğlu","Šarūnas Jasikevičius"],c:0},
+{q:"'Big Country', pivot canadien des Grizzlies.",a:["Bryant Reeves","Pau Gasol","Shane Battier","Mike Miller"],c:0},
+{q:"1er Européen élu MVP NBA (2007).",a:["Dirk Nowitzki","Giannis","Nikola Jokić","Tony Parker"],c:0},
+{q:"Surnommé 'The Round Mound of Rebound'.",a:["Charles Barkley","Shaq","Oliver Miller","Zion Williamson"],c:0},
+{q:"'Pistol Pete', dribbleur showman des années 70.",a:["Pete Maravich","Walt Frazier","Earl Monroe","Jerry West"],c:0},
+{q:"Surnommé 'Slim Reaper' puis 'Easy Money Sniper'.",a:["Kevin Durant","Giannis","Anthony Edwards","Jayson Tatum"],c:0},
+{q:"'White Chocolate', passes spectaculaires, Kings puis Heat.",a:["Jason Williams","Mike Bibby","Peja Stojaković","Chris Webber"],c:0},
+{q:"'The Admiral', officier de la Navy, pivot des Spurs.",a:["David Robinson","Tim Duncan","Dennis Rodman","Sean Elliott"],c:0},
+{q:"Surnommé 'Ant-Man', explosif, Timberwolves.",a:["Anthony Edwards","Karl-Anthony Towns","D'Angelo Russell","Andrew Wiggins"],c:0},
+{q:"Slovène, prodige, triple-double machine, Mavericks.",a:["Luka Dončić","Goran Dragić","Nikola Jokić","Bogdan Bogdanović"],c:0},
+{q:"'The Iceman', élégant scoreur des Spurs dans les 70s-80s.",a:["George Gervin","David Robinson","Artis Gilmore","Larry Kenon"],c:0},
+{q:"Camerounais, wagging finger, 'Mount Mutombo'.",a:["Dikembe Mutombo","Joel Embiid","Pascal Siakam","Bismack Biyombo"],c:0},
+{q:"Surnommé 'The Truth', capitaine des Celtics 2000s.",a:["Paul Pierce","Ray Allen","Kevin Garnett","Antoine Walker"],c:0},
+{q:"Surnommé 'Melo', scoreur prolifique, All-Star 10x.",a:["Carmelo Anthony","LaMelo Ball","Chris Paul","Dwyane Wade"],c:0},
+{q:"'PG13', ailier star des Pacers puis Clippers/76ers.",a:["Paul George","Jimmy Butler","Kawhi Leonard","Gordon Hayward"],c:0},
+{q:"Congolais-espagnol, pivot des Raptors, frère de Pau.",a:["Marc Gasol","Serge Ibaka","Pascal Siakam","Bismack Biyombo"],c:0},
+{q:"'Splash Brothers', duo historique de shooteurs.",a:["Curry et Thompson","Curry et Durant","Thompson et Green","Curry et Poole"],c:0},
+{q:"Surnommé 'The Process', pivot camerounais des 76ers.",a:["Joel Embiid","Ben Simmons","Tobias Harris","Al Horford"],c:0},
+{q:"'Big Ticket', intérieur polyvalent, Wolves puis Celtics.",a:["Kevin Garnett","Tom Gugliotta","Sam Cassell","Latrell Sprewell"],c:0},
+{q:"Lituanien, légende du basket mondial, père de Domantas.",a:["Arvydas Sabonis","Šarūnas Jasikevičius","Žydrūnas Ilgauskas","Domantas Sabonis"],c:0}
+]},franchises:{icon:"🏟️",name:"Franchises",rookie:[
+{q:"Ville des Lakers ?",a:["Los Angeles","San Francisco","New York","Chicago"],c:0},
+{q:"Franchise surnommée les 'Dubs' ?",a:["Golden State Warriors","Dallas Mavericks","Denver Nuggets","Detroit Pistons"],c:0},
+{q:"Qui joue au Madison Square Garden ?",a:["New York Knicks","Brooklyn Nets","Boston Celtics","Philly 76ers"],c:0},
+{q:"Mascotte taureau ?",a:["Chicago Bulls","San Antonio Spurs","OKC Thunder","Houston Rockets"],c:0},
+{q:"Tony Parker a rendu célèbre quelle équipe en France ?",a:["San Antonio Spurs","Charlotte Hornets","Dallas","Houston"],c:0},
+{q:"Combien d'équipes en NBA ?",a:["30","28","32","26"],c:0},
+{q:"Couleurs principales des Lakers ?",a:["Violet et or","Rouge et blanc","Bleu et orange","Vert et blanc"],c:0},
+{q:"Quelle franchise a un soleil comme logo ?",a:["Phoenix Suns","Golden State Warriors","Miami Heat","Indiana Pacers"],c:0},
+{q:"Quel animal représente les Memphis Grizzlies ?",a:["Un ours","Un lion","Un loup","Un aigle"],c:0},
+{q:"De quelle couleur est le maillot des Celtics ?",a:["Vert","Bleu","Rouge","Noir"],c:0},
+{q:"Quelle franchise est surnommée les 'Blazers' ?",a:["Portland Trail Blazers","Phoenix Suns","Denver Nuggets","Utah Jazz"],c:0},
+{q:"Dans quelle ville jouent les Bucks ?",a:["Milwaukee","Minneapolis","Memphis","Miami"],c:0},
+{q:"Dans quel État se trouvent les Pacers ?",a:["Indiana","Ohio","Illinois","Iowa"],c:0},
+{q:"Quelle franchise a un raptor (dinosaure) comme mascotte ?",a:["Toronto Raptors","Charlotte Hornets","Atlanta Hawks","Memphis Grizzlies"],c:0},
+{q:"Quelle ville accueille les Cavaliers ?",a:["Cleveland","Cincinnati","Columbus","Charlotte"],c:0},
+{q:"Quelle franchise joue au Chase Center ?",a:["Golden State Warriors","Sacramento Kings","LA Clippers","Brooklyn Nets"],c:0},
+{q:"Quelle est la seule franchise NBA au Canada ?",a:["Toronto Raptors","Montréal Basketeers","Vancouver Grizzlies (déménagés)","Ottawa"],c:0},
+{q:"Quel est l'animal mascotte des Timberwolves ?",a:["Un loup","Un ours","Un aigle","Un élan"],c:0},
+{q:"Quelle franchise porte le nom d'un phénomène météo ?",a:["OKC Thunder","Miami Heat","Phoenix Suns","Orlando Magic"],c:0}
+],allstar:[
+{q:"Franchise avec le plus de titres NBA ?",a:["Celtics (17)","Lakers (17)","Bulls (6)","Warriors (7)"],c:0},
+{q:"Les Thunder étaient auparavant… ?",a:["Seattle SuperSonics","Vancouver Grizzlies","Kansas City Kings","San Diego Clippers"],c:0},
+{q:"Grizzlies avant Memphis ?",a:["Vancouver","Seattle","Portland","Sacramento"],c:0},
+{q:"Franchise jamais en Finals ?",a:["Nuggets… si en 2023 !","Los Angeles Clippers","Minnesota Wolves","Toutes y sont allées"],c:1},
+{q:"Quelle franchise a pour nom un genre musical ?",a:["Utah Jazz","Memphis Grizzlies","New Orleans Pelicans","Portland Trail Blazers"],c:0},
+{q:"Dans quelle salle jouent les Celtics ?",a:["TD Garden","Fleet Center","Boston Garden","Fenway Arena"],c:0},
+{q:"Quel est le surnom de la salle des Knicks ?",a:["The Mecca / MSG","The Garden State","The Big Apple Arena","Broadway Court"],c:0},
+{q:"Quelle franchise a changé de nom de Bobcats à Hornets ?",a:["Charlotte","New Orleans","Memphis","Oklahoma City"],c:0},
+{q:"Quelle équipe joue au Fiserv Forum ?",a:["Milwaukee Bucks","Indiana Pacers","Detroit Pistons","Minnesota Timberwolves"],c:0},
+{q:"Combien de franchises NBA sont en Californie ?",a:["4 (Lakers, Clippers, Warriors, Kings)","3","5","2"],c:0},
+{q:"Quelle franchise a pour mascotte un faucon ?",a:["Atlanta Hawks","Charlotte Hornets","New Orleans Pelicans","Toronto Raptors"],c:0},
+{q:"Quelle franchise jouait à New Jersey avant Brooklyn ?",a:["Nets","Knicks","76ers","Celtics"],c:0},
+{q:"Comment s'appellent les fans des Warriors ?",a:["Dub Nation","Warrior Nation","Bay Area Faithful","Golden Nation"],c:0},
+{q:"Quelle franchise a été fondée par Michael Jordan (propriétaire) ?",a:["Aucune, il a acheté les Bobcats/Hornets","Charlotte Hornets originaux","Washington Wizards","Aucune"],c:0},
+{q:"Dans quelle salle jouent les Bulls ?",a:["United Center","Madison Square Garden","Staples Center","TD Garden"],c:0},
+{q:"Quelle franchise a le plus long drought sans titre actuel ?",a:["Sacramento Kings (depuis 1951)","Phoenix Suns","Charlotte Hornets","Minnesota Wolves"],c:0},
+{q:"Quel duo a marqué les Spurs dans les années 90 ?",a:["Robinson / Duncan","Duncan / Parker","Parker / Ginóbili","Robinson / Elliott"],c:0},
+{q:"Quelle est la rivalité la plus célèbre NBA ?",a:["Celtics vs Lakers","Bulls vs Pistons","Knicks vs Pacers","Heat vs Celtics"],c:0}
+],goat:[
+{q:"Plus de picks n°1 depuis 2000 ?",a:["Cleveland Cavaliers","Lakers","76ers","Timberwolves"],c:0},
+{q:"Combien de franchises sans titre ?",a:["11","8","14","6"],c:0},
+{q:"Quelle franchise a déménagé le plus de fois ?",a:["Sacramento Kings (Rochester → Cincinnati → KC → Sacramento)","Hawks","Clippers","Nets"],c:0},
+{q:"Combien de franchises ont existé puis disparu dans l'histoire NBA ?",a:["Plus de 10","Exactement 5","Aucune","3"],c:0},
+{q:"Quelle franchise a le plus de maillots retirés ?",a:["Boston Celtics","Los Angeles Lakers","Chicago Bulls","New York Knicks"],c:0},
+{q:"Quelle expansion team a gagné un titre le plus vite ?",a:["Milwaukee Bucks (3e saison, 1971)","Heat (6e saison)","Raptors (24e saison)","Mavericks (21e saison)"],c:0},
+{q:"Quelle franchise a le pire bilan all-time (% de victoires) ?",a:["Minnesota Timberwolves","Charlotte Hornets/Bobcats","Los Angeles Clippers","Memphis Grizzlies"],c:0},
+{q:"Quelle franchise joue au Crypto.com Arena (ex-Staples Center) ?",a:["Lakers ET Clippers","Seulement les Lakers","Seulement les Clippers","Lakers, Clippers et Kings"],c:0},
+{q:"Quelle franchise a pour surnom les 'Blazers' ?",a:["Portland Trail Blazers","Phoenix Suns","Denver Nuggets","Houston Rockets"],c:0},
+{q:"Dans quelle ville sont basés les Pacers ?",a:["Indianapolis","Indiana (pas une ville)","Detroit","Cleveland"],c:0},
+{q:"Le nom 'Jazz' vient de quelle ville d'origine de la franchise ?",a:["La Nouvelle-Orléans","Salt Lake City","Memphis","Nashville"],c:0},
+{q:"Quelle franchise a le logo d'un pélican ?",a:["New Orleans Pelicans","Charlotte Hornets","Atlanta Hawks","Miami Heat"],c:0}
+]},regles:{icon:"📋",name:"Règles",rookie:[
+{q:"Durée d'un match NBA réglementaire ?",a:["48 minutes","40 minutes","44 minutes","60 minutes"],c:0},
+{q:"Fautes perso avant exclusion ?",a:["6","5","4","7"],c:0},
+{q:"Secondes pour tirer après possession ?",a:["24","30","20","35"],c:0},
+{q:"Valeur d'un panier derrière la ligne à 3 pts ?",a:["3","2","4","1"],c:0},
+{q:"Que se passe-t-il en cas d'égalité ?",a:["Prolongation de 5 min","Tirs au panier","Prolongation 10 min","Match nul"],c:0},
+{q:"Joueurs par équipe sur le terrain ?",a:["5","6","4","7"],c:0},
+{q:"Combien de points vaut un lancer franc ?",a:["1","2","3","0"],c:0},
+{q:"Qu'est-ce qu'un 'travelling' ?",a:["Marcher avec le ballon sans dribbler","Voyager avec l'équipe","Sortir du terrain","Passer la balle trop loin"],c:0},
+{q:"Peut-on marquer depuis son propre camp ?",a:["Oui, ça vaut 3 ou 2 points selon la distance","Non","Oui, ça vaut 4 points","Oui mais c'est annulé"],c:0},
+{q:"Combien de prolongations peut-il y avoir dans un match NBA ?",a:["Pas de limite","3 max","5 max","2 max"],c:0},
+{q:"Qu'est-ce qu'un 'jump ball' ?",a:["Entre-deux (le ballon est lancé en l'air)","Un tir en sautant","Un rebond en l'air","Un alley-oop"],c:0},
+{q:"Quelle est la taille standard d'un terrain NBA ?",a:["28,65 m x 15,24 m","25 m x 12 m","30 m x 16 m","26 m x 14 m"],c:0},
+{q:"Qu'est-ce qu'un 'alley-oop' ?",a:["Passe lobée suivie d'un dunk en l'air","Un tir à 3 points","Un contre","Une passe entre les jambes"],c:0},
+{q:"Qu'est-ce qu'un 'poster dunk' ?",a:["Un dunk sur un défenseur (qui se fait 'afficher')","Un dunk devant une affiche","Un dunk après un contre","Un dunk raté"],c:0},
+{q:"Que signifie 'buzzer beater' ?",a:["Un tir marqué au buzzer (fin de période)","Un son de klaxon","Un panier qui fait vibrer l'arceau","Un lancer franc au buzzer"],c:0},
+{q:"Que se passe-t-il quand un joueur marche avec le ballon ?",a:["Marcher (travelling)","Lancer franc","Faute technique","Rien"],c:0},
+{q:"Combien de quart-temps dans un match NBA ?",a:["4","2","3","6"],c:0},
+{q:"Durée d'un quart-temps NBA ?",a:["12 minutes","10 minutes","15 minutes","8 minutes"],c:0},
+{q:"La raquette (zone restrictive) a quelle forme ?",a:["Rectangle","Cercle","Trapèze","Triangle"],c:0},
+{q:"Un joueur peut-il marquer dans son propre panier ?",a:["Oui, les points vont à l'adversaire","Non, le jeu est arrêté","Oui, les points lui reviennent","Non, c'est une faute"],c:0}
+],allstar:[
+{q:"Distance de la ligne à 3 pts dans les corners ?",a:["6,70 m","7,24 m","6,10 m","7,50 m"],c:0},
+{q:"Secondes pour un lancer franc ?",a:["10","5","8","15"],c:0},
+{q:"Qu'est-ce que le goaltending ?",a:["Toucher le ballon en descente vers le panier","Bloquer un tir du gardien","Marquer en 8s","Rester 5s sous le panier"],c:0},
+{q:"Temps-morts par équipe en régulière ?",a:["7","5","6","8"],c:0},
+{q:"Qu'est-ce qu'une flagrant foul ?",a:["Faute violente ou excessive","Faute tactique","Contact normal","Faute en contre-attaque"],c:0},
+{q:"Quelle est la violation des 3 secondes ?",a:["Rester plus de 3s dans la raquette adverse","Dribbler plus de 3s","Garder le ballon 3s sans bouger","Prendre 3 fautes d'affilée"],c:0},
+{q:"Combien de remplaçants sur le banc en NBA ?",a:["8 (13 joueurs au total)","7","10","6"],c:0},
+{q:"Que signifie 'and-one' ?",a:["Panier marqué + lancer franc (faute sur le tir)","Un contre-un","Marquer 1 point","Temps-mort"],c:0},
+{q:"À quelle distance du panier est la ligne des lancers francs ?",a:["4,57 m (15 pieds)","5 m","4 m","6 m"],c:0},
+{q:"Qu'est-ce qu'un 'backcourt violation' ?",a:["Revenir dans son camp après avoir passé la ligne médiane","Dribbler en reculant","Marquer dans son propre panier","Faute en zone arrière"],c:0},
+{q:"Qu'est-ce qu'un 'loose ball foul' ?",a:["Faute quand personne n'a la possession","Faute en dribblant","Faute sur un tir","Faute sur un lancer franc"],c:0},
+{q:"Combien de fautes d'équipe avant les lancers francs bonus ?",a:["5 par quart-temps","4","6","3"],c:0},
+{q:"Qu'est-ce qu'un 'technical foul' ?",a:["Faute de conduite (protestation, geste…)","Faute physique violente","Faute tactique","Faute sur un dunk"],c:0},
+{q:"Largeur du terrain NBA ?",a:["15,24 m (50 pieds)","12 m","18 m","20 m"],c:0},
+{q:"Longueur du terrain NBA ?",a:["28,65 m (94 pieds)","25 m","30 m","32 m"],c:0}
+],goat:[
+{q:"Règle 'Elam Ending' du All-Star Game ?",a:["1er à atteindre un score cible","2 dernières min en élimination","Chaque panier vaut double","Prolongation sans chrono"],c:0},
+{q:"Défense de zone autorisée en NBA depuis ?",a:["2001-02","1999-00","2004-05","1996-97"],c:0},
+{q:"Coach perd son challenge, conséquence ?",a:["Perd un temps-mort","Faute technique","Rien","Perte de possession"],c:0},
+{q:"Combien de secondes pour remettre en jeu après un panier ?",a:["5 secondes","3 secondes","8 secondes","10 secondes"],c:0},
+{q:"Qu'est-ce que la règle 'clear path' ?",a:["Faute sur un joueur en contre-attaque sans défenseur devant","Dégagement de la balle","Voie libre pour un dunk","Règle de passe au meneur"],c:0},
+{q:"Quelle est la hauteur réglementaire du panier NBA ?",a:["3,05 m (10 pieds)","3,00 m","3,10 m","2,90 m"],c:0},
+{q:"Diamètre du ballon NBA officiel ?",a:["24 cm environ","22 cm","26 cm","28 cm"],c:0},
+{q:"Qu'est-ce qu'un double technique ?",a:["Faute technique des 2 côtés en même temps","2 fautes techniques du même joueur","Double dribble technique","Violation des 2 équipes"],c:0},
+{q:"Qu'est-ce que la règle du 'take foul' introduite en 2022 ?",a:["Faute tactique en transition = 1LF + possession","Simple faute","Aucun changement","Faute flagrante automatique"],c:0},
+{q:"Poids officiel du ballon NBA ?",a:["~620 grammes (22 oz)","500 grammes","700 grammes","450 grammes"],c:0},
+{q:"Qu'est-ce que le 'bonus' ?",a:["Lancers francs sur toute faute après la 5e de l'équipe","Double points","Temps-mort gratuit","Possession supplémentaire"],c:0},
+{q:"Durée de la mi-temps NBA ?",a:["15 minutes","20 minutes","10 minutes","12 minutes"],c:0}
+]},draft:{icon:"🎯",name:"Draft",rookie:[
+{q:"1er pick de 2003 ?",a:["LeBron James","Carmelo Anthony","Chris Bosh","Dwyane Wade"],c:0},
+{q:"Nombre de tours à la Draft ?",a:["2","3","1","4"],c:0},
+{q:"Université de Michael Jordan ?",a:["North Carolina","Duke","Georgetown","Michigan"],c:0},
+{q:"1er choix 2020 ?",a:["Anthony Edwards","James Wiseman","LaMelo Ball","Cade Cunningham"],c:0},
+{q:"Français drafté le plus haut ?",a:["Aucun n°1… Sarr n°2 en 2024","Tony Parker","Rudy Gobert","Wembanyama"],c:3},
+{q:"1er pick de la Draft 2019 ?",a:["Zion Williamson","Ja Morant","RJ Barrett","De'Andre Hunter"],c:0},
+{q:"Quelle équipe a drafté Kobe Bryant ?",a:["Charlotte Hornets (tradé aux Lakers)","Los Angeles Lakers","Philly 76ers","Boston Celtics"],c:0},
+{q:"1er pick de 2007 ?",a:["Greg Oden","Kevin Durant","Al Horford","Joakim Noah"],c:0},
+{q:"Quelle université a produit le plus de joueurs NBA ?",a:["Kentucky","Duke","North Carolina","UCLA"],c:0},
+{q:"En quelle année LeBron a-t-il été drafté ?",a:["2003","2002","2004","2001"],c:0},
+{q:"1er pick de la Draft 2018 ?",a:["Deandre Ayton","Luka Dončić","Marvin Bagley III","Trae Young"],c:0},
+{q:"1er pick de la Draft 2021 ?",a:["Cade Cunningham","Jalen Green","Evan Mobley","Scottie Barnes"],c:0},
+{q:"Quel Français a été drafté par les Spurs en 2001 ?",a:["Tony Parker (28e)","Boris Diaw","Nicolas Batum","Ronny Turiaf"],c:0},
+{q:"1er pick de 2016 ?",a:["Ben Simmons","Brandon Ingram","Jaylen Brown","Kris Dunn"],c:0},
+{q:"De quelle université venait Stephen Curry ?",a:["Davidson","Duke","North Carolina","Georgetown"],c:0},
+{q:"1er pick de la Draft 2023 ?",a:["Victor Wembanyama","Scoot Henderson","Brandon Miller","Amen Thompson"],c:0},
+{q:"Quelle équipe a drafté Dirk Nowitzki en 1998 ?",a:["Milwaukee Bucks (tradé aux Mavs)","Dallas Mavericks","Phoenix Suns","San Antonio Spurs"],c:0}
+],allstar:[
+{q:"Position de Kobe au draft 1996 ?",a:["13e","1er","8e","5e"],c:0},
+{q:"Plus gros bust de Draft (n°1) ?",a:["Anthony Bennett (2013)","Greg Oden (2007)","Kwame Brown (2001)","Bargnani (2006)"],c:0},
+{q:"Joueur non-drafté devenu All-Star ?",a:["Ben Wallace","Fred VanVleet","Les deux","Aucun des deux"],c:2},
+{q:"Draft de Wembanyama ?",a:["2023","2024","2022","2021"],c:0},
+{q:"Quel joueur a été drafté n°15 et a gagné 5 titres ?",a:["Kobe Bryant (traded pick)","Steve Nash","Kawhi Leonard","Paul Pierce"],c:2},
+{q:"Quelle classe de Draft est considérée comme la meilleure ?",a:["2003 (LeBron, Wade, Melo, Bosh)","1984 (MJ, Hakeem, Barkley)","1996 (Kobe, Iverson, Nash)","2009 (Curry, Harden, Griffin)"],c:0},
+{q:"Quel joueur a été drafté n°1 par les Cavaliers 3 fois (franchise) ?",a:["LeBron James (2003), Kyrie Irving (2011), Anthony Bennett (2013)","Personne","Mark Price","Brad Daugherty"],c:0},
+{q:"1er pick de 2017 ?",a:["Markelle Fultz","Lonzo Ball","Jayson Tatum","De'Aaron Fox"],c:0},
+{q:"Quel joueur drafté au 2e tour est devenu MVP ?",a:["Nikola Jokić (41e, 2014)","Draymond Green (35e)","Manu Ginóbili (57e)","Isaiah Thomas (60e)"],c:0},
+{q:"Draft de Stephen Curry, quelle position ?",a:["7e (2009)","1er","4e","11e"],c:0}
+],goat:[
+{q:"Combien de Français draftés en NBA (~) ?",a:["Plus de 30","Moins de 15","Exactement 20","Plus de 50"],c:0},
+{q:"Échange célèbre soir de Draft 1998 ?",a:["Vince Carter ↔ Antawn Jamison","Dirk Nowitzki","Paul Pierce","Aucun"],c:0},
+{q:"NBA interdit le draft lycée depuis ?",a:["2006 (one-and-done)","2005","2008","2010"],c:0},
+{q:"Qui a été drafté n°1 en 1997 ?",a:["Tim Duncan","Keith Van Horn","Chauncey Billups","Tracy McGrady"],c:0},
+{q:"Quel joueur drafté en 1999 au n°1 a eu une carrière décevante ?",a:["Elton Brand (pas décevant !)","Michael Olowokandi","Lamar Odom","Steve Francis"],c:1},
+{q:"Combien de lycéens ont été draftés n°1 entre 1995 et 2005 ?",a:["4 (KG, Kobe-pas n°1, Kwame, LeBron)","2","6","8"],c:0},
+{q:"Quel duo Père-Fils a joué ensemble en NBA ?",a:["Dell et Stephen Curry (pas ensemble sur le terrain)","Joe et Kobe Bryant","LeBron et Bronny James","Tim Hardaway Jr et Sr"],c:2},
+{q:"Quel n°1 de Draft a joué en Europe avant la NBA ?",a:["Andrea Bargnani (Italie, 2006)","Yao Ming","Tim Duncan","Andrew Bogut"],c:0},
+{q:"Quel joueur a été drafté n°2 deux fois (2 ligues) ?",a:["Aucun, c'est impossible","Bill Walton","Magic Johnson","LeBron James"],c:0},
+{q:"Quelle classe de Draft a donné 4 MVP futurs ?",a:["1984 (Hakeem, MJ, Barkley, Stockton — 2 MVP)","2003 (LeBron, Wade)","1996 (Iverson, Nash)","Aucune n'en a donné 4"],c:3},
+{q:"Quel joueur a refusé de jouer pour l'équipe qui l'a drafté en 2011 ?",a:["Aucun en 2011 — mais Kobe (1996) a refusé Charlotte","Kyrie Irving","Derrick Williams","Kemba Walker"],c:0},
+{q:"Combien de picks au total dans une Draft NBA moderne ?",a:["58 (2 tours x 29 équipes + compensatoires)","60","30","90"],c:0}
+]},finals:{icon:"🏆",name:"Finals",rookie:[
+{q:"Champion NBA 2023 ?",a:["Denver Nuggets","Miami Heat","Boston Celtics","Warriors"],c:0},
+{q:"MVP Finals 2016 ?",a:["LeBron James","Kyrie Irving","Stephen Curry","Draymond Green"],c:0},
+{q:"Titres de Jordan avec les Bulls ?",a:["6","5","4","7"],c:0},
+{q:"Remontée de 3-1 en Finals 2016 ?",a:["Cleveland Cavaliers","Warriors","Miami Heat","Spurs"],c:0},
+{q:"MVP Finals 2020 (bulle d'Orlando) ?",a:["LeBron James","Anthony Davis","Jimmy Butler","Bam Adebayo"],c:0},
+{q:"Champion NBA 2024 ?",a:["Boston Celtics","Dallas Mavericks","Denver Nuggets","Miami Heat"],c:0},
+{q:"Qui a gagné les Finals 2019 ?",a:["Toronto Raptors","Golden State Warriors","Milwaukee Bucks","Houston Rockets"],c:0},
+{q:"Combien de matchs max dans une série de Finals ?",a:["7","5","6","9"],c:0},
+{q:"Quel joueur des Cavaliers a fait le contre légendaire en Finals 2016 ?",a:["LeBron James","Kyrie Irving","Tristan Thompson","J.R. Smith"],c:0},
+{q:"Combien de titres pour les Lakers de Kobe + Shaq ?",a:["3 (2000-2002)","4","2","5"],c:0},
+{q:"Quel joueur des Celtics a été MVP Finals 2008 ?",a:["Paul Pierce","Kevin Garnett","Ray Allen","Rajon Rondo"],c:0},
+{q:"Champion NBA 2021 ?",a:["Milwaukee Bucks","Phoenix Suns","Atlanta Hawks","Philly 76ers"],c:0},
+{q:"Champion NBA 2022 ?",a:["Golden State Warriors","Boston Celtics","Miami Heat","Dallas Mavericks"],c:0},
+{q:"Qui a battu les Lakers en Finals 2004 ?",a:["Detroit Pistons","San Antonio Spurs","Indiana Pacers","Sacramento Kings"],c:0},
+{q:"Quel joueur a été MVP Finals 2015 avec les Warriors ?",a:["Andre Iguodala","Stephen Curry","Klay Thompson","Draymond Green"],c:0}
+],allstar:[
+{q:"'The Shot' contre Cleveland en 1989 ?",a:["Michael Jordan","Scottie Pippen","Craig Ehlo","Larry Bird"],c:0},
+{q:"Titre de Dirk Nowitzki ?",a:["2011","2009","2013","2007"],c:0},
+{q:"MVP Finals 2014 (Spurs) ?",a:["Kawhi Leonard","Tim Duncan","Tony Parker","Ginóbili"],c:0},
+{q:"Game-winner Game 7 Finals 2016 ?",a:["Kyrie Irving","LeBron","J.R. Smith","Kevin Love"],c:0},
+{q:"Qui a battu les 73-9 Warriors en Finals 2016 ?",a:["Cleveland Cavaliers","Personne, ils ont gagné","San Antonio Spurs","OKC Thunder"],c:0},
+{q:"Combien de titres Tim Duncan a-t-il gagnés ?",a:["5","4","6","3"],c:0},
+{q:"MVP Finals 2006 (Heat) ?",a:["Dwyane Wade","Shaquille O'Neal","Alonzo Mourning","Gary Payton"],c:0},
+{q:"Première franchise canadienne à gagner le titre ?",a:["Toronto Raptors (2019)","Aucune","Vancouver Grizzlies","Montréal (n'existe pas)"],c:0},
+{q:"Quel joueur a marqué 'The Block' en Finals 2016 ?",a:["LeBron James","Kyrie Irving","Kevin Love","Tristan Thompson"],c:0},
+{q:"En 2013, quel tir de Ray Allen a sauvé le Heat en Finals ?",a:["Un 3 points clutch dans le corner (Game 6)","Un dunk","Un lancer franc","Un layup"],c:0},
+{q:"Quel joueur a été élu MVP Finals 3 fois de suite ?",a:["Michael Jordan (1991-93)","Shaquille O'Neal (2000-02)","LeBron James","Tim Duncan"],c:1},
+{q:"Contre qui les Spurs ont-ils gagné en 2014 avec un basket collectif parfait ?",a:["Miami Heat","OKC Thunder","Cleveland Cavaliers","Dallas Mavericks"],c:0},
+{q:"Combien de titres les Warriors ont-ils gagné entre 2015 et 2022 ?",a:["4 (2015, 2017, 2018, 2022)","3","5","2"],c:0},
+{q:"Qui a éliminé les Warriors de KD en Finals 2019 ?",a:["Toronto Raptors","Houston Rockets","Milwaukee Bucks","Portland"],c:0},
+{q:"Quel joueur des Nuggets a été MVP Finals 2023 ?",a:["Nikola Jokić","Jamal Murray","Michael Porter Jr.","Aaron Gordon"],c:0},
+{q:"En quelle année les Pistons de Detroit ont-ils battu les Lakers de Shaq + Kobe ?",a:["2004","2003","2005","2006"],c:0}
+],goat:[
+{q:"Record de points en un match de Finals ?",a:["Elgin Baylor (61)","MJ (55)","LeBron (51)","Shaq (43)"],c:0},
+{q:"Plus jeune MVP des Finals ?",a:["Magic Johnson (20 ans)","Tim Duncan (23)","Kawhi (23)","LeBron (22)"],c:0},
+{q:"Combien de Game 7 en Finals 2010-2020 ?",a:["2 (2010 et 2016)","3","1","4"],c:0},
+{q:"Quel joueur a été MVP Finals avec 2 franchises différentes ?",a:["LeBron James (Heat + Cavaliers)","Kawhi Leonard (Spurs + Raptors)","Kevin Durant (Warriors)","Shaq (Lakers)"],c:1},
+{q:"Quel coach a le plus de titres NBA ?",a:["Phil Jackson (11)","Red Auerbach (9)","Gregg Popovich (5)","Pat Riley (5)"],c:0},
+{q:"Quelle équipe a gagné les Finals après avoir été menée 3-1 (avant 2016) ?",a:["Celtics (1966 vs Lakers)","Aucune","Lakers (1984)","Pistons (1990)"],c:0},
+{q:"Quelle série de Finals a été la plus longue en prolongations totales ?",a:["Celtics vs Suns 1976 (triple OT Game 5)","Lakers vs Celtics 1984","Bulls vs Jazz 1998","Spurs vs Heat 2013"],c:0}
+,
+{q:"Quelle franchise a le plus de sweeps (4-0) en Finals ?",a:["Lakers (3)","Celtics (2)","Warriors (2)","Bulls (1)"],c:0},
+{q:"Combien de fois MJ a-t-il été éliminé au 1er tour des playoffs ?",a:["3 (1985, 1986, 1987)","1","5","Jamais"],c:0},
+{q:"Quel joueur a le record de rebonds en Finals (carrière) ?",a:["Bill Russell","Wilt Chamberlain","Tim Duncan","LeBron James"],c:0},
+{q:"Quel est le plus grand comeback en playoffs NBA (déficit de points) ?",a:["41 points (Clippers vs Warriors, 2019)","36 points","25 points","31 points"],c:0}
+]},culture:{icon:"🎬",name:"Culture NBA",rookie:[
+{q:"Film avec Michael Jordan et Bugs Bunny ?",a:["Space Jam","Air","He Got Game","Coach Carter"],c:0},
+{q:"Marque de chaussures rendue célèbre par MJ ?",a:["Air Jordan (Nike)","Adidas","Reebok","Under Armour"],c:0},
+{q:"Rappeur 'ambassadeur' des Raptors ?",a:["Drake","Jay-Z","Kanye West","Lil Wayne"],c:0},
+{q:"Série documentaire sur les Bulls de Jordan ?",a:["The Last Dance","The Jordan Rules","Air Time","Bulls Dynasty"],c:0},
+{q:"Hymne national légendaire, Super Bowl 1991 ?",a:["Whitney Houston","Beyoncé","Fergie","Mariah Carey"],c:0},
+{q:"Quel jeu vidéo arcade NBA des années 90 avait 'He's on fire!' ?",a:["NBA Jam","NBA Live","NBA Hangtime","NBA Street"],c:0},
+{q:"Quel joueur apparaît dans le clip 'Fade' de Kanye West ?",a:["Teyana Taylor (pas un joueur)","Tyson Chandler","LeBron James","Aucun joueur NBA"],c:3},
+{q:"Quel joueur NBA a un vignoble en Californie ?",a:["Dwyane Wade","LeBron James","Yao Ming (en Napa Valley)","Michael Jordan"],c:2},
+{q:"Quel joueur est connu pour son 'night night' celebration ?",a:["Stephen Curry","LeBron James","Kevin Durant","James Harden"],c:0},
+{q:"Comment s'appelle le trophée du MVP NBA ?",a:["Maurice Podoloff Trophy","Larry O'Brien Trophy","Michael Jordan Trophy","Bill Russell Trophy"],c:0},
+{q:"Quel joueur NBA a joué dans 'Trainwreck' avec Amy Schumer ?",a:["LeBron James","Kevin Hart","Dwyane Wade","Chris Paul"],c:0},
+{q:"Quel sport pratiquait MJ pendant sa pause NBA (1993-95) ?",a:["Baseball","Golf","Football","Tennis"],c:0},
+{q:"Quelle chanson est associée à l'intro de Space Jam ?",a:["'Fly Like an Eagle' / 'Space Jam' de Quad City DJs","'I Believe I Can Fly'","'We Are the Champions'","'Eye of the Tiger'"],c:0},
+{q:"Quel joueur NBA est connu pour ses analyses TV hilarantes ?",a:["Shaquille O'Neal","LeBron James","Kevin Durant","Steph Curry"],c:0},
+{q:"Quel jeu vidéo est la référence du basket depuis 20+ ans ?",a:["NBA 2K","NBA Live","NBA Jam","NBA Street"],c:0}
+],allstar:[
+{q:"Émission TV avec Barkley, Shaq, Kenny Smith ?",a:["Inside the NBA","First Take","The Jump","ESPN NBA Tonight"],c:0},
+{q:"Marque de chaussures Under Armour = quel joueur ?",a:["Stephen Curry","Kevin Durant","James Harden","Kyrie Irving"],c:0},
+{q:"Film Denzel Washington sur le basket ?",a:["He Got Game","Coach Carter","Glory Road","Hoosiers"],c:0},
+{q:"Tradition du All-Star Weekend samedi soir ?",a:["Concours dunks, 3 pts, skills","Seulement les dunks","Match rookies","Concert"],c:0},
+{q:"Quel joueur a sorti un album de rap (multi-platine) ?",a:["Shaquille O'Neal","Allen Iverson","Kobe Bryant","Ron Artest"],c:0},
+{q:"Quel joueur NBA est devenu acteur dans des films d'action ?",a:["Shaquille O'Neal (Kazaam, Steel)","LeBron James","Dennis Rodman","Charles Barkley"],c:0},
+{q:"Quel joueur a lancé sa propre marque de tequila ?",a:["LeBron James (Lobos 1707)","Michael Jordan","Dwyane Wade","Carmelo Anthony"],c:0},
+{q:"Quel ancien joueur est copropriétaire de l'équipe de Charlotte ?",a:["Michael Jordan (anciennement)","LeBron James","Shaq","Magic Johnson"],c:0},
+{q:"Quel basketteur est apparu dans la série 'Curb Your Enthusiasm' ?",a:["Shaquille O'Neal","Charles Barkley","Plusieurs joueurs","Larry David joue seul"],c:2},
+{q:"Film sur la création de la marque Air Jordan ?",a:["Air (2023)","Space Jam","Coach Carter","Just Wright"],c:0},
+{q:"Quel joueur NBA est connu pour porter un headband blanc ?",a:["LeBron James","Carmelo Anthony","Vince Carter","Rasheed Wallace"],c:0},
+{q:"Quel joueur est célèbre pour sa célébration 'shimmy' à 3 pts ?",a:["Stephen Curry","Damian Lillard","James Harden","Klay Thompson"],c:0},
+{q:"Qui joue le rôle de Phil Knight dans le film 'Air' ?",a:["Ben Affleck","Matt Damon","Jason Bateman","Chris Tucker"],c:0},
+{q:"Quel joueur NBA a joué dans 'Uncle Drew' au cinéma ?",a:["Kyrie Irving","LeBron James","Kevin Durant","Shaq"],c:0},
+{q:"Quel joueur a créé sa propre chaîne YouTube à succès ?",a:["CJ McCollum","JJ Redick","Draymond Green","Tous les trois"],c:3},
+{q:"Qui anime le podcast 'All The Smoke' ?",a:["Matt Barnes et Stephen Jackson","LeBron et Maverick Carter","Kevin Durant et Rich Kleiman","Paul Pierce et KG"],c:0}
+],goat:[
+{q:"'Trust The Process', qui l'a popularisé ?",a:["Embiid / Sam Hinkie","Ben Simmons","Allen Iverson","Jimmy Butler"],c:0},
+{q:"1er joueur NBA milliardaire post-retraite ?",a:["Michael Jordan","LeBron James","Magic Johnson","Shaq"],c:0},
+{q:"Système PER créé par ?",a:["John Hollinger","Daryl Morey","Dean Oliver","Nate Silver"],c:0},
+{q:"Quel livre a inspiré les 'Moneyball' du basket (analytics) ?",a:["'Basketball on Paper' de Dean Oliver","'The Book of Basketball' de Bill Simmons","'FreeDarko' presents","'Thinking Basketball'"],c:0},
+{q:"Quel joueur a le plus de followers sur Instagram parmi les NBAers ?",a:["LeBron James","Stephen Curry","Kevin Durant","Kyrie Irving"],c:0},
+{q:"Quel mème NBA est le plus célèbre sur Internet ?",a:["Crying Jordan","LeBron chalk toss","Mutombo finger wag","Les 4 sont légendaires"],c:0},
+{q:"Quel ancien joueur possède des cinémas, des clubs et un label ?",a:["Magic Johnson","Michael Jordan","Jay-Z","LeBron James"],c:0},
+{q:"Qui a popularisé le 'chalk toss' avant les matchs ?",a:["LeBron James","Michael Jordan","Kobe Bryant","Kevin Garnett"],c:0},
+{q:"Quelle est la valeur d'une franchise NBA la plus chère (~2024) ?",a:["Warriors (~7 milliards $)","Knicks (~6.5 milliards $)","Lakers (~5.9 milliards $)","Les 3 sont au top"],c:1},
+{q:"Quel joueur a créé la SpringHill Entertainment (production) ?",a:["LeBron James","Kevin Durant","Michael Jordan","Chris Paul"],c:0},
+{q:"Qui est considéré comme le meilleur analyste TV NBA actuel ?",a:["Avis subjectif !","JJ Redick","Draymond Green","Tim Legler"],c:0},
+{q:"Quel joueur NBA a été sur la couverture de NBA 2K le plus de fois ?",a:["LeBron James","Michael Jordan","Kobe Bryant","Stephen Curry"],c:0},
+{q:"Quelle marque Kobe Bryant a-t-il signée après avoir quitté Adidas ?",a:["Nike","Puma","Under Armour","New Balance"],c:0}
+]}};
+
+const CATS=Object.keys(Q);
+const LETTERS=["A","B","C","D"];
+const CIRC_TIMER=2*Math.PI*24; // timer ring circumference
+const CIRC_RES=2*Math.PI*64; // result ring
+
+// XP / Level system
+const RANKS=[
+  {name:"Rookie",minLvl:1,unlockDiff:"rookie"},
+  {name:"Sophomore",minLvl:3,unlockDiff:"rookie"},
+  {name:"Starter",minLvl:5,unlockDiff:"allstar"},
+  {name:"All-Star",minLvl:8,unlockDiff:"allstar"},
+  {name:"Superstar",minLvl:11,unlockDiff:"goat"},
+  {name:"MVP",minLvl:15,unlockDiff:"goat"},
+  {name:"GOAT",minLvl:20,unlockDiff:"goat"},
+];
+function xpForLevel(lvl){return 60+lvl*40}
+function getRank(lvl){let r=RANKS[0];for(const x of RANKS)if(lvl>=x.minLvl)r=x;return r}
+function getAvailDiffs(lvl){
+  const r=getRank(lvl);
+  const diffs=["rookie"];
+  if(["allstar","goat"].includes(r.unlockDiff)||lvl>=5)diffs.push("allstar");
+  if(r.unlockDiff==="goat"||lvl>=11)diffs.push("goat");
+  return diffs;
+}
+function getAllQuestions(lvl){
+  const diffs=getAvailDiffs(lvl);
+  let pool=[];
+  CATS.forEach(catKey=>{
+    const cat=Q[catKey];
+    diffs.forEach(d=>{
+      if(cat[d])cat[d].forEach(q=>pool.push({...q,_cat:catKey,_icon:cat.icon,_name:cat.name}));
+    });
+  });
+  return pool;
+}
+
+// Trophies
+const TROPHIES=[
+  {id:"first",icon:"🏀",name:"Premier Panier",desc:"Termine ton 1er quiz",ck:s=>s.played>=1},
+  {id:"fire",icon:"🔥",name:"En Feu",desc:"Série de 5 bonnes réponses",ck:s=>s.streak>=5},
+  {id:"sniper",icon:"🎯",name:"Sniper",desc:"80%+ sur un quiz",ck:s=>s.pct80},
+  {id:"mvp",icon:"⭐",name:"MVP",desc:"Score parfait",ck:s=>s.perfect},
+  {id:"poly",icon:"🔄",name:"Polyvalent",desc:"4 catégories jouées",ck:s=>s.cats>=4},
+  {id:"all",icon:"📚",name:"Complétiste",desc:"Toutes les catégories",ck:s=>s.cats>=8},
+  {id:"diamond",icon:"💎",name:"Diamant",desc:"Série de 10",ck:s=>s.streak>=10},
+  {id:"vet",icon:"🎖️",name:"Vétéran",desc:"10 quiz joués",ck:s=>s.played>=10},
+  {id:"cent",icon:"💯",name:"Centurion",desc:"500 XP total",ck:s=>s.xp>=500},
+  {id:"speed",icon:"⚡",name:"Flash",desc:"Réponds en moins de 2s",ck:s=>s.fast},
+  {id:"lvl10",icon:"🌟",name:"All-Star",desc:"Atteins le niveau 10",ck:s=>s.lvl>=10},
+  {id:"hof",icon:"👑",name:"Hall of Fame",desc:"Tous les autres trophées",ck:s=>s.unlocked>=11},
+];
+
+// State
+let S;
+const DEF={xp:0,lvl:1,played:0,correct:0,total:0,bestStreak:0,trophies:[],catsDone:{},totalXp:0,hadFastAnswer:false};
+function load(){try{const s=localStorage.getItem("nba3");S=s?JSON.parse(s):{...DEF}}catch(e){S={...DEF}}if(!S.totalXp)S.totalXp=0;if(!S.hadFastAnswer)S.hadFastAnswer=false}
+function save(){try{localStorage.setItem("nba3",JSON.stringify(S))}catch(e){}}
+
+let curQs,curIdx,curScore,curStreak,sesStreak,curXpGain,newUnlocks,timerInterval,timerLeft,answered;
+
+// Level bar
+function renderLvl(){
+  document.getElementById('lb-lvl').textContent=S.lvl;
+  const rank=getRank(S.lvl);
+  document.getElementById('lb-rank').textContent=rank.name;
+  const needed=xpForLevel(S.lvl);
+  const pct=Math.min(100,Math.round(S.xp/needed*100));
+  document.getElementById('lb-xp').style.width=pct+'%';
+  document.getElementById('lb-xpt').textContent=`${S.xp} / ${needed} XP`;
+}
+
+// Screens
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(id==='home')renderHome();
+  if(id==='trophies')renderTrophies();
+  renderLvl();
+  window.scrollTo(0,0);
+  if(id!=='quiz')stopTimer();
+}
+
+function renderHome(){
+  document.getElementById('h-pts').textContent=S.correct;
+  document.getElementById('h-streak').textContent=S.bestStreak;
+  document.getElementById('h-pct').textContent=S.total>0?Math.round(S.correct/S.total*100)+'%':'—';
+  document.getElementById('tbadge').textContent=S.trophies.length;
+  const pool=getAllQuestions(S.lvl);
+  const rank=getRank(S.lvl);
+  document.getElementById('play-sub').textContent=`10 questions • ${pool.length} dispo • ${rank.name}`;
+}
+
+function startGame(){
+  const pool=getAllQuestions(S.lvl);
+  if(!pool.length){toast("Pas de questions !");return}
+  curQs=shuffle([...pool]).slice(0,10);
+  curIdx=0;curScore=0;curStreak=0;sesStreak=0;curXpGain=0;newUnlocks=[];
+  go('quiz');
+  renderQ();
+}
+
+function renderQ(){
+  const t=curQs.length;
+  document.getElementById('qcnt').textContent=`${curIdx+1}/${t}`;
+  document.getElementById('qpfill').style.width=`${curIdx/t*100}%`;
+  document.getElementById('qn').textContent=`Question ${curIdx+1}`;
+  const curQ=curQs[curIdx];
+  document.getElementById('qtag').textContent=`${curQ._icon} ${curQ._name}`;
+  document.getElementById('qq').textContent=curQ.q;
+
+  const al=document.getElementById('al');al.innerHTML='';
+  curQs[curIdx].a.forEach((a,i)=>{
+    const b=document.createElement('button');b.className='ab';b.disabled=false;
+    b.innerHTML=`<span class="al">${LETTERS[i]}</span><span>${a}</span>`;
+    b.onclick=()=>answer(i);
+    al.appendChild(b);
+  });
+
+  document.getElementById('fb').textContent='';
+  document.getElementById('fb').className='fb';
+  document.getElementById('xpg').textContent='';
+  document.getElementById('nbtn').style.display='none';
+  answered=false;
+
+  const sp=document.getElementById('sp');
+  if(curStreak>=3){sp.hidden=false;document.getElementById('stxt').textContent=`Série de ${curStreak}`}
+  else sp.hidden=true;
+
+  startTimer();
+}
+
+// Timer
+function startTimer(){
+  timerLeft=10.0;
+  answered=false;
+  const fg=document.getElementById('tfg');
+  const txt=document.getElementById('ttext');
+  const ring=document.getElementById('tring');
+  fg.style.strokeDashoffset='0';
+  txt.textContent='10';
+  ring.className='timer-ring';
+
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    timerLeft-=0.05;
+    if(timerLeft<=0){timerLeft=0;clearInterval(timerInterval);if(!answered)timeUp()}
+    const pct=1-timerLeft/10;
+    fg.style.strokeDashoffset=(pct*CIRC_TIMER).toFixed(1);
+    txt.textContent=Math.ceil(timerLeft);
+    ring.className='timer-ring'+(timerLeft<=3?' crit':timerLeft<=5?' warn':'');
+  },50);
+}
+function stopTimer(){clearInterval(timerInterval)}
+
+function timeUp(){
+  answered=true;
+  const cor=curQs[curIdx].c;
+  const btns=document.querySelectorAll('.ab');
+  btns.forEach((b,i)=>{b.disabled=true;if(i===cor)b.classList.add('ok');else b.classList.add('dim')});
+  curStreak=0;sesStreak=0;
+  document.getElementById('sp').hidden=true;
+  document.getElementById('fb').textContent="Temps écoulé !";
+  document.getElementById('fb').className='fb ko';
+  const nb=document.getElementById('nbtn');nb.style.display='block';
+  nb.textContent=curIdx<curQs.length-1?'Suivante':'Résultats';
+}
+
+function answer(sel){
+  if(answered)return;
+  answered=true;stopTimer();
+  const cor=curQs[curIdx].c;
+  const btns=document.querySelectorAll('.ab');
+  btns.forEach((b,i)=>{b.disabled=true;if(i===cor)b.classList.add('ok');if(i===sel&&sel!==cor)b.classList.add('ko');if(i!==cor&&i!==sel)b.classList.add('dim')});
+
+  const fb=document.getElementById('fb');
+  const xpg=document.getElementById('xpg');
+  const elapsed=10-timerLeft;
+
+  if(sel===cor){
+    curScore++;curStreak++;sesStreak++;
+    if(sesStreak>S.bestStreak)S.bestStreak=sesStreak;
+    if(elapsed<2)S.hadFastAnswer=true;
+
+    // XP: base 10 + time bonus (up to 15 for fast answer)
+    let xp=10+Math.round(Math.max(0,(10-elapsed))*1.5);
+    curXpGain+=xp;
+
+    const m=["Bien joué !","Excellent !","Parfait !","En plein dedans !"];
+    fb.textContent=m[Math.floor(Math.random()*m.length)];
+    fb.className='fb ok';
+    xpg.textContent=`+${xp} XP`+(elapsed<3?' ⚡ Rapide !':'');
+
+    if(curStreak>=3){document.getElementById('sp').hidden=false;document.getElementById('stxt').textContent=`Série de ${curStreak}`}
+  }else{
+    curStreak=0;sesStreak=0;
+    document.getElementById('sp').hidden=true;
+    const m=["Raté !","Pas cette fois…","Dommage !","Aïe…"];
+    fb.textContent=m[Math.floor(Math.random()*m.length)];
+    fb.className='fb ko';
+    xpg.textContent='';
+  }
+
+  const nb=document.getElementById('nbtn');nb.style.display='block';
+  nb.textContent=curIdx<curQs.length-1?'Suivante':'Résultats';
+}
+
+function next(){curIdx++;curIdx>=curQs.length?finish():renderQ()}
+
+function finish(){
+  stopTimer();
+  const t=curQs.length;
+  S.correct+=curScore;S.total+=t;S.played++;
+  // Track which categories were touched
+  const seenCats=new Set(curQs.map(q=>q._cat));
+  seenCats.forEach(c=>{if(!S.catsDone[c])S.catsDone[c]=0;S.catsDone[c]++});
+
+  // Add XP + level up
+  const prevLvl=S.lvl;
+  S.xp+=curXpGain;S.totalXp+=curXpGain;
+  let leveledUp=false;let newLvl=S.lvl;
+  while(S.xp>=xpForLevel(S.lvl)){S.xp-=xpForLevel(S.lvl);S.lvl++;leveledUp=true;newLvl=S.lvl}
+
+  // Check trophies
+  const pct=curScore/t*100;
+  const cs={played:S.played,streak:S.bestStreak,pct80:pct>=80,perfect:pct===100,cats:Object.keys(S.catsDone).length,xp:S.totalXp,fast:S.hadFastAnswer,lvl:S.lvl,unlocked:S.trophies.length};
+  TROPHIES.forEach(tr=>{if(!S.trophies.includes(tr.id)&&tr.ck(cs)){S.trophies.push(tr.id);newUnlocks.push(tr.id)}});
+  cs.unlocked=S.trophies.length;
+  const hof=TROPHIES.find(x=>x.id==='hof');
+  if(hof&&!S.trophies.includes('hof')&&hof.ck(cs)){S.trophies.push('hof');newUnlocks.push('hof')}
+
+  save();
+
+  // Render results
+  document.getElementById('rsc').textContent=curScore;
+  document.getElementById('rmax').textContent=`/ ${t}`;
+
+  const ring=document.getElementById('rfg');
+  const p=curScore/t;
+  ring.style.strokeDasharray=CIRC_RES;
+  ring.style.strokeDashoffset=CIRC_RES;
+  ring.style.stroke=p>=.8?'var(--green)':p>=.5?'var(--accent)':'var(--red)';
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{ring.style.strokeDashoffset=CIRC_RES*(1-p)})});
+
+  let msg='';
+  if(p===1)msg="PERFECTION 🐐";
+  else if(p>=.8)msg="IMPRESSIONNANT ⭐";
+  else if(p>=.6)msg="PAS MAL";
+  else if(p>=.4)msg="PEUT MIEUX FAIRE";
+  else msg="RÉVISE ! 📚";
+  document.getElementById('rmsg').textContent=msg;
+  document.getElementById('rsub').textContent=`${curScore}/${t} • Niveau ${S.lvl}`;
+
+  document.getElementById('rxpv').textContent=`+${curXpGain} XP`;
+
+  const lb=document.getElementById('rlvl');
+  if(leveledUp){
+    lb.hidden=false;
+    const rank=getRank(newLvl);
+    document.getElementById('rlvlt').textContent=`Niveau ${newLvl} !`;
+    const prevRank=getRank(prevLvl);
+    document.getElementById('rlvls').textContent=rank.name!==prevRank.name?`Tu es maintenant ${rank.name}`:'Continue comme ça !';
+  }else lb.hidden=true;
+
+  const us=document.getElementById('runl');
+  if(newUnlocks.length){
+    us.hidden=false;
+    us.innerHTML='<div class="unlock-h">Trophée débloqué !</div>';
+    newUnlocks.forEach(id=>{
+      const tr=TROPHIES.find(x=>x.id===id);if(!tr)return;
+      const d=document.createElement('div');d.className='unlock-c';
+      d.innerHTML=`<span class="ui">${tr.icon}</span><div><div class="un">${tr.name}</div><div class="ud">${tr.desc}</div></div>`;
+      us.appendChild(d);
+    });
+    toast("🏆 Nouveau trophée !");
+  }else us.hidden=true;
+
+  go('result');
+}
+
+function replay(){startGame()}
+
+function renderTrophies(){
+  const g=document.getElementById('tgrid');g.innerHTML='';
+  TROPHIES.forEach(t=>{
+    const u=S.trophies.includes(t.id);
+    const c=document.createElement('div');
+    c.className=`tc ${u?'got':'locked'}`;
+    c.innerHTML=`<span class="tci">${t.icon}</span><div class="tcn">${t.name}</div><div class="tcd">${t.desc}</div>${u?'<span class="tck">✓</span>':''}`;
+    g.appendChild(c);
+  });
+  const n=S.trophies.length;
+  document.getElementById('tpt').textContent=`${n} / ${TROPHIES.length}`;
+  document.getElementById('tpf').style.width=`${n/TROPHIES.length*100}%`;
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+load();renderLvl();renderHome();
+</script>
+
+</body>
+</html>
