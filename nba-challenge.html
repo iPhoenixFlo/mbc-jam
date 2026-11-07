@@ -320,6 +320,50 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 }
 .lb-btn:active{transform:scale(.98)}
 
+/* ===== WALLPAPERS ===== */
+.wp-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;margin-top:10px;padding:13px;
+  background:rgba(236,72,153,0.1);border:1.5px solid #ec4899;color:#ec4899;
+  border-radius:var(--r);font-family:'Bebas Neue',system-ui,sans-serif;
+  font-size:1rem;letter-spacing:.04em;cursor:pointer;
+}
+.wp-btn:active{transform:scale(.98)}
+.wp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.wp-card{
+  aspect-ratio:9/16;border-radius:var(--rs);overflow:hidden;cursor:pointer;
+  position:relative;border:2px solid var(--brd);transition:all .15s;
+}
+.wp-card:active{transform:scale(.96)}
+.wp-card.locked{opacity:.3;pointer-events:none}
+.wp-card.locked::after{
+  content:'🔒';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;background:rgba(0,0,0,.4);
+}
+.wp-card.unlocked{border-color:#ec4899}
+.wp-card canvas,.wp-card svg{width:100%;height:100%;display:block}
+.wp-req{
+  position:absolute;bottom:0;left:0;right:0;padding:4px;
+  background:rgba(0,0,0,.7);font-size:.5rem;color:#fff;text-align:center;
+  font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+}
+.wp-name{font-family:'Bebas Neue',system-ui,sans-serif;font-size:.75rem;text-align:center;margin-top:4px;color:var(--fg2)}
+
+/* Wallpaper fullscreen preview */
+.wp-full{
+  display:none;position:fixed;inset:0;z-index:200;background:#000;
+  flex-direction:column;align-items:center;justify-content:center;
+}
+.wp-full.on{display:flex}
+.wp-full canvas{max-width:100%;max-height:85vh;border-radius:0}
+.wp-full-close{
+  position:absolute;top:calc(env(safe-area-inset-top,0px)+12px);right:16px;
+  background:rgba(255,255,255,.15);border:none;color:#fff;
+  width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.wp-full-hint{color:rgba(255,255,255,.5);font-size:.72rem;margin-top:12px;text-align:center}
+
 .toast{
   position:fixed;top:calc(env(safe-area-inset-top,0px)+10px);
   left:50%;transform:translateX(-50%) translateY(-120%);
@@ -365,6 +409,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <div class="play-sub" id="play-sub">10 questions • Toutes catégories</div>
 
   <button class="trophy-btn" onclick="go('trophies')">Trophées <span class="tb" id="tbadge">0</span></button>
+
+  <button class="wp-btn" onclick="go('wallpapers')">📱 Fonds d'écran <span class="tb" id="wpbadge" style="background:#ec4899">0</span></button>
 
   <button class="acc-btn" id="acc-btn" onclick="go('account')">Compte</button>
   <button class="lb-btn" onclick="go('leaderboard')">🏅 Classement</button>
@@ -458,6 +504,21 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <button class="acc-logout" onclick="doLogout()">Se déconnecter</button>
     </div>
   </div>
+</div>
+
+<!-- ===== WALLPAPERS ===== -->
+<div class="screen" id="wallpapers">
+  <div class="q-top">
+    <button class="q-back" onclick="go('home')">← Retour</button>
+    <span class="q-cat d">Fonds d'écran</span><span></span>
+  </div>
+  <div style="text-align:center;color:var(--fg3);font-size:.78rem;margin-top:8px">Monte en niveau pour débloquer des wallpapers</div>
+  <div class="wp-grid" id="wp-grid"></div>
+</div>
+<div class="wp-full" id="wp-full">
+  <button class="wp-full-close" onclick="closeWpFull()">✕</button>
+  <canvas id="wp-canvas" width="1170" height="2532"></canvas>
+  <div class="wp-full-hint">Fais une capture d'écran pour sauvegarder</div>
 </div>
 
 <!-- ===== LEADERBOARD ===== -->
@@ -1355,12 +1416,231 @@ async function renderLeaderboard(){
   });
 }
 
+// ===== WALLPAPERS =====
+const WALLPAPERS=[
+  {id:"court",name:"Le Parquet",lvl:2,draw:wpCourt},
+  {id:"neon",name:"Neon Dunk",lvl:3,draw:wpNeon},
+  {id:"fire",name:"On Fire",lvl:5,draw:wpFire},
+  {id:"galaxy",name:"Galaxy Basket",lvl:7,draw:wpGalaxy},
+  {id:"ice",name:"Ice Cold",lvl:10,draw:wpIce},
+  {id:"gold",name:"Golden Era",lvl:15,draw:wpGold},
+];
+
+function wpCourt(ctx,w,h){
+  // Wooden court texture
+  ctx.fillStyle='#c8905a';ctx.fillRect(0,0,w,h);
+  for(let y=0;y<h;y+=18){
+    ctx.fillStyle=y%36===0?'#bf854f':'#d49b65';
+    ctx.fillRect(0,y,w,18);
+    ctx.strokeStyle='rgba(0,0,0,.06)';ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();
+  }
+  // Court lines
+  ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=4;
+  ctx.strokeRect(w*.1,h*.2,w*.8,h*.6);
+  ctx.beginPath();ctx.arc(w/2,h/2,w*.15,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w/2,h*.2);ctx.lineTo(w/2,h*.8);ctx.stroke();
+  // Three-point arc
+  ctx.beginPath();ctx.arc(w/2,h*.22,w*.3,0.2,Math.PI-0.2);ctx.stroke();
+  ctx.beginPath();ctx.arc(w/2,h*.78,w*.3,Math.PI+0.2,2*Math.PI-0.2);ctx.stroke();
+  // Title
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='bold '+Math.round(w*.12)+'px Bebas Neue,sans-serif';
+  ctx.textAlign='center';ctx.fillText('NBA',w/2,h*.46);
+  ctx.fillText('CHALLENGE',w/2,h*.56);
+}
+
+function wpNeon(ctx,w,h){
+  ctx.fillStyle='#0a0a1a';ctx.fillRect(0,0,w,h);
+  // Neon glow lines
+  const colors=['#ff5722','#7c4dff','#00e676','#ffc107'];
+  for(let i=0;i<20;i++){
+    const c=colors[i%4];
+    ctx.strokeStyle=c;ctx.lineWidth=2;ctx.shadowColor=c;ctx.shadowBlur=20;
+    ctx.beginPath();
+    const y=h*.1+Math.random()*h*.8;
+    ctx.moveTo(0,y);
+    for(let x=0;x<w;x+=40)ctx.lineTo(x,y+Math.sin(x*.02+i)*30);
+    ctx.stroke();
+  }
+  ctx.shadowBlur=0;
+  // Silhouette dunk
+  ctx.fillStyle='#ff5722';ctx.shadowColor='#ff5722';ctx.shadowBlur=40;
+  ctx.beginPath();ctx.arc(w*.5,h*.35,w*.06,0,Math.PI*2);ctx.fill(); // head
+  ctx.fillRect(w*.47,h*.38,w*.06,w*.15); // body
+  ctx.fillRect(w*.42,h*.35,w*.2,w*.03); // arms
+  ctx.fillRect(w*.46,h*.48,w*.03,w*.12); // leg
+  ctx.fillRect(w*.51,h*.48,w*.03,w*.1); // leg
+  // Ball
+  ctx.beginPath();ctx.arc(w*.62,h*.32,w*.035,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+  // Text
+  ctx.fillStyle='#fff';ctx.font='bold '+Math.round(w*.1)+'px Bebas Neue,sans-serif';
+  ctx.textAlign='center';ctx.shadowColor='#7c4dff';ctx.shadowBlur=30;
+  ctx.fillText('DUNK',w/2,h*.72);ctx.shadowBlur=0;
+}
+
+function wpFire(ctx,w,h){
+  // Dark to orange gradient
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#1a0500');g.addColorStop(0.5,'#8b2500');g.addColorStop(1,'#ff5722');
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  // Fire particles
+  for(let i=0;i<80;i++){
+    const x=Math.random()*w, y=h*.3+Math.random()*h*.7;
+    const s=2+Math.random()*6;
+    ctx.fillStyle=`rgba(255,${150+Math.random()*105},0,${.3+Math.random()*.5})`;
+    ctx.beginPath();ctx.arc(x,y,s,0,Math.PI*2);ctx.fill();
+  }
+  // Basketball
+  ctx.fillStyle='#ff8a50';ctx.beginPath();ctx.arc(w/2,h*.45,w*.18,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#5d2000';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(w/2,h*.45,w*.18,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w/2,h*.45-w*.18);ctx.lineTo(w/2,h*.45+w*.18);ctx.stroke();
+  ctx.beginPath();ctx.arc(w/2,h*.45,w*.18,-.4,0.4);ctx.stroke();
+  ctx.beginPath();ctx.arc(w/2,h*.45,w*.18,Math.PI-.4,Math.PI+0.4);ctx.stroke();
+  // Text
+  ctx.fillStyle='#fff';ctx.font='bold '+Math.round(w*.11)+'px Bebas Neue,sans-serif';
+  ctx.textAlign='center';ctx.fillText('ON FIRE',w/2,h*.72);
+  ctx.font=Math.round(w*.05)+'px Bebas Neue,sans-serif';ctx.fillStyle='rgba(255,255,255,.5)';
+  ctx.fillText('🔥🔥🔥',w/2,h*.77);
+}
+
+function wpGalaxy(ctx,w,h){
+  // Deep space
+  const g=ctx.createRadialGradient(w/2,h*.4,0,w/2,h*.4,w);
+  g.addColorStop(0,'#1a0030');g.addColorStop(0.5,'#0d001a');g.addColorStop(1,'#000008');
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  // Stars
+  for(let i=0;i<200;i++){
+    const x=Math.random()*w,y=Math.random()*h,s=Math.random()*2;
+    ctx.fillStyle=`rgba(255,255,255,${.3+Math.random()*.7})`;
+    ctx.beginPath();ctx.arc(x,y,s,0,Math.PI*2);ctx.fill();
+  }
+  // Nebula swirls
+  ctx.globalAlpha=.15;
+  for(let i=0;i<5;i++){
+    const gn=ctx.createRadialGradient(w*(.2+Math.random()*.6),h*(.2+Math.random()*.6),0,w/2,h/2,w*.4);
+    const c=['#7c4dff','#ec4899','#06b6d4','#ffc107'][i%4];
+    gn.addColorStop(0,c);gn.addColorStop(1,'transparent');
+    ctx.fillStyle=gn;ctx.fillRect(0,0,w,h);
+  }
+  ctx.globalAlpha=1;
+  // Glowing basketball
+  ctx.shadowColor='#7c4dff';ctx.shadowBlur=60;
+  ctx.fillStyle='#ff5722';ctx.beginPath();ctx.arc(w/2,h*.42,w*.14,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(w/2,h*.42,w*.14,0,Math.PI*2);ctx.stroke();
+  // Text
+  ctx.fillStyle='#fff';ctx.font='bold '+Math.round(w*.09)+'px Bebas Neue,sans-serif';
+  ctx.textAlign='center';ctx.shadowColor='#7c4dff';ctx.shadowBlur=20;
+  ctx.fillText('GALAXY',w/2,h*.65);ctx.fillText('BASKET',w/2,h*.72);ctx.shadowBlur=0;
+}
+
+function wpIce(ctx,w,h){
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#e0f7fa');g.addColorStop(0.5,'#80deea');g.addColorStop(1,'#006064');
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  // Crystal pattern
+  ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=1;
+  for(let i=0;i<30;i++){
+    const cx=Math.random()*w,cy=Math.random()*h;
+    for(let a=0;a<6;a++){
+      const angle=a*Math.PI/3;
+      ctx.beginPath();ctx.moveTo(cx,cy);
+      ctx.lineTo(cx+Math.cos(angle)*60,cy+Math.sin(angle)*60);ctx.stroke();
+    }
+  }
+  // Frozen basketball
+  ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.arc(w/2,h*.4,w*.16,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#006064';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(w/2,h*.4,w*.16,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w/2,h*.4-w*.16);ctx.lineTo(w/2,h*.4+w*.16);ctx.stroke();
+  // Text
+  ctx.fillStyle='#004d40';ctx.font='bold '+Math.round(w*.1)+'px Bebas Neue,sans-serif';
+  ctx.textAlign='center';ctx.fillText('ICE COLD',w/2,h*.68);
+  ctx.font=Math.round(w*.04)+'px sans-serif';ctx.fillStyle='rgba(0,77,64,.5)';
+  ctx.fillText('❄️ NBA CHALLENGE ❄️',w/2,h*.73);
+}
+
+function wpGold(ctx,w,h){
+  const g=ctx.createLinearGradient(0,0,w,h);
+  g.addColorStop(0,'#1a1000');g.addColorStop(0.3,'#4a3000');g.addColorStop(0.5,'#ffc107');
+  g.addColorStop(0.7,'#4a3000');g.addColorStop(1,'#1a1000');
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  // Shimmer lines
+  ctx.strokeStyle='rgba(255,215,0,.2)';ctx.lineWidth=1;
+  for(let i=0;i<40;i++){
+    ctx.beginPath();
+    ctx.moveTo(Math.random()*w,0);ctx.lineTo(Math.random()*w,h);ctx.stroke();
+  }
+  // Trophy silhouette
+  ctx.fillStyle='#ffc107';ctx.shadowColor='#ffc107';ctx.shadowBlur=40;
+  // Cup
+  ctx.beginPath();
+  ctx.moveTo(w*.32,h*.32);ctx.lineTo(w*.68,h*.32);
+  ctx.quadraticCurveTo(w*.65,h*.48,w*.55,h*.5);
+  ctx.lineTo(w*.55,h*.54);ctx.lineTo(w*.6,h*.56);ctx.lineTo(w*.4,h*.56);
+  ctx.lineTo(w*.45,h*.54);ctx.lineTo(w*.45,h*.5);
+  ctx.quadraticCurveTo(w*.35,h*.48,w*.32,h*.32);
+  ctx.fill();
+  // Handles
+  ctx.strokeStyle='#ffc107';ctx.lineWidth=4;
+  ctx.beginPath();ctx.arc(w*.28,h*.38,w*.06,Math.PI*.5,Math.PI*1.5);ctx.stroke();
+  ctx.beginPath();ctx.arc(w*.72,h*.38,w*.06,-Math.PI*.5,Math.PI*.5);ctx.stroke();
+  // Base
+  ctx.fillRect(w*.38,h*.56,w*.24,w*.02);
+  ctx.shadowBlur=0;
+  // Text
+  ctx.fillStyle='#fff';ctx.font='bold '+Math.round(w*.1)+'px Bebas Neue,sans-serif';
+  ctx.textAlign='center';ctx.shadowColor='rgba(255,193,7,.5)';ctx.shadowBlur=20;
+  ctx.fillText('GOLDEN ERA',w/2,h*.72);ctx.shadowBlur=0;
+  ctx.font=Math.round(w*.04)+'px Bebas Neue,sans-serif';ctx.fillStyle='rgba(255,193,7,.6)';
+  ctx.fillText('HALL OF FAME',w/2,h*.76);
+}
+
+function renderWallpapers(){
+  const grid=$('wp-grid');grid.innerHTML='';
+  let unlocked=0;
+  WALLPAPERS.forEach(wp=>{
+    const ok=S.lvl>=wp.lvl;
+    if(ok)unlocked++;
+    const card=document.createElement('div');
+    card.className=`wp-card ${ok?'unlocked':'locked'}`;
+    // Draw thumbnail
+    const c=document.createElement('canvas');c.width=234;c.height=416;
+    const ctx=c.getContext('2d');
+    wp.draw(ctx,234,416);
+    card.appendChild(c);
+    if(!ok){
+      const req=document.createElement('div');req.className='wp-req';
+      req.textContent=`Niveau ${wp.lvl}`;
+      card.appendChild(req);
+    }
+    if(ok)card.onclick=()=>openWpFull(wp);
+    const name=document.createElement('div');name.className='wp-name';name.textContent=wp.name;
+    const wrap=document.createElement('div');
+    wrap.appendChild(card);wrap.appendChild(name);
+    grid.appendChild(wrap);
+  });
+  $('wpbadge').textContent=unlocked;
+}
+
+function openWpFull(wp){
+  const c=$('wp-canvas');
+  const ctx=c.getContext('2d');
+  c.width=1170;c.height=2532;
+  wp.draw(ctx,1170,2532);
+  $('wp-full').classList.add('on');
+}
+function closeWpFull(){$('wp-full').classList.remove('on')}
+
 // Patch go() to handle new screens
 const _origGo=go;
 go=function(id){
   _origGo(id);
   if(id==='account')renderAccount();
   if(id==='leaderboard')renderLeaderboard();
+  if(id==='wallpapers')renderWallpapers();
 };
 
 // Init
