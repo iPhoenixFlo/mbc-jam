@@ -408,12 +408,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <button class="play-btn" onclick="startGame()">Jouer</button>
   <div class="play-sub" id="play-sub">10 questions • Toutes catégories</div>
 
-  <button class="trophy-btn" onclick="go('trophies')">Trophées <span class="tb" id="tbadge">0</span></button>
+  <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--fg3);margin:28px 0 10px">Récompenses</div>
+  <div style="display:flex;gap:8px">
+    <button class="trophy-btn" style="margin:0;flex:1" onclick="go('trophies')">🏆 Trophées <span class="tb" id="tbadge">0</span></button>
+    <button class="wp-btn" style="margin:0;flex:1" onclick="go('wallpapers')">📱 Wallpapers <span class="tb" id="wpbadge" style="background:#ec4899">0</span></button>
+  </div>
 
-  <button class="wp-btn" onclick="go('wallpapers')">📱 Fonds d'écran <span class="tb" id="wpbadge" style="background:#ec4899">0</span></button>
-
-  <button class="acc-btn" id="acc-btn" onclick="go('account')">Compte</button>
-  <button class="lb-btn" onclick="go('leaderboard')">🏅 Classement</button>
+  <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--fg3);margin:24px 0 10px">Communauté</div>
+  <button class="lb-btn" style="margin:0;width:100%" onclick="go('leaderboard')">🏅 Classement</button>
+  <button class="acc-btn" id="acc-btn" style="margin-top:8px" onclick="go('account')">Compte</button>
 </div>
 
 <!-- ===== QUIZ ===== -->
